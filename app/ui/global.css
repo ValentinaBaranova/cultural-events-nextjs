@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --background: #ffffff;
+    --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #0a0a0a;
+        --foreground: #ededed;
+    }
+}
+
+body {
+    color: var(--foreground);
+    background: var(--background);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.events-list-container {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.event-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.event-details {
+    padding: 10px;
+}
+
+.event-details h2 {
+    font-size: 1.2rem;
+    margin: 0 0 10px;
+}
+
+.event-details p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.event-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #0070f3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.event-link:hover {
+    background-color: #005bb5;
+}
+
+.event-detail-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.event-info {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.event-info p {
+    margin: 10px 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: center;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd; /* Только нижняя граница */
+}
+
+.navbar a {
+    margin: 0 10px;
+    font-size: 3rem; /* Увеличиваем размер шрифта */
+    text-decoration: none;
+    color: var(--foreground); /* Цвет текста */
+    font-weight: bold;
+}
+
+.navbar a.active {
+    cursor: pointer; /* Снова делаем ссылку кликабельной */
+}
+
+.navbar a:hover {
+    text-decoration: underline; /* Подчёркивание при наведении */
+}
+
+.navbar a.active:hover {
+    text-decoration: none; /* Подчёркивание при наведении */
+    cursor: default;
+}
+
