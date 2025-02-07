@@ -2,26 +2,23 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEvents } from '@/lib/useEvents';
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
+import Search from "@/ui/search";
 
 
 export default function EventsListPage() {
-    const [searchQuery, setSearchQuery] = useState('');
-    const { events, isLoading, error } = useEvents(searchQuery); // Pass search query to API
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('query') || ''; // Read query from URL
+  const { events, isLoading, error } = useEvents(searchQuery); // Fetch filtered events
 
     if (isLoading) return <p>Loading events...</p>;
     if (error) return <p>Error loading events</p>;
 
     return (
         <div className="events-list-container">
-            <input
-                type="text"
-                placeholder="Search events..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
-            />
+            <Search placeholder="Search events..." />
 
             <div className="events-grid">
                 {events?.map((event: CulturalEvent) => ( // <-- Указываем тип
