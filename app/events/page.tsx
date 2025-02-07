@@ -6,6 +6,7 @@ import React from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
 import Search from "@/ui/search";
+import {UpdateEvent} from "@/ui/events/buttons";
 
 
 export default function EventsListPage() {
@@ -39,6 +40,7 @@ export default function EventsListPage() {
                             <p>
                                 <strong>Location:</strong> {event.location}
                             </p>
+                            <UpdateEvent id={event.id} />
                             <Link href={`/events/${event.id}`} className="event-link">
                                 View Details
                             </Link>

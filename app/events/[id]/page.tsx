@@ -5,8 +5,8 @@ import { useEvent } from '@/lib/useEvent';
 import Image from "next/image";
 
 export default function EventDetailPage() {
-  const { id } = useParams(); // Get event ID from URL
-  const { event, isLoading, error } = useEvent(id as string); // Fetch event data
+  const { id } = useParams();
+  const { event, isLoading, error } = useEvent(id as string);
 
   if (isLoading) return <p>Loading event...</p>;
   if (error) return <p>Error loading event</p>;
@@ -30,8 +30,6 @@ export default function EventDetailPage() {
                 {event.endDate && <p><strong>End Date:</strong> {event.endDate}</p>}
                 <p><strong>Type:</strong> {event.type}</p>
             </div>
-
-
         </div>
     );
 };
