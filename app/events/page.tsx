@@ -1,13 +1,30 @@
-import React from 'react';
+"use client";
 import Link from 'next/link';
-import { events } from '@/lib/placeholder-data'; // Импорт данных о событиях
 import Image from 'next/image';
+import { useEvents } from '@/lib/useEvents';
+import React, { useState } from 'react';
+import { CulturalEvent } from '@/lib/definitions';
 
-const EventsListPage = () => {
+
+export default function EventsListPage() {
+    const [searchQuery, setSearchQuery] = useState('');
+    const { events, isLoading, error } = useEvents(searchQuery); // Pass search query to API
+
+    if (isLoading) return <p>Loading events...</p>;
+    if (error) return <p>Error loading events</p>;
+
     return (
         <div className="events-list-container">
+            <input
+                type="text"
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+            />
+
             <div className="events-grid">
-                {events.map((event) => (
+                {events?.map((event: CulturalEvent) => ( // <-- Указываем тип
                     <div key={event.id} className="event-card">
                         <Image
                             src="/events_images/placeholder.png"
@@ -36,4 +53,3 @@ const EventsListPage = () => {
     );
 };
 
-export default EventsListPage;

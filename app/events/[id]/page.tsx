@@ -1,20 +1,16 @@
-"use client";
-
+'use client';
 import React from 'react';
 import { useParams } from 'next/navigation';
-import { events } from '@/lib/placeholder-data';
+import { useEvent } from '@/lib/useEvent';
 import Image from "next/image";
 
-const EventDetailPage = () => {
-    const params = useParams();
-    const id = params.id;
+export default function EventDetailPage() {
+  const { id } = useParams(); // Get event ID from URL
+  const { event, isLoading, error } = useEvent(id as string); // Fetch event data
 
-    // Find the event based on the ID from the URL
-    const event = events.find((e) => e.id === id);
-
-    if (!event) {
-        return <p>Event not found.</p>;
-    }
+  if (isLoading) return <p>Loading event...</p>;
+  if (error) return <p>Error loading event</p>;
+  if (!event) return <p>Event not found</p>;
 
     return (
         <div className="event-detail-container">
@@ -39,5 +35,3 @@ const EventDetailPage = () => {
         </div>
     );
 };
-
-export default EventDetailPage;
