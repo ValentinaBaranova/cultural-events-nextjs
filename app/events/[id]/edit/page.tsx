@@ -1,22 +1,24 @@
-'use client';
-
-import { useParams } from 'next/navigation';
-import { useEvent } from '@/lib/useEvent';
+import {redirect} from 'next/navigation';
+import {auth} from 'auth.config';
 import EditEventForm from '@/ui/events/edit-form';
+import {getEvent} from "@/lib/actions";
 
-export default function EditEventPage() {
-    const { id } = useParams();
+export default async function EditEventPage({params}: { params: { id: string } }) {
+    const session = await auth();
+
+    if (!session?.user) {
+        return redirect('/login');
+    }
+    const {id} = await params
     if (!id) return <p>Event ID is missing</p>;
 
-    const { event, isLoading, error } = useEvent(id as string);
+    const event = await getEvent(id as string);
 
-    if (isLoading) return <p>Loading event...</p>;
-    if (error) return <p>Error loading event</p>;
     if (!event) return <p>Event not found</p>;
 
     return (
         <main>
-            <EditEventForm event={event} />
+            <EditEventForm event={event}/>
         </main>
     );
 }

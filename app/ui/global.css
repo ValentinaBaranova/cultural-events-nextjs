@@ -124,3 +124,30 @@ body {
     cursor: default;
 }
 
+.skeleton {
+    background: #f3f3f3;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.skeleton-title {
+    width: 60%;
+    height: 16px;
+    background: #ddd;
+    border-radius: 4px;
+}
+
+.skeleton-text {
+    width: 80%;
+    height: 12px;
+    background: #ddd;
+    border-radius: 4px;
+}
+
+.skeleton-text.short {
+    width: 50%;
+}

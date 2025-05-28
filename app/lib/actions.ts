@@ -31,3 +31,15 @@ export async function updateEvent(id: string, formData: FormData) {
     revalidatePath('/events');
     redirect('/events');
 }
+
+export async function getEvent(id: string) {
+    const res = await fetch(`${API_URL}/events/${id}`, {
+        cache: 'no-store', // ✅ Avoid caching if you need fresh data
+    });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch event with id ${id}`);
+    }
+
+    return res.json();
+}

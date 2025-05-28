@@ -1,16 +1,14 @@
-'use client';
 import React from 'react';
-import { useParams } from 'next/navigation';
-import { useEvent } from '@/lib/useEvent';
 import Image from "next/image";
+import {getEvent} from "@/lib/actions";
 
-export default function EventDetailPage() {
-  const { id } = useParams();
-  const { event, isLoading, error } = useEvent(id as string);
+export default async function EventDetailPage({params}: { params: { id: string } }) {
+    const {id} = await params
+    if (!id) return <p>Event ID is missing</p>;
 
-  if (isLoading) return <p>Loading event...</p>;
-  if (error) return <p>Error loading event</p>;
-  if (!event) return <p>Event not found</p>;
+    const event = await getEvent(id as string);
+
+    if (!event) return <p>Event not found</p>;
 
     return (
         <div className="event-detail-container">
