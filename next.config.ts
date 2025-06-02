@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
             },
         ];
     },
+    async rewrites() {
+        return [
+            {
+                source: '/events/:id/image',
+                destination: 'http://localhost:8080/api/events/:id/image',
+            },
+        ];
+    },
 };
 
 export default nextConfig;

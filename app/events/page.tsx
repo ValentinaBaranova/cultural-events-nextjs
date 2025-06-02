@@ -56,7 +56,9 @@ export default function EventsListPage() {
                         ref={index === events.length - 1 ? lastEventRef : null} // ✅ Attach observer to last event
                     >
                         <Image
-                            src="/events_images/placeholder.png"
+                            src={event.imageExists
+                                ? `/events/${event.id}/image`
+                                : '/events_images/placeholder.png'}
                             width={400}
                             height={400}
                             className="event-image"

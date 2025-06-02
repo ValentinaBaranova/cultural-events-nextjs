@@ -8,5 +8,6 @@ export type CulturalEvent = {
     startTime?: string; // (Optional) Start time of the event, in "HH:mm" format
     endDate?: string; // (Optional) End date of the event, in ISO format
     type: 'performance' | 'exhibition' | 'festival' | 'workshop' | 'concert' | 'social' | 'tour' | 'wellness';
+    imageExists: boolean;
     // The type of event, restricted to specific categories
 };
