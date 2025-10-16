@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEvents } from '@/lib/useEvents';
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
 import Search from "@/ui/search";
 import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
+import {API_URL} from "@/lib/config";
 // import Skeleton from "@/ui/Skeleton"; // ✅ Import Skeleton Loader
 
 export default function EventsListPage() {
@@ -34,18 +35,40 @@ export default function EventsListPage() {
         return () => observerRef.current?.disconnect();
     }, [loadMore, hasMore]);
 
+    const [types, setTypes] = useState<string[]>([]);
+    const [selectedType, setSelectedType] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetch(`${API_URL}/events/types`)
+            .then(res => res.json())
+            .then(data => setTypes(data));
+    }, []);
+
     if (error) return <p>Error loading events</p>;
 
     return (
         <div className="events-list-container">
-            <Search placeholder="Search events..." />
+            <Search placeholder="Search events..."/>
+
+            <select
+                className="border border-gray-300 rounded px-3 py-2"
+                value={selectedType || ''}
+                onChange={(e) => setSelectedType(e.target.value || null)}
+            >
+                <option value="">All types</option>
+                {types.map((type) => (
+                    <option key={type} value={type}>
+                        {type}
+                    </option>
+                ))}
+            </select>
 
             <div className="events-grid">
                 {/* ✅ Show skeleton while first request is loading */}
                 {isLoading && (
                     <>
-                        <Skeleton />
-                        <Skeleton />
+                        <Skeleton/>
+                        <Skeleton/>
                     </>
                 )}
 
@@ -69,7 +92,7 @@ export default function EventsListPage() {
                             <p>{event.description}</p>
                             <p><strong>Date:</strong> {event.date}</p>
                             <p><strong>Location:</strong> {event.location}</p>
-                            <UpdateEvent id={event.id} />
+                            <UpdateEvent id={event.id}/>
                             <Link href={`/events/${event.id}`} className="event-link">
                                 View Details
                             </Link>
@@ -78,7 +101,7 @@ export default function EventsListPage() {
                 ))}
 
                 {/* ✅ Show Skeleton Loader while fetching more events */}
-                {isFetchingMore && hasMore && <Skeleton />}
+                {isFetchingMore && hasMore && <Skeleton/>}
             </div>
         </div>
     );
