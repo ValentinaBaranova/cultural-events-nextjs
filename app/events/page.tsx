@@ -15,7 +15,9 @@ import {API_URL} from "@/lib/config";
 export default function EventsListPage() {
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
-    const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(searchQuery);
+    const [types, setTypes] = useState<string[]>([]);
+    const [selectedType, setSelectedType] = useState<string | null>(null);
+    const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(searchQuery, selectedType);
 
     const observerRef = useRef<IntersectionObserver | null>(null);
     const lastEventRef = useRef<HTMLDivElement | null>(null);
@@ -34,9 +36,6 @@ export default function EventsListPage() {
 
         return () => observerRef.current?.disconnect();
     }, [loadMore, hasMore]);
-
-    const [types, setTypes] = useState<string[]>([]);
-    const [selectedType, setSelectedType] = useState<string | null>(null);
 
     useEffect(() => {
         fetch(`${API_URL}/events/types`)
