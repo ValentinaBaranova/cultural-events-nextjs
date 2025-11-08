@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org) project.
 
 ## Getting Started
 
@@ -6,19 +6,31 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## End-to-end tests (Playwright)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Minimal Playwright tests are provided for each page using a mocked API so the backend is not required.
+
+Commands:
+
+```bash
+# run tests headless
+npm run test:e2e
+
+# run tests in UI mode
+npm run test:e2e:ui
+
+# run tests in headed mode
+npm run test:e2e:headed
+```
+
+Notes:
+- During tests, the frontend uses a mock API served by the Next.js app under `/api-mock`. This is wired via the `EVENTS_API_URL` env in `playwright.config.ts`.
+- Pages covered: `/events`, `/events/[id]`, `/events/[id]/edit` (redirects to login when unauthenticated), and `/login`.
+- The tests start the dev server automatically using Playwright's `webServer` setting.
 
 ## Learn More
 
@@ -31,6 +43,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

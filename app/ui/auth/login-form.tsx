@@ -35,8 +35,9 @@ export default function LoginForm() {
 
             {error && <p className="text-red-500 mb-2">{error}</p>}
 
-            <label className="block mb-2">Email</label>
+            <label htmlFor="email" className="block mb-2">Email</label>
             <input
+                id="email"
                 type="email"
                 name="email"
                 value={email}
@@ -45,8 +46,9 @@ export default function LoginForm() {
                 className="w-full p-2 border rounded mb-4"
             />
 
-            <label className="block mb-2">Password</label>
+            <label htmlFor="password" className="block mb-2">Password</label>
             <input
+                id="password"
                 type="password"
                 name="password"
                 value={password}
