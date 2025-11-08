@@ -1,0 +1,61 @@
+"use client";
+import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from "react";
+import en from "./messages/en";
+import es from "./messages/es";
+
+export type Locale = "en" | "es";
+
+type Messages = Record<string, string>;
+
+type I18nContextType = {
+  locale: Locale;
+  messages: Messages;
+  t: (key: string, fallback?: string) => string;
+  setLocale: (locale: Locale) => void;
+};
+
+const I18nContext = createContext<I18nContextType | undefined>(undefined);
+
+const ALL_MESSAGES: Record<Locale, Messages> = { en, es };
+
+const STORAGE_KEY = "app_locale";
+
+export function I18nProvider({ children }: { children: React.ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>("es");
+
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) as Locale | null) : null;
+    if (saved && (saved === 'en' || saved === 'es')) {
+      setLocaleState(saved);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = locale;
+    }
+  }, [locale]);
+
+  const setLocale = useCallback((l: Locale) => {
+    setLocaleState(l);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, l);
+    }
+  }, []);
+
+  const messages = useMemo(() => ALL_MESSAGES[locale], [locale]);
+
+  const t = useCallback((key: string, fallback?: string) => {
+    return messages[key] ?? fallback ?? key;
+  }, [messages]);
+
+  const value = useMemo(() => ({ locale, messages, t, setLocale }), [locale, messages, t, setLocale]);
+
+  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+}
+
+export function useI18n() {
+  const ctx = useContext(I18nContext);
+  if (!ctx) throw new Error("useI18n must be used within I18nProvider");
+  return ctx;
+}

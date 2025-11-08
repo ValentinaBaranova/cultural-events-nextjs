@@ -4,6 +4,8 @@ import { test, expect } from '@playwright/test';
 // Uses mocked API via EVENTS_API_URL env set in playwright.config.ts
 
 test('events list renders search, filter and cards', async ({ page }) => {
+  // Force English locale for stable assertions
+  await page.addInitScript(() => localStorage.setItem('app_locale', 'en'));
   await page.goto('/events');
 
   // Search input exists
