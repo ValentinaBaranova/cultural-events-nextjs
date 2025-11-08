@@ -1,9 +1,25 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { updateEvent } from '@/lib/actions';
+import { API_URL } from '@/lib/config';
+import { useI18n } from '@/i18n/I18nProvider';
+
+type EventTypeOption = { slug: string; name: string };
 
 export default function EditEventForm({ event }: { event: any }) {
     const updateEventWithId = updateEvent.bind(null, event.id);
+    const { locale } = useI18n();
+    const [types, setTypes] = useState<EventTypeOption[]>([]);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        fetch(`${API_URL}/event-types?locale=${locale}`, { signal: controller.signal })
+            .then(res => res.json())
+            .then((data: EventTypeOption[]) => setTypes(data))
+            .catch(() => {});
+        return () => controller.abort();
+    }, [locale]);
 
     return (
         <form action={updateEventWithId} className="max-w-lg mx-auto p-4 bg-white rounded shadow">
@@ -21,14 +37,9 @@ export default function EditEventForm({ event }: { event: any }) {
 
             <label className="block mb-2">Event Type</label>
             <select name="type" defaultValue={event.type} className="w-full p-2 border rounded mb-4">
-                <option value="performance">Performance</option>
-                <option value="exhibition">Exhibition</option>
-                <option value="festival">Festival</option>
-                <option value="workshop">Workshop</option>
-                <option value="concert">Concert</option>
-                <option value="social">Social</option>
-                <option value="tour">Tour</option>
-                <option value="wellness">Wellness</option>
+                {types.map((t) => (
+                    <option key={t.slug} value={t.slug}>{t.name}</option>
+                ))}
             </select>
 
             <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-700">

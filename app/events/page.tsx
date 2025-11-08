@@ -13,13 +13,15 @@ import {API_URL} from "@/lib/config";
 import { useI18n } from '@/i18n/I18nProvider';
 // import Skeleton from "@/ui/Skeleton"; // ✅ Import Skeleton Loader
 
+type EventTypeOption = { slug: string; name: string };
+
 export default function EventsListPage() {
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
-    const [types, setTypes] = useState<string[]>([]);
+    const [types, setTypes] = useState<EventTypeOption[]>([]);
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(searchQuery, selectedType);
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
 
     const observerRef = useRef<IntersectionObserver | null>(null);
     const lastEventRef = useRef<HTMLDivElement | null>(null);
@@ -40,10 +42,13 @@ export default function EventsListPage() {
     }, [loadMore, hasMore]);
 
     useEffect(() => {
-        fetch(`${API_URL}/events/types`)
+        const controller = new AbortController();
+        fetch(`${API_URL}/event-types?locale=${locale}`, { signal: controller.signal })
             .then(res => res.json())
-            .then(data => setTypes(data));
-    }, []);
+            .then((data: { slug: string; name: string }[]) => setTypes(data))
+            .catch(() => {});
+        return () => controller.abort();
+    }, [locale]);
 
     if (error) return <p>{t('events.error')}</p>;
 
@@ -58,8 +63,8 @@ export default function EventsListPage() {
             >
                 <option value="">{t('filters.allTypes')}</option>
                 {types.map((type) => (
-                    <option key={type} value={type}>
-                        {type}
+                    <option key={type.slug} value={type.slug}>
+                        {type.name}
                     </option>
                 ))}
             </select>
