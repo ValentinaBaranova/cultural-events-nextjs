@@ -15,6 +15,18 @@ export async function updateEvent(id: string, formData: FormData) {
         description: formData.get('description'),
         startTime: formData.get('startTime') || null,
         endDate: formData.get('endDate') || null,
+        isFree: ((): boolean | null => {
+            const v = formData.get('isFree');
+            if (v === null) return null;
+            // checkbox sends 'on' when checked
+            if (v === 'on' || v === 'true' || v === true) return true;
+            if (v === 'false') return false;
+            return null;
+        })(),
+        priceText: ((): string | null => {
+            const t = formData.get('priceText');
+            return (t && typeof t === 'string' && t.trim().length > 0) ? t.toString() : null;
+        })(),
         type: formData.get('type'),
     });
 

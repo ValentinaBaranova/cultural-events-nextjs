@@ -8,6 +8,8 @@ export const EventSchema = z.object({
     description: z.string().min(10, "Description must be at least 10 characters"),
     startTime: z.string().nullable().optional(),
     endDate: z.string().nullable().optional(),
+    isFree: z.boolean().nullable().optional(),
+    priceText: z.string().max(120).nullable().optional(),
     type: z.enum([
         'performance',
         'exhibition',

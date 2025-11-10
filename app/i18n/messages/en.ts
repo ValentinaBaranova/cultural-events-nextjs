@@ -12,6 +12,8 @@ const en = {
   "events.viewDetails": "View Details",
   "events.date": "Date:",
   "events.location": "Location:",
+  "events.price": "Price:",
+  "events.free": "Free",
   "events.imageAlt": "Event image",
   "events.imagePlaceholderAlt": "Placeholder for event images",
 

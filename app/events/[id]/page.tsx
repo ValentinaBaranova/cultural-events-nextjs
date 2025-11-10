@@ -28,6 +28,12 @@ export default async function EventDetailPage({params}: { params: { id: string }
                     <p><strong><ClientT k="event.description" /></strong> {event.description}</p>
                     <p><strong><ClientT k="events.date" /></strong> {event.date}</p>
                     <p><strong><ClientT k="events.location" /></strong> {event.location}</p>
+                    {(event.isFree || event.priceText) && (
+                        <p>
+                            <strong><ClientT k="events.price" /></strong>{' '}
+                            {event.isFree ? <ClientT k="events.free" /> : event.priceText}
+                        </p>
+                    )}
                     {event.startTime && <p><strong><ClientT k="event.startTime" /></strong> {event.startTime}</p>}
                     {event.endDate && <p><strong><ClientT k="event.endDate" /></strong> {event.endDate}</p>}
                     <p><strong><ClientT k="event.type" /></strong> {event.type}</p>

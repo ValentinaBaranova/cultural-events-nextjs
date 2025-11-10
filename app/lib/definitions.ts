@@ -9,4 +9,6 @@ export type CulturalEvent = {
     endDate?: string; // (Optional) End date of the event, in ISO format
     type: string; // Slug of event type
     imageExists: boolean;
+    isFree?: boolean | null; // (Optional) Whether the event is free
+    priceText?: string | null; // (Optional) Price text, e.g., "$5.000"
 };

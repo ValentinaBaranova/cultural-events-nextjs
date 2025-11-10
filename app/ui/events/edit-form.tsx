@@ -12,6 +12,9 @@ export default function EditEventForm({ event }: { event: any }) {
     const { locale } = useI18n();
     const [types, setTypes] = useState<EventTypeOption[]>([]);
 
+    const [isFree, setIsFree] = useState<boolean>(!!event.isFree);
+    const [priceText, setPriceText] = useState<string>(event.priceText || '');
+
     useEffect(() => {
         const controller = new AbortController();
         fetch(`${API_URL}/event-types?locale=${locale}`, { signal: controller.signal })
@@ -41,6 +44,28 @@ export default function EditEventForm({ event }: { event: any }) {
                     <option key={t.slug} value={t.slug}>{t.name}</option>
                 ))}
             </select>
+
+            <div className="flex items-center gap-2 mb-4">
+                <input
+                    id="isFree"
+                    type="checkbox"
+                    name="isFree"
+                    checked={isFree}
+                    onChange={(e) => setIsFree(e.target.checked)}
+                />
+                <label htmlFor="isFree">Free</label>
+            </div>
+
+            <label className="block mb-2">Price text</label>
+            <input
+                type="text"
+                name="priceText"
+                value={priceText}
+                onChange={(e) => setPriceText(e.target.value)}
+                disabled={isFree}
+                placeholder="$5.000"
+                className="w-full p-2 border rounded mb-4 disabled:bg-gray-100"
+            />
 
             <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-700">
                 Save Changes

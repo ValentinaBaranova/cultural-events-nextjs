@@ -98,6 +98,12 @@ export default function EventsListPage() {
                             <p>{event.description}</p>
                             <p><strong>{t('events.date')}</strong> {event.date}</p>
                             <p><strong>{t('events.location')}</strong> {event.location}</p>
+                            {(event.isFree || event.priceText) && (
+                                <p>
+                                    <strong>{t('events.price')}</strong>{' '}
+                                    {event.isFree ? t('events.free') : event.priceText}
+                                </p>
+                            )}
                             <UpdateEvent id={event.id}/>
                             <Link href={`/events/${event.id}`} className="event-link">
                                 {t('events.viewDetails')}
