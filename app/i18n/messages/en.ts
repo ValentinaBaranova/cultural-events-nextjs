@@ -7,6 +7,7 @@ const en = {
   "search.placeholder": "Search events...",
 
   "filters.allTypes": "All types",
+  "filters.onlyFree": "Only free",
 
   "events.error": "Error loading events",
   "events.viewDetails": "View Details",

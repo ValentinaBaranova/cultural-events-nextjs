@@ -6,13 +6,14 @@ import { CulturalEvent } from '@/lib/definitions';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function useEvents(searchQuery = '', type?: string | null) {
+export function useEvents(searchQuery = '', type?: string | null, onlyFree?: boolean) {
     // ✅ Keep track of whether there are more events
     const getKey = (pageIndex: number, previousPageData: CulturalEvent[] | null) => {
         if (previousPageData && previousPageData.length === 0) return null; // ✅ Stop fetching when no more data
         const queryParam = searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : '';
         const typeParam = type ? `&type=${encodeURIComponent(type)}` : '';
-        return `${API_URL}/events?page=${pageIndex + 1}&limit=10${queryParam}${typeParam}`;
+        const freeParam = onlyFree ? `&isFree=true` : '';
+        return `${API_URL}/events?page=${pageIndex + 1}&limit=10${queryParam}${typeParam}${freeParam}`;
     };
 
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);

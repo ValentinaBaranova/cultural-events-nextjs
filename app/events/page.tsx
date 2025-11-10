@@ -20,7 +20,8 @@ export default function EventsListPage() {
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
     const [types, setTypes] = useState<EventTypeOption[]>([]);
     const [selectedType, setSelectedType] = useState<string | null>(null);
-    const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(searchQuery, selectedType);
+    const [onlyFree, setOnlyFree] = useState<boolean>(false);
+    const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(searchQuery, selectedType, onlyFree);
     const { t, locale } = useI18n();
 
     const observerRef = useRef<IntersectionObserver | null>(null);
@@ -56,18 +57,30 @@ export default function EventsListPage() {
         <div className="events-list-container">
             <Search />
 
-            <select
-                className="border border-gray-300 rounded px-3 py-2"
-                value={selectedType || ''}
-                onChange={(e) => setSelectedType(e.target.value || null)}
-            >
-                <option value="">{t('filters.allTypes')}</option>
-                {types.map((type) => (
-                    <option key={type.slug} value={type.slug}>
-                        {type.name}
-                    </option>
-                ))}
-            </select>
+            <div className="flex items-center gap-4">
+                <select
+                    className="border border-gray-300 rounded px-3 py-2"
+                    value={selectedType || ''}
+                    onChange={(e) => setSelectedType(e.target.value || null)}
+                >
+                    <option value="">{t('filters.allTypes')}</option>
+                    {types.map((type) => (
+                        <option key={type.slug} value={type.slug}>
+                            {type.name}
+                        </option>
+                    ))}
+                </select>
+
+                <label className="inline-flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                        type="checkbox"
+                        className="h-4 w-4"
+                        checked={onlyFree}
+                        onChange={(e) => setOnlyFree(e.target.checked)}
+                    />
+                    {t('filters.onlyFree')}
+                </label>
+            </div>
 
             <div className="events-grid">
                 {/* ✅ Show skeleton while first request is loading */}

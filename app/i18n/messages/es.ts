@@ -7,6 +7,7 @@ const es = {
   "search.placeholder": "Buscar eventos...",
 
   "filters.allTypes": "Todos los tipos",
+  "filters.onlyFree": "Solo gratuitos",
 
   "events.error": "Error al cargar eventos",
   "events.viewDetails": "Ver detalles",
