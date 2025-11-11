@@ -27,7 +27,7 @@ export default async function EventDetailPage({params}: { params: { id: string }
                     <h1 className="text-2xl font-semibold mb-4">{event.name}</h1>
                     <p><strong><ClientT k="event.description" /></strong> {event.description}</p>
                     <p><strong><ClientT k="events.date" /></strong> {event.date}</p>
-                    <p><strong><ClientT k="events.location" /></strong> {event.location}</p>
+                    <p><strong><ClientT k="events.location" /></strong> {[event.place?.name, event.placeDetail].filter(Boolean).join(' — ')}</p>
                     {(event.isFree || event.priceText) && (
                         <p>
                             <strong><ClientT k="events.price" /></strong>{' '}
