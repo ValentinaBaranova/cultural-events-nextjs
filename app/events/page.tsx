@@ -11,6 +11,8 @@ import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
 import {API_URL} from "@/lib/config";
 import { useI18n } from '@/i18n/I18nProvider';
+import { DatePicker } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
 // import Skeleton from "@/ui/Skeleton"; // ✅ Import Skeleton Loader
 
 type EventTypeOption = { slug: string; name: string };
@@ -21,7 +23,18 @@ export default function EventsListPage() {
     const [types, setTypes] = useState<EventTypeOption[]>([]);
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
-    const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(searchQuery, selectedType, onlyFree);
+    const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+
+    const startDate = dateRange?.[0]?.format('YYYY-MM-DD');
+    const endDate = dateRange?.[1]?.format('YYYY-MM-DD');
+
+    const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(
+        searchQuery,
+        selectedType,
+        onlyFree,
+        startDate,
+        endDate,
+    );
     const { t, locale } = useI18n();
 
     const observerRef = useRef<IntersectionObserver | null>(null);
@@ -57,7 +70,7 @@ export default function EventsListPage() {
         <div className="events-list-container">
             <Search />
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
                 <select
                     className="border border-gray-300 rounded px-3 py-2"
                     value={selectedType || ''}
@@ -70,6 +83,13 @@ export default function EventsListPage() {
                         </option>
                     ))}
                 </select>
+
+                <DatePicker.RangePicker
+                    value={dateRange as any}
+                    onChange={(values) => setDateRange(values as [Dayjs | null, Dayjs | null] | null)}
+                    allowClear
+                    format="YYYY-MM-DD"
+                />
 
                 <label className="inline-flex items-center gap-2 text-sm cursor-pointer">
                     <input

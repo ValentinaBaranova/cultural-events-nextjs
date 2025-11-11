@@ -2,6 +2,9 @@
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import en from "./messages/en";
 import es from "./messages/es";
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/es";
 
 export type Locale = "en" | "es";
 
@@ -34,6 +37,8 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = locale;
     }
+    // Sync dayjs locale with app locale so antd DatePicker uses correct month/day names
+    dayjs.locale(locale);
   }, [locale]);
 
   const setLocale = useCallback((l: Locale) => {
