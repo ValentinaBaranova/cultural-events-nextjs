@@ -110,7 +110,7 @@ export default function EventsListPage() {
                             <h2>{event.name}</h2>
                             <p>{event.description}</p>
                             <p><strong>{t('events.date')}</strong> {event.date}</p>
-                            <p><strong>{t('events.location')}</strong> {[event.place?.name, event.placeDetail].filter(Boolean).join(' — ')}</p>
+                            <p><strong>{t('events.location')}</strong> {event.place?.name ?? ''}</p>
                             {(event.isFree || event.priceText) && (
                                 <p>
                                     <strong>{t('events.price')}</strong>{' '}
