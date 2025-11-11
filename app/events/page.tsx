@@ -25,6 +25,27 @@ export default function EventsListPage() {
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
 
+    // Preset ranges for the date picker
+    const today = dayjs().startOf('day');
+    const tomorrow = today.add(1, 'day');
+    const next7End = today.add(6, 'day'); // inclusive 7 days (today + 6)
+
+    // This Weekend: Saturday to Sunday; if today is Sunday, only today
+    const dow = today.day(); // 0=Sunday ... 6=Saturday
+    const weekendStart = dow === 0 ? today : today.add(6 - dow, 'day');
+    const weekendEnd = dow === 0 ? today : weekendStart.add(1, 'day');
+
+    const monthStart = today.startOf('month');
+    const monthEnd = today.endOf('month');
+
+    const presets = [
+        { label: 'Today', value: [today, today] as [Dayjs, Dayjs] },
+        { label: 'Tomorrow', value: [tomorrow, tomorrow] as [Dayjs, Dayjs] },
+        { label: 'This Weekend', value: [weekendStart, weekendEnd] as [Dayjs, Dayjs] },
+        { label: 'Next 7 Days', value: [today, next7End] as [Dayjs, Dayjs] },
+        { label: 'This Month', value: [monthStart, monthEnd] as [Dayjs, Dayjs] },
+    ];
+
     const startDate = dateRange?.[0]?.format('YYYY-MM-DD');
     const endDate = dateRange?.[1]?.format('YYYY-MM-DD');
 
@@ -88,6 +109,7 @@ export default function EventsListPage() {
                     value={dateRange as any}
                     onChange={(values) => setDateRange(values as [Dayjs | null, Dayjs | null] | null)}
                     allowClear
+                    presets={presets}
                     format="YYYY-MM-DD"
                 />
 
