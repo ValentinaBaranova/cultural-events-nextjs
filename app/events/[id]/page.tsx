@@ -37,6 +37,18 @@ export default async function EventDetailPage({params}: { params: { id: string }
                     {event.startTime && <p><strong><ClientT k="event.startTime" /></strong> {event.startTime}</p>}
                     {event.endDate && <p><strong><ClientT k="event.endDate" /></strong> {event.endDate}</p>}
                     <p><strong><ClientT k="event.type" /></strong> {event.type}</p>
+                    {event.instagramId && (
+                        <p className="mt-4">
+                            <a
+                                href={`https://www.instagram.com/p/${event.instagramId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                            >
+                                <ClientT k="event.originalSource" />
+                            </a>
+                        </p>
+                    )}
                 </div>
             </div>
             );

@@ -1,7 +1,7 @@
 const en = {
   "app.title": "Events in Buenos Aires",
-  "auth.login": "Login",
-  "auth.logout": "Logout",
+  "auth.login": "Log in",
+  "auth.logout": "Log out",
 
   "search.label": "Search",
   "search.placeholder": "Search events...",
@@ -10,20 +10,21 @@ const en = {
   "filters.onlyFree": "Only free",
 
   "events.error": "Error loading events",
-  "events.viewDetails": "View Details",
+  "events.viewDetails": "View details",
   "events.date": "Date:",
   "events.location": "Location:",
   "events.price": "Price:",
   "events.free": "Free",
   "events.imageAlt": "Event image",
-  "events.imagePlaceholderAlt": "Placeholder for event images",
+  "events.imagePlaceholderAlt": "Event placeholder image",
 
   "event.missingId": "Event ID is missing",
   "event.notFound": "Event not found",
   "event.description": "Description:",
-  "event.startTime": "Start Time:",
-  "event.endDate": "End Date:",
+  "event.startTime": "Start time:",
+  "event.endDate": "End date:",
   "event.type": "Type:",
+  "event.originalSource": "Original source",
 
   "lang.english": "English",
   "lang.spanish": "Spanish"

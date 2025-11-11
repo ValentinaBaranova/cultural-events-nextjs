@@ -10,6 +10,7 @@ const sampleEvent = {
   endDate: null,
   type: 'concert',
   instagramPostId: '123',
+  instagramId: 'CxyZAb12345',
   imageExists: false,
 };
 

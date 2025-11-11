@@ -24,6 +24,7 @@ const es = {
   "event.startTime": "Hora de inicio:",
   "event.endDate": "Fecha de finalización:",
   "event.type": "Tipo:",
+  "event.originalSource": "Fuente original",
 
   "lang.english": "Inglés",
   "lang.spanish": "Español"

@@ -11,6 +11,7 @@ const sampleEvents = [
     endDate: null,
     type: 'concert',
     instagramPostId: '123',
+    instagramId: 'CxyZAb12345',
     imageExists: false,
   },
   {
@@ -23,6 +24,7 @@ const sampleEvents = [
     endDate: null,
     type: 'exhibition',
     instagramPostId: '456',
+    instagramId: 'DabCDE67890',
     imageExists: false,
   },
 ];

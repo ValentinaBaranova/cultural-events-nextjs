@@ -118,6 +118,18 @@ export default function EventsListPage() {
                                 </p>
                             )}
                             <UpdateEvent id={event.id}/>
+                            {event.instagramId && (
+                                <p className="mt-2">
+                                    <a
+                                        href={`https://www.instagram.com/p/${event.instagramId}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:underline"
+                                    >
+                                        {t('event.originalSource')}
+                                    </a>
+                                </p>
+                            )}
                             <Link href={`/events/${event.id}`} className="event-link">
                                 {t('events.viewDetails')}
                             </Link>

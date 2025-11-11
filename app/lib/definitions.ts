@@ -18,4 +18,5 @@ export type CulturalEvent = {
     isFree?: boolean | null; // (Optional) Whether the event is free
     priceText?: string | null; // (Optional) Price text, e.g., "$5.000"
     place?: Place | null; // Optional place info
+    instagramId?: string | null; // Optional Instagram post shortcode
 };
