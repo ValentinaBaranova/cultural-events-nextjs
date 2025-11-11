@@ -5,6 +5,25 @@ import es from "./messages/es";
 import dayjs from "dayjs";
 import "dayjs/locale/en";
 import "dayjs/locale/es";
+import updateLocale from "dayjs/plugin/updateLocale";
+
+// Ensure we can adjust week start per locale (used by antd DatePicker rendering)
+dayjs.extend(updateLocale);
+// For English, start the week on Monday (0=Sunday, 1=Monday)
+// This affects calendar UI like antd DatePicker but does not change day numbers (0..6)
+// Spanish (es) already starts on Monday by default in dayjs
+if (typeof window !== 'undefined') {
+  try {
+    dayjs.updateLocale('en', { weekStart: 1 });
+  } catch (_) {
+    // no-op: in case updateLocale fails in SSR or older dayjs versions
+  }
+} else {
+  // SSR path
+  try {
+    dayjs.updateLocale('en', { weekStart: 1 });
+  } catch (_) {}
+}
 
 export type Locale = "en" | "es";
 
