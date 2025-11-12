@@ -10,6 +10,8 @@ const en = {
   "filters.onlyFree": "Only free",
   "filters.places": "Venues",
   "filters.placesPrompt": "Type to search venues",
+  "filters.barrios": "Barrios",
+  "filters.barriosPrompt": "Type to search barrios",
 
   "events.error": "Error loading events",
   "events.viewDetails": "View details",

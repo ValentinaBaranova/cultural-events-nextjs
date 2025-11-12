@@ -19,6 +19,8 @@ type EventTypeOption = { slug: string; name: string };
 
 type PlaceSuggest = { id: string; name: string; slug: string };
 
+type BarrioSuggest = { id: string; name: string; slug: string };
+
 type Option = { label: string; value: string };
 
 export default function EventsListPage() {
@@ -31,6 +33,9 @@ export default function EventsListPage() {
     const [placeOptions, setPlaceOptions] = useState<Option[]>([]);
     const [placeLoading, setPlaceLoading] = useState(false);
     const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
+    const [barrioOptions, setBarrioOptions] = useState<Option[]>([]);
+    const [barrioLoading, setBarrioLoading] = useState(false);
+    const [selectedBarrios, setSelectedBarrios] = useState<string[]>([]);
 
     // Preset ranges for the date picker
     const today = dayjs().startOf('day');
@@ -63,6 +68,7 @@ export default function EventsListPage() {
         startDate,
         endDate,
         selectedPlaces,
+        selectedBarrios,
     );
     const { t, locale } = useI18n();
 
@@ -101,6 +107,10 @@ export default function EventsListPage() {
     const searchTimer = useRef<NodeJS.Timeout | null>(null);
     const abortRef = useRef<AbortController | null>(null);
 
+    // Barrios autocomplete timers
+    const barrioSearchTimer = useRef<NodeJS.Timeout | null>(null);
+    const barrioAbortRef = useRef<AbortController | null>(null);
+
     const searchPlaces = (q: string) => {
         if (searchTimer.current) clearTimeout(searchTimer.current);
         searchTimer.current = setTimeout(async () => {
@@ -122,6 +132,31 @@ export default function EventsListPage() {
                 // ignore abort or network errors for suggestions
             } finally {
                 setPlaceLoading(false);
+            }
+        }, 250);
+    };
+
+    const searchBarrios = (q: string) => {
+        if (barrioSearchTimer.current) clearTimeout(barrioSearchTimer.current);
+        barrioSearchTimer.current = setTimeout(async () => {
+            const query = q.trim();
+            if (!query) {
+                setBarrioOptions([]);
+                return;
+            }
+            if (barrioAbortRef.current) barrioAbortRef.current.abort();
+            const ctrl = new AbortController();
+            barrioAbortRef.current = ctrl;
+            setBarrioLoading(true);
+            try {
+                const resp = await fetch(`${API_URL}/barrios/suggest?q=${encodeURIComponent(query)}&limit=8`, { signal: ctrl.signal });
+                const data: BarrioSuggest[] = await resp.json();
+                const opts: Option[] = data.map(b => ({ label: b.name, value: b.slug }));
+                setBarrioOptions(opts);
+            } catch (e) {
+                // ignore abort or network errors for suggestions
+            } finally {
+                setBarrioLoading(false);
             }
         }, 250);
     };
@@ -158,6 +193,21 @@ export default function EventsListPage() {
                     loading={placeLoading}
                     value={selectedPlaces}
                     onChange={(values) => setSelectedPlaces(values as string[])}
+                    style={{ minWidth: 240 }}
+                />
+
+                <Select
+                    mode="multiple"
+                    allowClear
+                    showSearch
+                    placeholder={t('filters.barrios')}
+                    notFoundContent={t('filters.barriosPrompt')}
+                    filterOption={false}
+                    onSearch={searchBarrios}
+                    options={barrioOptions}
+                    loading={barrioLoading}
+                    value={selectedBarrios}
+                    onChange={(values) => setSelectedBarrios(values as string[])}
                     style={{ minWidth: 240 }}
                 />
 
