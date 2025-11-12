@@ -12,12 +12,16 @@ test('events list renders search, filter and cards', async ({ page }) => {
   const searchInput = page.getByPlaceholder('Search events...');
   await expect(searchInput).toBeVisible();
 
-  // Filter select exists and has options from mocked types endpoint
-  const select = page.locator('select');
-  await expect(select).toBeVisible();
-  // Check options by text content instead of visibility (native options may be hidden)
-  const options = select.locator('option');
-  await expect(options).toContainText(['All types', 'Concert', 'Exhibition', 'Festival']);
+  // AntD Select (combobox) exists and has options from mocked types endpoint
+  const typeCombobox = page.getByRole('combobox', { name: 'Event type filter' });
+  await expect(typeCombobox).toBeVisible();
+
+  // Open dropdown and assert options
+  await typeCombobox.click();
+  const dropdown = page.locator('.ant-select-dropdown:visible');
+  await expect(dropdown).toBeVisible();
+  const optionItems = dropdown.getByRole('option');
+  await expect(optionItems).toContainText(['teatro', 'concierto']);
 
   // Cards render from mocked events endpoint
   const cards = page.locator('.event-card');

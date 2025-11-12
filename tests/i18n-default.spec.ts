@@ -16,10 +16,10 @@ test('default locale is Spanish on first visit', async ({ page }) => {
   // Search placeholder in Spanish
   await expect(page.getByPlaceholder('Buscar eventos...')).toBeVisible();
 
-  // Filter placeholder/first option in Spanish
-  const select = page.locator('select');
-  await expect(select).toBeVisible();
-  await expect(select.locator('option')).toContainText(['Todos los tipos']);
+  // Filter placeholder is shown in Spanish on AntD Select
+  const typeCombobox = page.getByRole('combobox', { name: 'Event type filter' });
+  await expect(typeCombobox).toBeVisible();
+  await expect(page.getByText('Todos los tipos')).toBeVisible();
 
   // Language switcher buttons show localized names in current locale (Spanish UI)
   await expect(page.getByRole('button', { name: 'Español' })).toBeVisible();

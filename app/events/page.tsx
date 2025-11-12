@@ -11,7 +11,7 @@ import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
 import {API_URL} from "@/lib/config";
 import { useI18n } from '@/i18n/I18nProvider';
-import { DatePicker, Select } from 'antd';
+import { DatePicker, Select, Checkbox } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 // import Skeleton from "@/ui/Skeleton"; // ✅ Import Skeleton Loader
 
@@ -168,18 +168,18 @@ export default function EventsListPage() {
             <Search />
 
             <div className="flex items-center gap-4 flex-wrap">
-                <select
-                    className="border border-gray-300 rounded px-3 py-2"
-                    value={selectedType || ''}
-                    onChange={(e) => setSelectedType(e.target.value || null)}
-                >
-                    <option value="">{t('filters.allTypes')}</option>
-                    {types.map((type) => (
-                        <option key={type.slug} value={type.slug}>
-                            {type.name}
-                        </option>
-                    ))}
-                </select>
+                {/* Enhanced UI select (AntD) */}
+                <Select
+                    aria-label="Event type filter"
+                    allowClear
+                    showSearch
+                    placeholder={t('filters.allTypes')}
+                    value={selectedType ?? undefined}
+                    onChange={(value) => setSelectedType((value as string | undefined) ?? null)}
+                    options={types.map((type) => ({ label: type.name, value: type.slug }))}
+                    optionFilterProp="label"
+                    style={{ minWidth: 200 }}
+                />
 
                 <Select
                     mode="multiple"
@@ -219,15 +219,12 @@ export default function EventsListPage() {
                     format="YYYY-MM-DD"
                 />
 
-                <label className="inline-flex items-center gap-2 text-sm cursor-pointer">
-                    <input
-                        type="checkbox"
-                        className="h-4 w-4"
-                        checked={onlyFree}
-                        onChange={(e) => setOnlyFree(e.target.checked)}
-                    />
+                <Checkbox
+                    checked={onlyFree}
+                    onChange={(e) => setOnlyFree(e.target.checked)}
+                >
                     {t('filters.onlyFree')}
-                </label>
+                </Checkbox>
             </div>
 
             <div className="events-grid">

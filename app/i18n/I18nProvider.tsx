@@ -43,14 +43,14 @@ const ALL_MESSAGES: Record<Locale, Messages> = { en, es };
 const STORAGE_KEY = "app_locale";
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("es");
-
-  useEffect(() => {
-    const saved = typeof window !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) as Locale | null) : null;
-    if (saved && (saved === 'en' || saved === 'es')) {
-      setLocaleState(saved);
+  // Initialize from localStorage on first render when in the browser to avoid flashing default locale
+  const [locale, setLocaleState] = useState<Locale>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY) as Locale | null;
+      if (saved === 'en' || saved === 'es') return saved;
     }
-  }, []);
+    return 'es';
+  });
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
