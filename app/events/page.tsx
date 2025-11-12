@@ -167,7 +167,7 @@ export default function EventsListPage() {
         <div className="events-list-container">
             <Search />
 
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-4 flex-wrap mb-6">
                 {/* Enhanced UI select (AntD) */}
                 <Select
                     aria-label="Event type filter"
