@@ -61,20 +61,24 @@ export default function EventsListPage() {
     const observerRef = useRef<IntersectionObserver | null>(null);
     const lastEventRef = useRef<HTMLDivElement | null>(null);
 
-    // ✅ Trigger `loadMore()` when the last event enters the viewport (Only if `hasMore`)
+    // Trigger `loadMore()` when the last event enters the viewport
+    // Pause observing while a fetch is in progress to avoid rapid re-triggers
     useEffect(() => {
-        if (!lastEventRef.current || !hasMore) return; // ✅ Don't observe if no more events
+        const target = lastEventRef.current;
+        if (!target || !hasMore || isFetchingMore) return;
 
-        observerRef.current = new IntersectionObserver(([entry]) => {
+        const observer = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting) {
+                observer.unobserve(entry.target); // avoid multiple triggers while in view
                 loadMore();
             }
         });
 
-        observerRef.current.observe(lastEventRef.current);
+        observer.observe(target);
+        observerRef.current = observer;
 
-        return () => observerRef.current?.disconnect();
-    }, [loadMore, hasMore]);
+        return () => observer.disconnect();
+    }, [hasMore, isFetchingMore, loadMore, events?.length]);
 
     useEffect(() => {
         const controller = new AbortController();

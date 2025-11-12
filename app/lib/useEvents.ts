@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+const PAGE_SIZE = 10;
+
 export function useEvents(
     searchQuery = '',
     type?: string | null,
@@ -22,7 +24,7 @@ export function useEvents(
         const freeParam = onlyFree ? `&isFree=true` : '';
         const startDateParam = startDate ? `&startDate=${encodeURIComponent(startDate)}` : '';
         const endDateParam = endDate ? `&endDate=${encodeURIComponent(endDate)}` : '';
-        return `${API_URL}/events?page=${pageIndex + 1}&limit=10${queryParam}${typeParam}${freeParam}${startDateParam}${endDateParam}`;
+        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typeParam}${freeParam}${startDateParam}${endDateParam}`;
     };
 
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);
@@ -37,16 +39,18 @@ export function useEvents(
     // ✅ No client-side date filtering; backend handles date filters now
     const events = allEvents;
 
-    // ✅ Ensure `hasMore` is true until we know there are no more events
-    const hasMore = isValidating || (data && data[data.length - 1]?.length > 0);
+    // Decide if there are more pages based on the size of the last page
+    const lastPageSize = data ? (data[data.length - 1]?.length ?? 0) : 0;
+    const hasMore = data ? lastPageSize === PAGE_SIZE : true;
 
     return {
         events,
         isLoading: !data && !error,
         error,
         loadMore: () => {
-            if (hasMore) {
-                setSize(size + 1); // ✅ Only load more if there are more events
+            // Prevent spamming requests while a fetch is in progress
+            if (!isValidating && hasMore) {
+                setSize(size + 1);
             }
         },
         // Helpful if parent wants to force refresh when filters change
