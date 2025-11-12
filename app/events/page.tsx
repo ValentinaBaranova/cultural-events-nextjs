@@ -11,11 +11,15 @@ import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
 import {API_URL} from "@/lib/config";
 import { useI18n } from '@/i18n/I18nProvider';
-import { DatePicker } from 'antd';
+import { DatePicker, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 // import Skeleton from "@/ui/Skeleton"; // ✅ Import Skeleton Loader
 
 type EventTypeOption = { slug: string; name: string };
+
+type PlaceSuggest = { id: string; name: string; slug: string };
+
+type Option = { label: string; value: string };
 
 export default function EventsListPage() {
     const searchParams = useSearchParams();
@@ -24,6 +28,9 @@ export default function EventsListPage() {
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+    const [placeOptions, setPlaceOptions] = useState<Option[]>([]);
+    const [placeLoading, setPlaceLoading] = useState(false);
+    const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
 
     // Preset ranges for the date picker
     const today = dayjs().startOf('day');
@@ -55,6 +62,7 @@ export default function EventsListPage() {
         onlyFree,
         startDate,
         endDate,
+        selectedPlaces,
     );
     const { t, locale } = useI18n();
 
@@ -89,6 +97,35 @@ export default function EventsListPage() {
         return () => controller.abort();
     }, [locale]);
 
+    // Places autocomplete: debounced fetch
+    const searchTimer = useRef<NodeJS.Timeout | null>(null);
+    const abortRef = useRef<AbortController | null>(null);
+
+    const searchPlaces = (q: string) => {
+        if (searchTimer.current) clearTimeout(searchTimer.current);
+        searchTimer.current = setTimeout(async () => {
+            const query = q.trim();
+            if (!query) {
+                setPlaceOptions([]);
+                return;
+            }
+            if (abortRef.current) abortRef.current.abort();
+            const ctrl = new AbortController();
+            abortRef.current = ctrl;
+            setPlaceLoading(true);
+            try {
+                const resp = await fetch(`${API_URL}/places/suggest?q=${encodeURIComponent(query)}&limit=8`, { signal: ctrl.signal });
+                const data: PlaceSuggest[] = await resp.json();
+                const opts: Option[] = data.map(p => ({ label: p.name, value: p.slug }));
+                setPlaceOptions(opts);
+            } catch (e) {
+                // ignore abort or network errors for suggestions
+            } finally {
+                setPlaceLoading(false);
+            }
+        }, 250);
+    };
+
     if (error) return <p>{t('events.error')}</p>;
 
     return (
@@ -108,6 +145,21 @@ export default function EventsListPage() {
                         </option>
                     ))}
                 </select>
+
+                <Select
+                    mode="multiple"
+                    allowClear
+                    showSearch
+                    placeholder={t('filters.places')}
+                    notFoundContent={t('filters.placesPrompt')}
+                    filterOption={false}
+                    onSearch={searchPlaces}
+                    options={placeOptions}
+                    loading={placeLoading}
+                    value={selectedPlaces}
+                    onChange={(values) => setSelectedPlaces(values as string[])}
+                    style={{ minWidth: 240 }}
+                />
 
                 <DatePicker.RangePicker
                     value={dateRange as any}

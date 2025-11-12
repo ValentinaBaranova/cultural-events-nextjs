@@ -15,6 +15,7 @@ export function useEvents(
     onlyFree?: boolean,
     startDate?: string,
     endDate?: string,
+    places?: string[],
 ) {
     // ✅ Keep track of whether there are more events
     const getKey = (pageIndex: number, previousPageData: CulturalEvent[] | null) => {
@@ -24,7 +25,8 @@ export function useEvents(
         const freeParam = onlyFree ? `&isFree=true` : '';
         const startDateParam = startDate ? `&startDate=${encodeURIComponent(startDate)}` : '';
         const endDateParam = endDate ? `&endDate=${encodeURIComponent(endDate)}` : '';
-        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typeParam}${freeParam}${startDateParam}${endDateParam}`;
+        const locationsParam = places && places.length ? `&location=${encodeURIComponent(places.join(','))}` : '';
+        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typeParam}${freeParam}${startDateParam}${endDateParam}${locationsParam}`;
     };
 
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);
@@ -32,7 +34,7 @@ export function useEvents(
     // ✅ Reset pagination when filters change
     useEffect(() => {
         setSize(1);
-    }, [searchQuery, type, onlyFree, startDate, endDate, setSize]);
+    }, [searchQuery, type, onlyFree, startDate, endDate, JSON.stringify(places), setSize]);
 
     const allEvents: CulturalEvent[] = data ? data.flat() : [];
 

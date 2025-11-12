@@ -8,6 +8,8 @@ const en = {
 
   "filters.allTypes": "All types",
   "filters.onlyFree": "Only free",
+  "filters.places": "Venues",
+  "filters.placesPrompt": "Type to search venues",
 
   "events.error": "Error loading events",
   "events.viewDetails": "View details",

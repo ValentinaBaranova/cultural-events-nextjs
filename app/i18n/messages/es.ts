@@ -8,6 +8,8 @@ const es = {
 
   "filters.allTypes": "Todos los tipos",
   "filters.onlyFree": "Solo gratuitos",
+  "filters.places": "Lugares",
+  "filters.placesPrompt": "Escribe para buscar lugares",
 
   "events.error": "Error al cargar eventos",
   "events.viewDetails": "Ver detalles",
@@ -22,7 +24,7 @@ const es = {
   "event.notFound": "Evento no encontrado",
   "event.description": "Descripción:",
   "event.startTime": "Hora de inicio:",
-  "event.endDate": "Fecha de finalización:",
+  "event.endDate": "Fecha de finalización",
   "event.type": "Tipo:",
   "event.originalSource": "Fuente original",
 
