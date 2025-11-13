@@ -19,7 +19,7 @@ export async function updateEvent(id: string, formData: FormData) {
             const v = formData.get('isFree');
             if (v === null) return null;
             // checkbox sends 'on' when checked
-            if (v === 'on' || v === 'true' || v === true) return true;
+            if (v === 'on' || v === 'true') return true;
             if (v === 'false') return false;
             return null;
         })(),

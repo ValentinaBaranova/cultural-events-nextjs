@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEvents } from '@/lib/useEvents';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, Suspense} from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
 import Search from "@/ui/search";
@@ -23,7 +23,7 @@ type BarrioSuggest = { id: string; name: string; slug: string };
 
 type Option = { label: string; value: string };
 
-export default function EventsListPage() {
+function EventsListPageInner() {
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
     const [types, setTypes] = useState<EventTypeOption[]>([]);
@@ -288,3 +288,11 @@ export default function EventsListPage() {
         </div>
     );
 };
+
+export default function EventsListPage() {
+    return (
+        <Suspense fallback={<div />}> 
+            <EventsListPageInner />
+        </Suspense>
+    );
+}

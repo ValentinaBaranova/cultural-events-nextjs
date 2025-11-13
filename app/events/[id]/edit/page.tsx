@@ -4,13 +4,13 @@ import EditEventForm from '@/ui/events/edit-form';
 import {getEvent} from "@/lib/actions";
 import ClientT from '@/ui/ClientT';
 
-export default async function EditEventPage({params}: { params: { id: string } }) {
+export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
     const session = await auth();
 
     if (!session?.user) {
         return redirect('/login');
     }
-    const {id} = await params
+    const { id } = await params;
     if (!id) return <p><ClientT k="event.missingId" /></p>;
 
     const event = await getEvent(id as string);

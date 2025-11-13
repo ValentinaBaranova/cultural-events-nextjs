@@ -44,7 +44,7 @@ export default function EditEventForm({ event }: { event: EventForEdit }) {
             <input type="date" name="date" defaultValue={event.date} className="w-full p-2 border rounded mb-4" />
 
             <label className="block mb-2">Location</label>
-            <input type="text" name="location" defaultValue={event.location} className="w-full p-2 border rounded mb-4" />
+            <input type="text" name="location" defaultValue={event.location ?? ''} className="w-full p-2 border rounded mb-4" />
 
             <label className="block mb-2">Description</label>
             <textarea name="description" defaultValue={event.description} className="w-full p-2 border rounded mb-4" />

@@ -3,8 +3,8 @@ import Image from "next/image";
 import {getEvent} from "@/lib/actions";
 import ClientT from '@/ui/ClientT';
 
-export default async function EventDetailPage({params}: { params: { id: string } }) {
-    const { id } = params;
+export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     if (!id) return <p><ClientT k="event.missingId" /></p>;
 
     const event = await getEvent(id as string);
