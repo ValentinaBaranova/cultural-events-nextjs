@@ -29,7 +29,7 @@ export default function EventsListPage() {
     const [types, setTypes] = useState<EventTypeOption[]>([]);
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
-    const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [placeOptions, setPlaceOptions] = useState<Option[]>([]);
     const [placeLoading, setPlaceLoading] = useState(false);
     const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
@@ -128,7 +128,7 @@ export default function EventsListPage() {
                 const data: PlaceSuggest[] = await resp.json();
                 const opts: Option[] = data.map(p => ({ label: p.name, value: p.slug }));
                 setPlaceOptions(opts);
-            } catch (e) {
+            } catch {
                 // ignore abort or network errors for suggestions
             } finally {
                 setPlaceLoading(false);
@@ -153,7 +153,7 @@ export default function EventsListPage() {
                 const data: BarrioSuggest[] = await resp.json();
                 const opts: Option[] = data.map(b => ({ label: b.name, value: b.slug }));
                 setBarrioOptions(opts);
-            } catch (e) {
+            } catch {
                 // ignore abort or network errors for suggestions
             } finally {
                 setBarrioLoading(false);
@@ -212,8 +212,8 @@ export default function EventsListPage() {
                 />
 
                 <DatePicker.RangePicker
-                    value={dateRange as any}
-                    onChange={(values) => setDateRange(values as [Dayjs | null, Dayjs | null] | null)}
+                    value={dateRange ?? undefined}
+                    onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
                     allowClear
                     presets={presets}
                     format="YYYY-MM-DD"

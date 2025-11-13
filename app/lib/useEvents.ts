@@ -3,7 +3,7 @@
 import useSWRInfinite from 'swr/infinite';
 import { API_URL } from '@/lib/config';
 import { CulturalEvent } from '@/lib/definitions';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -33,10 +33,14 @@ export function useEvents(
 
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);
 
+    // ✅ Stable keys for array dependencies
+    const placesKey = useMemo(() => (places && places.length ? places.join(',') : ''), [places]);
+    const barriosKey = useMemo(() => (barrios && barrios.length ? barrios.join(',') : ''), [barrios]);
+
     // ✅ Reset pagination when filters change
     useEffect(() => {
         setSize(1);
-    }, [searchQuery, type, onlyFree, startDate, endDate, JSON.stringify(places), JSON.stringify(barrios), setSize]);
+    }, [searchQuery, type, onlyFree, startDate, endDate, placesKey, barriosKey, setSize]);
 
     const allEvents: CulturalEvent[] = data ? data.flat() : [];
 

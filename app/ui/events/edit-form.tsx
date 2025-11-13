@@ -7,7 +7,18 @@ import { useI18n } from '@/i18n/I18nProvider';
 
 type EventTypeOption = { slug: string; name: string };
 
-export default function EditEventForm({ event }: { event: any }) {
+type EventForEdit = {
+    id: string;
+    name: string;
+    date: string;
+    description: string;
+    type: string;
+    isFree?: boolean | null;
+    priceText?: string | null;
+    location?: string | null;
+};
+
+export default function EditEventForm({ event }: { event: EventForEdit }) {
     const updateEventWithId = updateEvent.bind(null, event.id);
     const { locale } = useI18n();
     const [types, setTypes] = useState<EventTypeOption[]>([]);

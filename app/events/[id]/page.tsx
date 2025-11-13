@@ -28,7 +28,7 @@ export default async function EventDetailPage({params}: { params: { id: string }
                     {/* Render combined text for Playwright expectations */}
                     <p><strong><ClientT k="event.description" /></strong> {event.description}</p>
                     <p><strong><ClientT k="events.date" /></strong> {event.date}</p>
-                    <p><strong><ClientT k="events.location" /></strong> {event.place?.name ?? (event as any).location ?? ''}</p>
+                    <p><strong><ClientT k="events.location" /></strong> {event.place?.name ?? event.location ?? ''}</p>
                     {(event.isFree || event.priceText) && (
                         <p>
                             <strong><ClientT k="events.price" /></strong>{' '}

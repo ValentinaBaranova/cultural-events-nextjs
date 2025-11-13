@@ -15,14 +15,14 @@ dayjs.extend(updateLocale);
 if (typeof window !== 'undefined') {
   try {
     dayjs.updateLocale('en', { weekStart: 1 });
-  } catch (_) {
+  } catch {
     // no-op: in case updateLocale fails in SSR or older dayjs versions
   }
 } else {
   // SSR path
   try {
     dayjs.updateLocale('en', { weekStart: 1 });
-  } catch (_) {}
+  } catch {}
 }
 
 export type Locale = "en" | "es";
