@@ -257,6 +257,10 @@ function EventsListPageInner() {
                             <p>{event.description}</p>
                             <p><strong>{t('events.date')}</strong> {event.date}</p>
                             <p><strong>{t('events.location')}</strong> {event.place?.name ?? ''}</p>
+                            <p><strong>{t('events.type')}</strong> {types.find((ty) => ty.slug === event.type)?.name ?? event.type}</p>
+                            {event.place?.barrio?.name && (
+                                <p><strong>{t('events.barrio')}</strong> {event.place.barrio.name}</p>
+                            )}
                             {(event.isFree || event.priceText) && (
                                 <p>
                                     <strong>{t('events.price')}</strong>{' '}

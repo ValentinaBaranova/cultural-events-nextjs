@@ -65,16 +65,18 @@ body {
 .event-link {
     display: inline-block;
     margin-top: 10px;
-    padding: 8px 16px;
-    background-color: #0070f3;
-    color: white;
-    text-decoration: none;
-    border-radius: 4px;
-    text-align: center;
+    color: #555;
+    background-color: transparent;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    border-radius: 0;
+    text-align: left;
 }
 
 .event-link:hover {
-    background-color: #005bb5;
+    color: #333;
+    text-decoration-thickness: 2px;
 }
 
 .event-detail-container {

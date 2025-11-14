@@ -1,7 +1,14 @@
+export type Barrio = {
+    id: string;
+    name: string;
+    slug: string;
+};
+
 export type Place = {
     id: string;
     name: string;
     slug: string;
+    barrio?: Barrio | null;
 };
 
 export type CulturalEvent = {
