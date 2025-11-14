@@ -11,7 +11,7 @@ const PAGE_SIZE = 10;
 
 export function useEvents(
     searchQuery = '',
-    type?: string | null,
+    types?: string[] | null,
     onlyFree?: boolean,
     startDate?: string,
     endDate?: string,
@@ -22,13 +22,13 @@ export function useEvents(
     const getKey = (pageIndex: number, previousPageData: CulturalEvent[] | null) => {
         if (previousPageData && previousPageData.length === 0) return null; // ✅ Stop fetching when no more data
         const queryParam = searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : '';
-        const typeParam = type ? `&type=${encodeURIComponent(type)}` : '';
+        const typesParam = types && types.length ? `&type=${encodeURIComponent(types.join(','))}` : '';
         const freeParam = onlyFree ? `&isFree=true` : '';
         const startDateParam = startDate ? `&startDate=${encodeURIComponent(startDate)}` : '';
         const endDateParam = endDate ? `&endDate=${encodeURIComponent(endDate)}` : '';
         const locationsParam = places && places.length ? `&location=${encodeURIComponent(places.join(','))}` : '';
         const barriosParam = barrios && barrios.length ? `&barrio=${encodeURIComponent(barrios.join(','))}` : '';
-        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typeParam}${freeParam}${startDateParam}${endDateParam}${locationsParam}${barriosParam}`;
+        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${locationsParam}${barriosParam}`;
     };
 
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);
@@ -36,11 +36,12 @@ export function useEvents(
     // ✅ Stable keys for array dependencies
     const placesKey = useMemo(() => (places && places.length ? places.join(',') : ''), [places]);
     const barriosKey = useMemo(() => (barrios && barrios.length ? barrios.join(',') : ''), [barrios]);
+    const typesKey = useMemo(() => (types && types.length ? types.join(',') : ''), [types]);
 
     // ✅ Reset pagination when filters change
     useEffect(() => {
         setSize(1);
-    }, [searchQuery, type, onlyFree, startDate, endDate, placesKey, barriosKey, setSize]);
+    }, [searchQuery, typesKey, onlyFree, startDate, endDate, placesKey, barriosKey, setSize]);
 
     const allEvents: CulturalEvent[] = data ? data.flat() : [];
 

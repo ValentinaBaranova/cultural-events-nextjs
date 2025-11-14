@@ -27,7 +27,7 @@ function EventsListPageInner() {
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
     const [types, setTypes] = useState<EventTypeOption[]>([]);
-    const [selectedType, setSelectedType] = useState<string | null>(null);
+    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [placeOptions, setPlaceOptions] = useState<Option[]>([]);
@@ -63,7 +63,7 @@ function EventsListPageInner() {
 
     const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(
         searchQuery,
-        selectedType,
+        selectedTypes,
         onlyFree,
         startDate,
         endDate,
@@ -171,14 +171,15 @@ function EventsListPageInner() {
                 {/* Enhanced UI select (AntD) */}
                 <Select
                     aria-label="Event type filter"
+                    mode="multiple"
                     allowClear
                     showSearch
                     placeholder={t('filters.allTypes')}
-                    value={selectedType ?? undefined}
-                    onChange={(value) => setSelectedType((value as string | undefined) ?? null)}
+                    value={selectedTypes}
+                    onChange={(values) => setSelectedTypes(values as string[])}
                     options={types.map((type) => ({ label: type.name, value: type.slug }))}
                     optionFilterProp="label"
-                    style={{ minWidth: 200 }}
+                    style={{ minWidth: 240 }}
                 />
 
                 <Select
