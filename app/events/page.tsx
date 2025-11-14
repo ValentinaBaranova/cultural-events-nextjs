@@ -255,9 +255,9 @@ function EventsListPageInner() {
                         <div className="event-details">
                             <h2>{event.name}</h2>
                             <p>{event.description}</p>
+                            <p><strong>{t('events.type')}</strong> {types.find((ty) => ty.slug === event.type)?.name ?? event.type}</p>
                             <p><strong>{t('events.date')}</strong> {event.date}</p>
                             <p><strong>{t('events.location')}</strong> {event.place?.name ?? ''}</p>
-                            <p><strong>{t('events.type')}</strong> {types.find((ty) => ty.slug === event.type)?.name ?? event.type}</p>
                             {event.place?.barrio?.name && (
                                 <p><strong>{t('events.barrio')}</strong> {event.place.barrio.name}</p>
                             )}
@@ -268,21 +268,23 @@ function EventsListPageInner() {
                                 </p>
                             )}
                             <UpdateEvent id={event.id}/>
-                            {event.instagramId && (
-                                <p className="mt-2">
+                            <div className="event-actions">
+                                {event.instagramId ? (
                                     <a
                                         href={`https://www.instagram.com/p/${event.instagramId}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-blue-600 hover:underline"
+                                        className="event-link"
                                     >
                                         {t('event.originalSource')}
                                     </a>
-                                </p>
-                            )}
-                            <Link href={`/events/${event.id}`} className="event-link">
-                                {t('events.viewDetails')}
-                            </Link>
+                                ) : (
+                                    <span />
+                                )}
+                                <Link href={`/events/${event.id}`} className="event-link">
+                                    {t('events.viewDetails')}
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 ))}

@@ -64,7 +64,6 @@ body {
 
 .event-link {
     display: inline-block;
-    margin-top: 10px;
     color: #555;
     background-color: transparent;
     padding: 0;
@@ -77,6 +76,14 @@ body {
 .event-link:hover {
     color: #333;
     text-decoration-thickness: 2px;
+}
+
+.event-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
 }
 
 .event-detail-container {
