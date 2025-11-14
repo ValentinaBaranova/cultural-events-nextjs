@@ -218,6 +218,12 @@ function EventsListPageInner() {
                     allowClear
                     presets={presets}
                     format="YYYY-MM-DD"
+                    inputReadOnly
+                    placement="bottomLeft"
+                    getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                    className="min-w-[240px] w-full sm:w-auto"
+                    size="large"
+                    classNames={{ popup: { root: 'mobile-range-picker' } }}
                 />
 
                 <Checkbox
