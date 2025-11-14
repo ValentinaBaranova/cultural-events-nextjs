@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useI18n } from '@/i18n/I18nProvider';
 import LanguageSwitcher from '@/ui/LanguageSwitcher';
+import { SHOW_AUTH_BUTTONS } from '@/lib/config';
 
 const NavBar = () => {
     const pathname = usePathname();
@@ -20,15 +21,17 @@ const NavBar = () => {
 
             <div className="flex items-center gap-4">
                 <LanguageSwitcher />
-                {/*{session?.user ? (*/}
-                {/*    <Link href="#" onClick={(e) => { e.preventDefault(); signOut(); }} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 transition">*/}
-                {/*        {t('auth.logout')}*/}
-                {/*    </Link>*/}
-                {/*) : (*/}
-                {/*    <Link href="#" onClick={(e) => { e.preventDefault(); signIn(); }} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition">*/}
-                {/*        {t('auth.login')}*/}
-                {/*    </Link>*/}
-                {/*)}*/}
+                {SHOW_AUTH_BUTTONS && (
+                    session?.user ? (
+                        <Link href="#" onClick={(e) => { e.preventDefault(); signOut(); }} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 transition">
+                            {t('auth.logout')}
+                        </Link>
+                    ) : (
+                        <Link href="#" onClick={(e) => { e.preventDefault(); signIn(); }} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition">
+                            {t('auth.login')}
+                        </Link>
+                    )
+                )}
             </div>
         </nav>
     );
