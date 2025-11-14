@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+// Align API base URL with app/lib/config.ts resolution
+const API_URL = process.env.NEXT_PUBLIC_EVENTS_API_URL || process.env.EVENTS_API_URL || 'http://localhost:8080/api';
+
 const nextConfig: NextConfig = {
   /* config options here */
     async redirects() {
@@ -15,7 +18,7 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: '/events/:id/image',
-                destination: 'http://localhost:8080/api/events/:id/image',
+                destination: `${API_URL}/events/:id/image`,
             },
         ];
     },
