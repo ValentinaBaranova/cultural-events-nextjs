@@ -22,3 +22,11 @@ const rawShowAuth = isBrowser
   : (process.env.SHOW_AUTH_BUTTONS as string | undefined);
 
 export const SHOW_AUTH_BUTTONS: boolean = parseBool(rawShowAuth) ?? false;
+
+// Feature flag: control visibility of the "View details" link on events list
+// Default is hidden (false)
+const rawShowEventDetails = isBrowser
+  ? (process.env.NEXT_PUBLIC_SHOW_EVENT_DETAILS_LINK as string | undefined)
+  : (process.env.SHOW_EVENT_DETAILS_LINK as string | undefined);
+
+export const SHOW_EVENT_DETAILS_LINK: boolean = parseBool(rawShowEventDetails) ?? false;

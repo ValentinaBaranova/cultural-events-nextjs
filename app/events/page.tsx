@@ -9,7 +9,7 @@ import { CulturalEvent } from '@/lib/definitions';
 import Search from "@/ui/search";
 import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
-import {API_URL} from "@/lib/config";
+import {API_URL, SHOW_EVENT_DETAILS_LINK} from "@/lib/config";
 import { useI18n } from '@/i18n/I18nProvider';
 import { DatePicker, Select, Checkbox } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
@@ -256,7 +256,7 @@ function EventsListPageInner() {
                             <h2>{event.name}</h2>
                             <p>{event.description}</p>
                             <p><strong>{t('events.type')}</strong> {types.find((ty) => ty.slug === event.type)?.name ?? event.type}</p>
-                            <p><strong>{t('events.date')}</strong> {event.date}</p>
+                            <p><strong>{t('events.date')}</strong> {event.date}{event.startTime ? ` ${event.startTime}` : ''}</p>
                             <p><strong>{t('events.location')}</strong> {event.place?.name ?? ''}</p>
                             {event.place?.barrio?.name && (
                                 <p><strong>{t('events.barrio')}</strong> {event.place.barrio.name}</p>
@@ -281,9 +281,11 @@ function EventsListPageInner() {
                                 ) : (
                                     <span />
                                 )}
-                                <Link href={`/events/${event.id}`} className="event-link">
-                                    {t('events.viewDetails')}
-                                </Link>
+                                {SHOW_EVENT_DETAILS_LINK && (
+                                    <Link href={`/events/${event.id}`} className="event-link">
+                                        {t('events.viewDetails')}
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </div>
