@@ -36,6 +36,7 @@ function EventsListPageInner() {
     const [barrioOptions, setBarrioOptions] = useState<Option[]>([]);
     const [barrioLoading, setBarrioLoading] = useState(false);
     const [selectedBarrios, setSelectedBarrios] = useState<string[]>([]);
+    const [pickerOpen, setPickerOpen] = useState(false);
 
     // Preset ranges for the date picker
     const today = dayjs().startOf('day');
@@ -57,6 +58,11 @@ function EventsListPageInner() {
         { label: 'Next 7 Days', value: [today, next7End] as [Dayjs, Dayjs] },
         { label: 'This Month', value: [monthStart, monthEnd] as [Dayjs, Dayjs] },
     ];
+
+    const applyPreset = (range: [Dayjs, Dayjs]) => {
+        setDateRange(range);
+        setPickerOpen(false);
+    };
 
     const startDate = dateRange?.[0]?.format('YYYY-MM-DD');
     const endDate = dateRange?.[1]?.format('YYYY-MM-DD');
@@ -216,7 +222,6 @@ function EventsListPageInner() {
                     value={dateRange ?? undefined}
                     onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
                     allowClear
-                    presets={presets}
                     format="YYYY-MM-DD"
                     inputReadOnly
                     placement="bottomLeft"
@@ -224,6 +229,25 @@ function EventsListPageInner() {
                     className="min-w-[240px] w-full sm:w-auto"
                     size="large"
                     classNames={{ popup: { root: 'mobile-range-picker' } }}
+                    open={pickerOpen}
+                    onOpenChange={setPickerOpen}
+                    panelRender={(panelNode) => (
+                        <div>
+                            <div className="flex flex-wrap gap-2 px-3 pt-3 pb-2 border-b border-gray-200">
+                                {presets.map((p) => (
+                                    <button
+                                        key={p.label}
+                                        type="button"
+                                        onClick={() => applyPreset(p.value)}
+                                        className="px-2.5 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                    >
+                                        {p.label}
+                                    </button>
+                                ))}
+                            </div>
+                            {panelNode}
+                        </div>
+                    )}
                 />
 
                 <Checkbox
