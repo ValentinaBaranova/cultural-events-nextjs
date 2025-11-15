@@ -16,7 +16,7 @@ export type CulturalEvent = {
     name: string; // Name of the event
     date: string; // Start date of the event in ISO format
     description: string; // A brief description of the event
-    placeDetail: string; // Detailed place description (room, address, etc.)
+    placeDetail?: string | null; // Detailed place description (room, address, etc.)
     image: string; //Filename of event image
     startTime?: string; // (Optional) Start time of the event, in "HH:mm" format
     endDate?: string; // (Optional) End date of the event, in ISO format
