@@ -59,6 +59,13 @@ function EventsListPageInner() {
         { label: 'This Month', value: [monthStart, monthEnd] as [Dayjs, Dayjs] },
     ];
 
+    // Default: next 7 days interval on initial load
+    useEffect(() => {
+        setDateRange([today, next7End]);
+        // We intentionally run this only once on mount to avoid overwriting user input
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const applyPreset = (range: [Dayjs, Dayjs]) => {
         setDateRange(range);
         setPickerOpen(false);
