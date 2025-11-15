@@ -121,16 +121,22 @@ function EventsListPageInner() {
         if (searchTimer.current) clearTimeout(searchTimer.current);
         searchTimer.current = setTimeout(async () => {
             const query = q.trim();
-            if (!query) {
-                setPlaceOptions([]);
-                return;
-            }
             if (abortRef.current) abortRef.current.abort();
             const ctrl = new AbortController();
             abortRef.current = ctrl;
             setPlaceLoading(true);
             try {
-                const resp = await fetch(`${API_URL}/places/suggest?q=${encodeURIComponent(query)}&limit=8`, { signal: ctrl.signal });
+                let url: string;
+                if (!query) {
+                    const start = dateRange?.[0]?.format('YYYY-MM-DD');
+                    const end = dateRange?.[1]?.format('YYYY-MM-DD');
+                    const startParam = start ? `&startDate=${encodeURIComponent(start)}` : '';
+                    const endParam = end ? `&endDate=${encodeURIComponent(end)}` : '';
+                    url = `${API_URL}/places/with-events?limit=8${startParam}${endParam}`;
+                } else {
+                    url = `${API_URL}/places/suggest?q=${encodeURIComponent(query)}&limit=8`;
+                }
+                const resp = await fetch(url, { signal: ctrl.signal });
                 const data: PlaceSuggest[] = await resp.json();
                 const opts: Option[] = data.map(p => ({ label: p.name, value: p.slug }));
                 setPlaceOptions(opts);
@@ -196,6 +202,7 @@ function EventsListPageInner() {
                     notFoundContent={t('filters.placesPrompt')}
                     filterOption={false}
                     onSearch={searchPlaces}
+                    onOpenChange={(open) => { if (open) searchPlaces(''); }}
                     options={placeOptions}
                     loading={placeLoading}
                     value={selectedPlaces}

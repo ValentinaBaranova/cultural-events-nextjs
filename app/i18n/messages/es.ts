@@ -9,7 +9,7 @@ const es = {
   "filters.allTypes": "Todos los tipos",
   "filters.onlyFree": "Solo gratuitos",
   "filters.places": "Lugares",
-  "filters.placesPrompt": "Escribe para buscar lugares",
+  "filters.placesPrompt": "",
   "filters.barrios": "Barrios",
   "filters.barriosPrompt": "Escribe para buscar barrios",
 
