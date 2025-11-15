@@ -11,7 +11,7 @@ const en = {
   "filters.places": "Venues",
   "filters.placesPrompt": "",
   "filters.barrios": "Barrios",
-  "filters.barriosPrompt": "Type to search barrios",
+  "filters.barriosPrompt": "",
 
   "events.error": "Error loading events",
   "events.viewDetails": "View details",

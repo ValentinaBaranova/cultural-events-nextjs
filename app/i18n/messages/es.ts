@@ -11,7 +11,7 @@ const es = {
   "filters.places": "Lugares",
   "filters.placesPrompt": "",
   "filters.barrios": "Barrios",
-  "filters.barriosPrompt": "Escribe para buscar barrios",
+  "filters.barriosPrompt": "",
 
   "events.error": "Error al cargar eventos",
   "events.viewDetails": "Ver detalles",

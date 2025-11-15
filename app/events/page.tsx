@@ -152,16 +152,22 @@ function EventsListPageInner() {
         if (barrioSearchTimer.current) clearTimeout(barrioSearchTimer.current);
         barrioSearchTimer.current = setTimeout(async () => {
             const query = q.trim();
-            if (!query) {
-                setBarrioOptions([]);
-                return;
-            }
             if (barrioAbortRef.current) barrioAbortRef.current.abort();
             const ctrl = new AbortController();
             barrioAbortRef.current = ctrl;
             setBarrioLoading(true);
             try {
-                const resp = await fetch(`${API_URL}/barrios/suggest?q=${encodeURIComponent(query)}&limit=8`, { signal: ctrl.signal });
+                let url: string;
+                if (!query) {
+                    const start = dateRange?.[0]?.format('YYYY-MM-DD');
+                    const end = dateRange?.[1]?.format('YYYY-MM-DD');
+                    const startParam = start ? `&startDate=${encodeURIComponent(start)}` : '';
+                    const endParam = end ? `&endDate=${encodeURIComponent(end)}` : '';
+                    url = `${API_URL}/barrios/with-events?limit=8${startParam}${endParam}`;
+                } else {
+                    url = `${API_URL}/barrios/suggest?q=${encodeURIComponent(query)}&limit=8`;
+                }
+                const resp = await fetch(url, { signal: ctrl.signal });
                 const data: BarrioSuggest[] = await resp.json();
                 const opts: Option[] = data.map(b => ({ label: b.name, value: b.slug }));
                 setBarrioOptions(opts);
@@ -218,6 +224,7 @@ function EventsListPageInner() {
                     notFoundContent={t('filters.barriosPrompt')}
                     filterOption={false}
                     onSearch={searchBarrios}
+                    onOpenChange={(open) => { if (open) searchBarrios(''); }}
                     options={barrioOptions}
                     loading={barrioLoading}
                     value={selectedBarrios}
