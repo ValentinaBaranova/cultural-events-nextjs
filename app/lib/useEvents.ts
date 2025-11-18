@@ -26,10 +26,9 @@ export function useEvents(
         const freeParam = onlyFree ? `&isFree=true` : '';
         const startDateParam = startDate ? `&startDate=${encodeURIComponent(startDate)}` : '';
         const endDateParam = endDate ? `&endDate=${encodeURIComponent(endDate)}` : '';
-        // Backend expects 'location' query param; keep that, but our UI uses venue terminology
-        const locationsParam = venues && venues.length ? `&location=${encodeURIComponent(venues.join(','))}` : '';
+        const venuesParam = venues && venues.length ? `&venues=${encodeURIComponent(venues.join(','))}` : '';
         const barriosParam = barrios && barrios.length ? `&barrio=${encodeURIComponent(barrios.join(','))}` : '';
-        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${locationsParam}${barriosParam}`;
+        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${venuesParam}${barriosParam}`;
     };
 
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);
