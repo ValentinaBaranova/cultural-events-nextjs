@@ -15,7 +15,7 @@ export function useEvents(
     onlyFree?: boolean,
     startDate?: string,
     endDate?: string,
-    places?: string[],
+    venues?: string[],
     barrios?: string[],
 ) {
     // ✅ Keep track of whether there are more events
@@ -26,7 +26,8 @@ export function useEvents(
         const freeParam = onlyFree ? `&isFree=true` : '';
         const startDateParam = startDate ? `&startDate=${encodeURIComponent(startDate)}` : '';
         const endDateParam = endDate ? `&endDate=${encodeURIComponent(endDate)}` : '';
-        const locationsParam = places && places.length ? `&location=${encodeURIComponent(places.join(','))}` : '';
+        // Backend expects 'location' query param; keep that, but our UI uses venue terminology
+        const locationsParam = venues && venues.length ? `&location=${encodeURIComponent(venues.join(','))}` : '';
         const barriosParam = barrios && barrios.length ? `&barrio=${encodeURIComponent(barrios.join(','))}` : '';
         return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${locationsParam}${barriosParam}`;
     };
@@ -34,14 +35,14 @@ export function useEvents(
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);
 
     // ✅ Stable keys for array dependencies
-    const placesKey = useMemo(() => (places && places.length ? places.join(',') : ''), [places]);
+    const venuesKey = useMemo(() => (venues && venues.length ? venues.join(',') : ''), [venues]);
     const barriosKey = useMemo(() => (barrios && barrios.length ? barrios.join(',') : ''), [barrios]);
     const typesKey = useMemo(() => (types && types.length ? types.join(',') : ''), [types]);
 
     // ✅ Reset pagination when filters change
     useEffect(() => {
         setSize(1);
-    }, [searchQuery, typesKey, onlyFree, startDate, endDate, placesKey, barriosKey, setSize]);
+    }, [searchQuery, typesKey, onlyFree, startDate, endDate, venuesKey, barriosKey, setSize]);
 
     const allEvents: CulturalEvent[] = data ? data.flat() : [];
 

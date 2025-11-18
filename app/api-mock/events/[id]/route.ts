@@ -5,7 +5,7 @@ const sampleEvent = {
   name: 'Sample Concert',
   date: '2025-03-20',
   description: 'A wonderful evening of music',
-  location: 'City Hall',
+  venueDetail: 'City Hall',
   startTime: null,
   endDate: null,
   type: 'concert',

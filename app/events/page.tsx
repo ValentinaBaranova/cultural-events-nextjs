@@ -17,7 +17,7 @@ import dayjs, { Dayjs } from 'dayjs';
 
 type EventTypeOption = { slug: string; name: string };
 
-type PlaceSuggest = { id: string; name: string; slug: string };
+type VenueSuggest = { id: string; name: string; slug: string };
 
 type BarrioSuggest = { id: string; name: string; slug: string };
 
@@ -30,9 +30,9 @@ function EventsListPageInner() {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
-    const [placeOptions, setPlaceOptions] = useState<Option[]>([]);
-    const [placeLoading, setPlaceLoading] = useState(false);
-    const [selectedPlaces, setSelectedPlaces] = useState<string[]>([]);
+    const [venueOptions, setVenueOptions] = useState<Option[]>([]);
+    const [venueLoading, setVenueLoading] = useState(false);
+    const [selectedVenues, setSelectedVenues] = useState<string[]>([]);
     const [barrioOptions, setBarrioOptions] = useState<Option[]>([]);
     const [barrioLoading, setBarrioLoading] = useState(false);
     const [selectedBarrios, setSelectedBarrios] = useState<string[]>([]);
@@ -80,7 +80,7 @@ function EventsListPageInner() {
         onlyFree,
         startDate,
         endDate,
-        selectedPlaces,
+        selectedVenues,
         selectedBarrios,
     );
     const { t, locale } = useI18n();
@@ -116,7 +116,7 @@ function EventsListPageInner() {
         return () => controller.abort();
     }, [locale]);
 
-    // Places autocomplete: debounced fetch
+    // Venues autocomplete: debounced fetch
     const searchTimer = useRef<NodeJS.Timeout | null>(null);
     const abortRef = useRef<AbortController | null>(null);
 
@@ -124,14 +124,14 @@ function EventsListPageInner() {
     const barrioSearchTimer = useRef<NodeJS.Timeout | null>(null);
     const barrioAbortRef = useRef<AbortController | null>(null);
 
-    const searchPlaces = (q: string) => {
+    const searchVenues = (q: string) => {
         if (searchTimer.current) clearTimeout(searchTimer.current);
         searchTimer.current = setTimeout(async () => {
             const query = q.trim();
             if (abortRef.current) abortRef.current.abort();
             const ctrl = new AbortController();
             abortRef.current = ctrl;
-            setPlaceLoading(true);
+            setVenueLoading(true);
             try {
                 let url: string;
                 if (!query) {
@@ -144,13 +144,13 @@ function EventsListPageInner() {
                     url = `${API_URL}/places/suggest?q=${encodeURIComponent(query)}&limit=8`;
                 }
                 const resp = await fetch(url, { signal: ctrl.signal });
-                const data: PlaceSuggest[] = await resp.json();
+                const data: VenueSuggest[] = await resp.json();
                 const opts: Option[] = data.map(p => ({ label: p.name, value: p.slug }));
-                setPlaceOptions(opts);
+                setVenueOptions(opts);
             } catch {
                 // ignore abort or network errors for suggestions
             } finally {
-                setPlaceLoading(false);
+                setVenueLoading(false);
             }
         }, 250);
     };
@@ -214,12 +214,12 @@ function EventsListPageInner() {
                     placeholder={t('filters.places')}
                     notFoundContent={t('filters.placesPrompt')}
                     filterOption={false}
-                    onSearch={searchPlaces}
-                    onOpenChange={(open) => { if (open) searchPlaces(''); }}
-                    options={placeOptions}
-                    loading={placeLoading}
-                    value={selectedPlaces}
-                    onChange={(values) => setSelectedPlaces(values as string[])}
+                    onSearch={searchVenues}
+                    onOpenChange={(open) => { if (open) searchVenues(''); }}
+                    options={venueOptions}
+                    loading={venueLoading}
+                    value={selectedVenues}
+                    onChange={(values) => setSelectedVenues(values as string[])}
                     style={{ minWidth: 240 }}
                 />
 
@@ -308,9 +308,9 @@ function EventsListPageInner() {
                             <p>{event.description}</p>
                             <p><strong>{t('events.type')}</strong> {types.find((ty) => ty.slug === event.type)?.name ?? event.type}</p>
                             <p><strong>{t('events.date')}</strong> {event.date}{event.startTime ? ` ${event.startTime}` : ''}</p>
-                            <p><strong>{t('events.location')}</strong> {event.place?.name ?? ''}</p>
-                            {event.place?.barrio?.name && (
-                                <p><strong>{t('events.barrio')}</strong> {event.place.barrio.name}</p>
+                            <p><strong>{t('events.location')}</strong> {event.venue?.name ?? ''}</p>
+                            {event.venue?.barrio?.name && (
+                                <p><strong>{t('events.barrio')}</strong> {event.venue.barrio.name}</p>
                             )}
                             {(event.isFree || event.priceText) && (
                                 <p>

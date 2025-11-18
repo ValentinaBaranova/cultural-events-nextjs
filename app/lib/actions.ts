@@ -11,7 +11,7 @@ export async function updateEvent(id: string, formData: FormData) {
     const parsedData = UpdateEventSchema.parse({
         name: formData.get('name'),
         date: formData.get('date'),
-        location: formData.get('location'),
+        venueDetail: formData.get('venueDetail'),
         description: formData.get('description'),
         startTime: formData.get('startTime') || null,
         endDate: formData.get('endDate') || null,

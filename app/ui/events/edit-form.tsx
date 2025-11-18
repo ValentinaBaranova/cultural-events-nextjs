@@ -15,7 +15,7 @@ type EventForEdit = {
     type: string;
     isFree?: boolean | null;
     priceText?: string | null;
-    location?: string | null;
+    venueDetail?: string | null;
 };
 
 export default function EditEventForm({ event }: { event: EventForEdit }) {
@@ -43,8 +43,8 @@ export default function EditEventForm({ event }: { event: EventForEdit }) {
             <label className="block mb-2">Date</label>
             <input type="date" name="date" defaultValue={event.date} className="w-full p-2 border rounded mb-4" />
 
-            <label className="block mb-2">Location</label>
-            <input type="text" name="location" defaultValue={event.location ?? ''} className="w-full p-2 border rounded mb-4" />
+            <label className="block mb-2">Venue detail</label>
+            <input type="text" name="venueDetail" defaultValue={event.venueDetail ?? ''} className="w-full p-2 border rounded mb-4" />
 
             <label className="block mb-2">Description</label>
             <textarea name="description" defaultValue={event.description} className="w-full p-2 border rounded mb-4" />

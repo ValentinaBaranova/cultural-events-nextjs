@@ -4,7 +4,7 @@ export type Barrio = {
     slug: string;
 };
 
-export type Place = {
+export type Venue = {
     id: string;
     name: string;
     slug: string;
@@ -16,7 +16,7 @@ export type CulturalEvent = {
     name: string; // Name of the event
     date: string; // Start date of the event in ISO format
     description: string; // A brief description of the event
-    placeDetail?: string | null; // Detailed place description (room, address, etc.)
+    venueDetail?: string | null; // Detailed venue description (room, address, etc.)
     image: string; //Filename of event image
     startTime?: string; // (Optional) Start time of the event, in "HH:mm" format
     endDate?: string; // (Optional) End date of the event, in ISO format
@@ -24,6 +24,6 @@ export type CulturalEvent = {
     imageExists: boolean;
     isFree?: boolean | null; // (Optional) Whether the event is free
     priceText?: string | null; // (Optional) Price text, e.g., "$5.000"
-    place?: Place | null; // Optional place info
+    venue?: Venue | null; // Optional venue info
     instagramId?: string | null; // Optional Instagram post shortcode
 };
