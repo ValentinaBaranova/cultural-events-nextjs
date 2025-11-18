@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server';
 
 // Simple mock for event types used by the UI tests.
 // Ignores locale param and returns a minimal set.
@@ -7,6 +6,6 @@ const types = [
   { slug: 'concierto', name: 'concierto' },
 ];
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   return Response.json(types);
 }
