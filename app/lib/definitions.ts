@@ -11,6 +11,11 @@ export type Venue = {
     barrio?: Barrio | null;
 };
 
+export type PaymentChannel = {
+    name?: string | null;
+    url?: string | null;
+};
+
 export type CulturalEvent = {
     id: string; // Unique identifier for the event
     name: string; // Name of the event
@@ -26,4 +31,5 @@ export type CulturalEvent = {
     priceText?: string | null; // (Optional) Price text, e.g., "$5.000"
     venue?: Venue | null; // Optional venue info
     instagramId?: string | null; // Optional Instagram post shortcode
+    paymentChannels?: PaymentChannel[]; // Optional ticket purchase links
 };

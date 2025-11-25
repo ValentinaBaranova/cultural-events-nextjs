@@ -332,11 +332,32 @@ function EventsListPageInner() {
                                 ) : (
                                     <span />
                                 )}
-                                {SHOW_EVENT_DETAILS_LINK && (
-                                    <Link href={`/events/${event.id}`} className="event-link">
-                                        {t('events.viewDetails')}
-                                    </Link>
-                                )}
+                                {(() => {
+                                    const buyUrl = event.paymentChannels?.find((ch) => ch?.url)?.url;
+                                    if (buyUrl) {
+                                        const normalizedUrl = buyUrl.startsWith('http')
+                                            ? buyUrl
+                                            : `https://${buyUrl}`;
+                                        return (
+                                            <a
+                                                href={normalizedUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="event-link"
+                                                title={t('events.buyTickets')}
+                                            >
+                                                {t('events.buyTickets')}
+                                            </a>
+                                        );
+                                    }
+                                    return (
+                                        SHOW_EVENT_DETAILS_LINK ? (
+                                            <Link href={`/events/${event.id}`} className="event-link">
+                                                {t('events.viewDetails')}
+                                            </Link>
+                                        ) : <span />
+                                    );
+                                })()}
                             </div>
                         </div>
                     </div>

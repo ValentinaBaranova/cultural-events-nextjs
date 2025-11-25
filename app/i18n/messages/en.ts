@@ -23,6 +23,7 @@ const en = {
   "events.free": "Free",
   "events.imageAlt": "Event image",
   "events.imagePlaceholderAlt": "Event placeholder image",
+  "events.buyTickets": "Buy tickets",
 
   "event.missingId": "Event ID is missing",
   "event.notFound": "Event not found",
