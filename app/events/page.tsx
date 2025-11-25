@@ -307,7 +307,7 @@ function EventsListPageInner() {
                             <h2>{event.name}</h2>
                             <p>{event.description}</p>
                             <p><strong>{t('events.type')}</strong> {types.find((ty) => ty.slug === event.type)?.name ?? event.type}</p>
-                            <p><strong>{t('events.date')}</strong> {event.date}{event.startTime ? ` ${event.startTime}` : ''}</p>
+                            <p><strong>{t('events.date')}</strong> {event.date}{event.startTime ? ` ${event.startTime.slice(0, 5)}` : ''}</p>
                             <p><strong>{t('events.location')}</strong> {event.venue?.name ?? ''}</p>
                             {event.venue?.barrio?.name && (
                                 <p><strong>{t('events.barrio')}</strong> {event.venue.barrio.name}</p>
