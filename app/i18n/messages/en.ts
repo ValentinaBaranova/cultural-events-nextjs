@@ -24,6 +24,7 @@ const en = {
   "events.imageAlt": "Event image",
   "events.imagePlaceholderAlt": "Event placeholder image",
   "events.buyTickets": "Buy tickets",
+  "events.tickets": "Tickets:",
 
   "event.missingId": "Event ID is missing",
   "event.notFound": "Event not found",

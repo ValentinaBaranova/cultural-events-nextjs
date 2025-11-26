@@ -24,6 +24,7 @@ const es = {
   "events.imageAlt": "Imagen del evento",
   "events.imagePlaceholderAlt": "Imagen de marcador de posición del evento",
   "events.buyTickets": "Comprar entradas",
+  "events.tickets": "Entradas:",
 
   "event.missingId": "Falta el ID del evento",
   "event.notFound": "Evento no encontrado",

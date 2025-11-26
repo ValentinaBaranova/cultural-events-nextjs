@@ -318,6 +318,45 @@ function EventsListPageInner() {
                                     {event.isFree ? t('events.free') : event.priceText}
                                 </p>
                             )}
+
+                            {event.paymentChannels && event.paymentChannels.length > 0 && (
+                                <div className="tickets-row flex flex-wrap items-center gap-x-2 gap-y-1">
+                                    <p>
+                                    <strong>{t('events.tickets')}</strong>{' '}
+                                    {event.paymentChannels.map((ch, idx) => {
+                                        const displayName = ch?.name || ch?.url || '';
+                                        const hasUrl = !!ch?.url;
+                                        const normalizedUrl = hasUrl
+                                            ? (ch!.url!.startsWith('http') ? ch!.url! : `https://${ch!.url!}`)
+                                            : '';
+                                        const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
+                                        const spanClasses = "max-w-full break-words";
+                                        const content = hasUrl ? (
+                                            <a
+                                                key={`ch-${idx}`}
+                                                href={normalizedUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={linkClasses}
+                                                title={displayName}
+                                            >
+                                                {displayName}
+                                            </a>
+                                        ) : (
+                                            <span key={`ch-${idx}`} className={spanClasses}>{displayName}</span>
+                                        );
+
+                                        return (
+                                            <React.Fragment key={`frag-${idx}`}>
+                                                {content}
+                                                {idx < event.paymentChannels!.length - 1 && <span className="hidden sm:inline"> · </span>}
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                    </p>
+                                </div>
+                            )}
+
                             <UpdateEvent id={event.id}/>
                             <div className="event-actions">
                                 {event.instagramId ? (
@@ -332,32 +371,11 @@ function EventsListPageInner() {
                                 ) : (
                                     <span />
                                 )}
-                                {(() => {
-                                    const buyUrl = event.paymentChannels?.find((ch) => ch?.url)?.url;
-                                    if (buyUrl) {
-                                        const normalizedUrl = buyUrl.startsWith('http')
-                                            ? buyUrl
-                                            : `https://${buyUrl}`;
-                                        return (
-                                            <a
-                                                href={normalizedUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="event-link"
-                                                title={t('events.buyTickets')}
-                                            >
-                                                {t('events.buyTickets')}
-                                            </a>
-                                        );
-                                    }
-                                    return (
-                                        SHOW_EVENT_DETAILS_LINK ? (
-                                            <Link href={`/events/${event.id}`} className="event-link">
-                                                {t('events.viewDetails')}
-                                            </Link>
-                                        ) : <span />
-                                    );
-                                })()}
+                                {SHOW_EVENT_DETAILS_LINK ? (
+                                    <Link href={`/events/${event.id}`} className="event-link">
+                                        {t('events.viewDetails')}
+                                    </Link>
+                                ) : <span />}
                             </div>
                         </div>
                     </div>
