@@ -16,6 +16,7 @@ const en = {
   "events.error": "Error loading events",
   "events.viewDetails": "View details",
   "events.date": "Date:",
+  "events.startDate": "Start date:",
   "events.location": "Location:",
   "events.type": "Type:",
   "events.barrio": "Barrio:",
