@@ -3,6 +3,21 @@ import Image from "next/image";
 import {getEvent} from "@/lib/actions";
 import ClientT from '@/ui/ClientT';
 
+function formatDateDDMMYY(input?: string | Date | null): string {
+    if (!input) return '';
+    const date = input instanceof Date ? input : new Date(input);
+    if (isNaN(date.getTime())) return String(input);
+    try {
+        return new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: '2-digit',
+        }).format(date);
+    } catch {
+        return String(input);
+    }
+}
+
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     if (!id) return <p><ClientT k="event.missingId" /></p>;
@@ -27,7 +42,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                     <h1 className="text-2xl font-semibold mb-4">{event.name}</h1>
                     {/* Render combined text for Playwright expectations */}
                     <p><strong><ClientT k="event.description" /></strong> {event.description}</p>
-                    <p><strong><ClientT k="events.date" /></strong> {event.date}</p>
+                    <p><strong><ClientT k="events.date" /></strong> {formatDateDDMMYY(event.date as any)}</p>
                     <p><strong><ClientT k="events.location" /></strong> {event.venue?.name ?? event.venueDetail ?? ''}</p>
                     {(event.isFree || event.priceText) && (
                         <p>

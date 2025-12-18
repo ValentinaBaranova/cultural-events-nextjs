@@ -17,7 +17,7 @@ const es = {
   "events.viewDetails": "Ver detalles",
   "events.date": "Fecha:",
   "events.startDate": "Fecha de inicio:",
-  "events.location": "Ubicación:",
+  "events.location": "Lugar:",
   "events.type": "Tipo:",
   "events.barrio": "Barrio:",
   "events.price": "Precio:",

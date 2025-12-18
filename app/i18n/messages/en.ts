@@ -10,7 +10,7 @@ const en = {
   "filters.onlyFree": "Only free",
   "filters.places": "Venues",
   "filters.placesPrompt": "",
-  "filters.barrios": "Barrios",
+  "filters.barrios": "Neighborhoods",
   "filters.barriosPrompt": "",
 
   "events.error": "Error loading events",
@@ -19,7 +19,7 @@ const en = {
   "events.startDate": "Start date:",
   "events.location": "Location:",
   "events.type": "Type:",
-  "events.barrio": "Barrio:",
+  "events.barrio": "Neighborhood:",
   "events.price": "Price:",
   "events.free": "Free",
   "events.imageAlt": "Event image",
