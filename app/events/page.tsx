@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEvents } from '@/lib/useEvents';
-import React, {useEffect, useRef, useState, Suspense} from 'react';
+import React, {useEffect, useRef, useState, Suspense, useMemo} from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
 import Search from "@/ui/search";
@@ -41,6 +41,13 @@ function EventsListPageInner() {
 
     const [tagOptions, setTagOptions] = useState<Option[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+    // Map slug -> localized tag name for quick lookup
+    const tagNameBySlug = useMemo(() => {
+        return Object.fromEntries(tagOptions.map(o => [o.value, o.label]));
+    }, [tagOptions]);
+
+    const getTagLabel = (slug: string) => tagNameBySlug[slug] ?? slug;
 
     const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -359,18 +366,21 @@ function EventsListPageInner() {
                             {/* Tags */}
                             {event.tags && event.tags.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-2" aria-label="event-tags">
-                                    {event.tags.map((tag, idx) => (
-                                        <button
-                                            key={`tag-${idx}`}
-                                            type="button"
-                                            onClick={() => handleTagClick(tag)}
-                                            className="px-2 py-0.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            aria-label={`Filter by tag ${tag}`}
-                                            title={`Filter by #${tag}`}
-                                        >
-                                            #{tag}
-                                        </button>
-                                    ))}
+                                    {event.tags.map((tag, idx) => {
+                                        const label = getTagLabel(tag);
+                                        return (
+                                            <button
+                                                key={`tag-${idx}`}
+                                                type="button"
+                                                onClick={() => handleTagClick(tag)}
+                                                className="px-2 py-0.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                aria-label={`Filter by tag ${label}`}
+                                                title={`Filter by #${label}`}
+                                            >
+                                                #{label}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             )}
 
