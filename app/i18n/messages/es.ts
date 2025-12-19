@@ -6,6 +6,7 @@ const es = {
   "menu.events": "Eventos",
   "menu.about": "Qué es",
   "menu.contact": "Contacto",
+  "menu.privacy": "Privacidad",
 
   "search.label": "Buscar",
   "search.placeholder": "Buscar eventos...",
@@ -57,7 +58,17 @@ const es = {
   "contact.alpha1": "Estamos en una versión alpha.",
   "contact.alpha2": "La información puede estar incompleta o contener errores.",
   "lang.english": "Inglés",
-  "lang.spanish": "Español"
+  "lang.spanish": "Español",
+
+  "privacy.title": "Política de Privacidad",
+  "privacy.p1": "Respetamos tu privacidad. Este sitio recolecta solo los datos mínimos necesarios para funcionar correctamente.",
+  "privacy.p2": "Analítica: Usamos Google Analytics para entender de forma agregada cómo se utiliza el sitio (por ejemplo, páginas más visitadas). Las cookies de analítica solo se habilitan después de que das tu consentimiento.",
+  "privacy.p3": "Datos de cuenta: Si el inicio de sesión está habilitado, almacenamos únicamente la información necesaria para autenticarte y gestionar tu sesión.",
+  "privacy.p4": "Fuentes de contenido: La información de eventos se agrega a partir de fuentes públicas.",
+  "privacy.p5.prefix": "Contacto y derechos: Si querés solicitar la eliminación o corrección de datos, podés ",
+  "privacy.p5.link": "escribirnos",
+  "privacy.p5.suffix": "",
+  "privacy.updated": "Última actualización: 2025-12-19"
 };
 
 export default es;

@@ -6,6 +6,7 @@ const en = {
   "menu.events": "Events",
   "menu.about": "What it is",
   "menu.contact": "Contact",
+  "menu.privacy": "Privacy",
 
   "search.label": "Search",
   "search.placeholder": "Search events...",
@@ -55,7 +56,17 @@ const en = {
   "contact.alpha1": "We are in an alpha version.",
   "contact.alpha2": "Information may be incomplete or contain errors.",
   "lang.english": "English",
-  "lang.spanish": "Spanish"
+  "lang.spanish": "Spanish",
+
+  "privacy.title": "Privacy Policy",
+  "privacy.p1": "We respect your privacy. This site collects only the minimum data necessary to function properly.",
+  "privacy.p2": "Analytics: We use privacy-friendly analytics to understand usage. Cookies for analytics are only enabled after you give consent.",
+  "privacy.p3": "Account data: If authentication is enabled, we store only the information required to log in and manage your session.",
+  "privacy.p4": "Content sources: Event information is aggregated from public sources.",
+  "privacy.p5.prefix": "Contact and rights: If you want to request deletion or correction of data, you can ",
+  "privacy.p5.link": "write to us",
+  "privacy.p5.suffix": "",
+  "privacy.updated": "Last updated: 2025-12-19"
 };
 
 export default en;

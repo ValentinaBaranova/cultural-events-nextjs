@@ -34,6 +34,10 @@ const NavBar = () => {
                     <Link href="/contact" className={isActive('/contact') ? 'active font-semibold' : ''}>
                         {t('menu.contact')}
                     </Link>
+                    <span>|</span>
+                    <Link href="/privacy" className={isActive('/privacy') ? 'active font-semibold' : ''}>
+                        {t('menu.privacy')}
+                    </Link>
                 </div>
 
                 <LanguageSwitcher />
