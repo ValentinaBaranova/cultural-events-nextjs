@@ -23,6 +23,8 @@ type BarrioSuggest = { id: string; name: string; slug: string };
 
 type Option = { label: string; value: string };
 
+type TagOption = { slug: string; name: string };
+
 function EventsListPageInner() {
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
@@ -36,6 +38,10 @@ function EventsListPageInner() {
     const [barrioOptions, setBarrioOptions] = useState<Option[]>([]);
     const [barrioLoading, setBarrioLoading] = useState(false);
     const [selectedBarrios, setSelectedBarrios] = useState<string[]>([]);
+
+    const [tagOptions, setTagOptions] = useState<Option[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
     const [pickerOpen, setPickerOpen] = useState(false);
 
     // Preset ranges for the date picker
@@ -82,6 +88,7 @@ function EventsListPageInner() {
         endDate,
         selectedVenues,
         selectedBarrios,
+        selectedTags,
     );
     const { t, locale } = useI18n();
 
@@ -112,6 +119,16 @@ function EventsListPageInner() {
         fetch(`${API_URL}/event-types?locale=${locale}`, { signal: controller.signal })
             .then(res => res.json())
             .then((data: { slug: string; name: string }[]) => setTypes(data))
+            .catch(() => {});
+        return () => controller.abort();
+    }, [locale]);
+
+    // Fetch tags for multiselect
+    useEffect(() => {
+        const controller = new AbortController();
+        fetch(`${API_URL}/tags?locale=${locale}`, { signal: controller.signal })
+            .then(res => res.json())
+            .then((data: TagOption[]) => setTagOptions(data.map(t => ({ label: t.name, value: t.slug }))))
             .catch(() => {});
         return () => controller.abort();
     }, [locale]);
@@ -193,7 +210,7 @@ function EventsListPageInner() {
             <Search />
 
             <div className="flex items-center gap-4 flex-wrap mb-6">
-                {/* Enhanced UI select (AntD) */}
+                {/* Event types */}
                 <Select
                     aria-label="Event type filter"
                     mode="multiple"
@@ -203,6 +220,20 @@ function EventsListPageInner() {
                     value={selectedTypes}
                     onChange={(values) => setSelectedTypes(values as string[])}
                     options={types.map((type) => ({ label: type.name, value: type.slug }))}
+                    optionFilterProp="label"
+                    style={{ minWidth: 240 }}
+                />
+
+                {/* Tags */}
+                <Select
+                    aria-label="Event tags filter"
+                    mode="multiple"
+                    allowClear
+                    showSearch
+                    placeholder={t('filters.tags')}
+                    value={selectedTags}
+                    onChange={(values) => setSelectedTags(values as string[])}
+                    options={tagOptions}
                     optionFilterProp="label"
                     style={{ minWidth: 240 }}
                 />

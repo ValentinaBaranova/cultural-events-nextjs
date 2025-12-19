@@ -17,6 +17,7 @@ export function useEvents(
     endDate?: string,
     venues?: string[],
     barrios?: string[],
+    tags?: string[],
 ) {
     // ✅ Keep track of whether there are more events
     const getKey = (pageIndex: number, previousPageData: CulturalEvent[] | null) => {
@@ -28,7 +29,8 @@ export function useEvents(
         const endDateParam = endDate ? `&endDate=${encodeURIComponent(endDate)}` : '';
         const venuesParam = venues && venues.length ? `&venues=${encodeURIComponent(venues.join(','))}` : '';
         const barriosParam = barrios && barrios.length ? `&barrio=${encodeURIComponent(barrios.join(','))}` : '';
-        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${venuesParam}${barriosParam}`;
+        const tagsParam = tags && tags.length ? `&tags=${encodeURIComponent(tags.join(','))}` : '';
+        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${venuesParam}${barriosParam}${tagsParam}`;
     };
 
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);
@@ -37,11 +39,12 @@ export function useEvents(
     const venuesKey = useMemo(() => (venues && venues.length ? venues.join(',') : ''), [venues]);
     const barriosKey = useMemo(() => (barrios && barrios.length ? barrios.join(',') : ''), [barrios]);
     const typesKey = useMemo(() => (types && types.length ? types.join(',') : ''), [types]);
+    const tagsKey = useMemo(() => (tags && tags.length ? tags.join(',') : ''), [tags]);
 
     // ✅ Reset pagination when filters change
     useEffect(() => {
         setSize(1);
-    }, [searchQuery, typesKey, onlyFree, startDate, endDate, venuesKey, barriosKey, setSize]);
+    }, [searchQuery, typesKey, onlyFree, startDate, endDate, venuesKey, barriosKey, tagsKey, setSize]);
 
     const allEvents: CulturalEvent[] = data ? data.flat() : [];
 
