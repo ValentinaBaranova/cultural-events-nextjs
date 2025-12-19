@@ -90,6 +90,12 @@ function EventsListPageInner() {
         selectedBarrios,
         selectedTags,
     );
+
+    const handleTagClick = (tag: string) => {
+        setSelectedTags((prev) => (prev.includes(tag) ? prev : [...prev, tag]));
+        // Optionally ensure the tag exists in options so it shows up with label
+        setTagOptions((prev) => (prev.some(o => o.value === tag) ? prev : [...prev, { label: tag, value: tag }]));
+    };
     const { t, locale } = useI18n();
 
     const observerRef = useRef<IntersectionObserver | null>(null);
@@ -354,12 +360,16 @@ function EventsListPageInner() {
                             {event.tags && event.tags.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-2" aria-label="event-tags">
                                     {event.tags.map((tag, idx) => (
-                                        <span
+                                        <button
                                             key={`tag-${idx}`}
-                                            className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                                            type="button"
+                                            onClick={() => handleTagClick(tag)}
+                                            className="px-2 py-0.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            aria-label={`Filter by tag ${tag}`}
+                                            title={`Filter by #${tag}`}
                                         >
                                             #{tag}
-                                        </span>
+                                        </button>
                                     ))}
                                 </div>
                             )}
