@@ -30,3 +30,9 @@ const rawShowEventDetails = isBrowser
   : (process.env.SHOW_EVENT_DETAILS_LINK as string | undefined);
 
 export const SHOW_EVENT_DETAILS_LINK: boolean = parseBool(rawShowEventDetails) ?? false;
+
+// Public contact email shown on the Contact page
+// Prefer browser-exposed env in the client, fallback to server env, then default
+export const CONTACT_EMAIL: string = (isBrowser
+  ? (process.env.NEXT_PUBLIC_CONTACT_EMAIL as string | undefined)
+  : (process.env.CONTACT_EMAIL as string | undefined)) || 'vbaranova87@gmail.com';

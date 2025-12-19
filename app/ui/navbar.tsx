@@ -13,13 +13,29 @@ const NavBar = () => {
     const { data: session } = useSession();
     const { t } = useI18n();
 
+    const isActive = (href: string) => pathname === href;
+
     return (
         <nav className="flex justify-between items-center p-4 border-b bg-white shadow-md">
-            <Link href="/" className={pathname === '/events' ? 'active font-bold' : ''}>
+            <Link href="/events" className="font-bold">
                 {t('app.title')}
             </Link>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
+                <div className="hidden sm:flex items-center gap-4 text-sm">
+                    <Link href="/events" className={isActive('/events') ? 'active font-semibold' : ''}>
+                        {t('menu.events')}
+                    </Link>
+                    <span>|</span>
+                    <Link href="/about" className={isActive('/about') ? 'active font-semibold' : ''}>
+                        {t('menu.about')}
+                    </Link>
+                    <span>|</span>
+                    <Link href="/contact" className={isActive('/contact') ? 'active font-semibold' : ''}>
+                        {t('menu.contact')}
+                    </Link>
+                </div>
+
                 <LanguageSwitcher />
                 {SHOW_AUTH_BUTTONS && (
                     session?.user ? (
