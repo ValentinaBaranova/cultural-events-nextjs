@@ -14,7 +14,7 @@ function getStoredConsent(): ConsentValue | undefined {
   try {
     const v = window.localStorage.getItem(CONSENT_KEY);
     if (v === "granted" || v === "denied") return v;
-  } catch (_) {}
+  } catch {}
   return undefined;
 }
 
@@ -23,7 +23,7 @@ function setStoredConsent(value: ConsentValue) {
     window.localStorage.setItem(CONSENT_KEY, value);
     // Notify listeners (e.g., GATracker) that consent changed
     window.dispatchEvent(new CustomEvent("consent-changed", { detail: { value } }));
-  } catch (_) {}
+  } catch {}
 }
 
 export default function ConsentBanner() {
