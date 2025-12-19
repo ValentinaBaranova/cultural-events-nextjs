@@ -319,6 +319,20 @@ function EventsListPageInner() {
                                 </p>
                             )}
 
+                            {/* Tags */}
+                            {event.tags && event.tags.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-2" aria-label="event-tags">
+                                    {event.tags.map((tag, idx) => (
+                                        <span
+                                            key={`tag-${idx}`}
+                                            className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-200"
+                                        >
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
                             {event.paymentChannels && event.paymentChannels.length > 0 && (
                                 <div className="tickets-row flex flex-wrap items-center gap-x-2 gap-y-1">
                                     <p>

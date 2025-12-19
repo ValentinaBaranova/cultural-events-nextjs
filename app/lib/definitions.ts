@@ -32,4 +32,5 @@ export type CulturalEvent = {
     venue?: Venue | null; // Optional venue info
     instagramId?: string | null; // Optional Instagram post shortcode
     paymentChannels?: PaymentChannel[]; // Optional ticket purchase links
+    tags?: string[]; // Optional list of tag slugs
 };
