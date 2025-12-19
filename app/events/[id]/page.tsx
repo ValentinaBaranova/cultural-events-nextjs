@@ -42,7 +42,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                     <h1 className="text-2xl font-semibold mb-4">{event.name}</h1>
                     {/* Render combined text for Playwright expectations */}
                     <p><strong><ClientT k="event.description" /></strong> {event.description}</p>
-                    <p><strong><ClientT k="events.date" /></strong> {formatDateDDMMYY(event.date as any)}</p>
+                    <p><strong><ClientT k="events.date" /></strong> {formatDateDDMMYY(event.date)}</p>
                     <p><strong><ClientT k="events.location" /></strong> {event.venue?.name ?? event.venueDetail ?? ''}</p>
                     {(event.isFree || event.priceText) && (
                         <p>
