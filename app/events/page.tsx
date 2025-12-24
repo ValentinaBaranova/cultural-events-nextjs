@@ -25,6 +25,46 @@ type Option = { label: string; value: string };
 
 type TagOption = { slug: string; name: string };
 
+type AdvancedFiltersProps = {
+    isOpen: boolean;
+    onToggle: () => void;
+    children: React.ReactNode;
+};
+
+function AdvancedFilters({ isOpen, onToggle, children }: AdvancedFiltersProps) {
+    return (
+        <div className="w-full">
+            {/* Single separator line above the toggle */}
+            <div className="mt-4 border-t border-gray-200" />
+            <button
+                type="button"
+                onClick={onToggle}
+                className="group w-full flex items-center justify-center text-gray-500 hover:text-gray-700 focus:outline-none py-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                aria-expanded={isOpen}
+                aria-label="Toggle advanced filters"
+            >
+                <svg
+                    className={`h-5 w-5 transform transition-transform ${isOpen ? '' : 'rotate-180'} group-hover:-translate-y-0.5`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                >
+                    <polyline points="6 15 12 9 18 15" />
+                </svg>
+            </button>
+            {isOpen && (
+                <div className="mt-4 flex flex-col gap-4">
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+}
+
 function EventsListPageInner() {
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
@@ -41,6 +81,9 @@ function EventsListPageInner() {
 
     const [tagOptions, setTagOptions] = useState<Option[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+    // Advanced filters panel
+    const [advancedOpen, setAdvancedOpen] = useState(false);
 
     // Map slug -> localized tag name for quick lookup
     const tagNameBySlug = useMemo(() => {
@@ -222,105 +265,136 @@ function EventsListPageInner() {
         <div className="events-list-container">
             <HeroSearch />
 
-            <div className="flex items-center gap-4 flex-wrap mb-6">
-                {/* Event types */}
-                <Select
-                    aria-label="Event type filter"
-                    mode="multiple"
-                    allowClear
-                    showSearch
-                    placeholder={t('filters.allTypes')}
-                    value={selectedTypes}
-                    onChange={(values) => setSelectedTypes(values as string[])}
-                    options={types.map((type) => ({ label: type.name, value: type.slug }))}
-                    optionFilterProp="label"
-                    style={{ minWidth: 240 }}
-                />
-
-                {/* Tags */}
-                <Select
-                    aria-label="Event tags filter"
-                    mode="multiple"
-                    allowClear
-                    showSearch
-                    placeholder={t('filters.tags')}
-                    value={selectedTags}
-                    onChange={(values) => setSelectedTags(values as string[])}
-                    options={tagOptions}
-                    optionFilterProp="label"
-                    style={{ minWidth: 240 }}
-                />
-
-                <Select
-                    mode="multiple"
-                    allowClear
-                    showSearch
-                    placeholder={t('filters.places')}
-                    notFoundContent={t('filters.placesPrompt')}
-                    filterOption={false}
-                    onSearch={searchVenues}
-                    onOpenChange={(open) => { if (open) searchVenues(''); }}
-                    options={venueOptions}
-                    loading={venueLoading}
-                    value={selectedVenues}
-                    onChange={(values) => setSelectedVenues(values as string[])}
-                    style={{ minWidth: 240 }}
-                />
-
-                <Select
-                    mode="multiple"
-                    allowClear
-                    showSearch
-                    placeholder={t('filters.barrios')}
-                    notFoundContent={t('filters.barriosPrompt')}
-                    filterOption={false}
-                    onSearch={searchBarrios}
-                    onOpenChange={(open) => { if (open) searchBarrios(''); }}
-                    options={barrioOptions}
-                    loading={barrioLoading}
-                    value={selectedBarrios}
-                    onChange={(values) => setSelectedBarrios(values as string[])}
-                    style={{ minWidth: 240 }}
-                />
-
-                <DatePicker.RangePicker
-                    value={dateRange ?? undefined}
-                    onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
-                    allowClear
-                    format="YYYY-MM-DD"
-                    inputReadOnly
-                    placement="bottomLeft"
-                    getPopupContainer={(trigger) => trigger?.parentElement || document.body}
-                    className="min-w-[240px] w-full sm:w-auto"
-                    size="large"
-                    classNames={{ popup: { root: 'mobile-range-picker' } }}
-                    open={pickerOpen}
-                    onOpenChange={setPickerOpen}
-                    panelRender={(panelNode) => (
-                        <div>
-                            <div className="flex flex-wrap gap-2 px-3 pt-3 pb-2 border-b border-gray-200">
-                                {presets.map((p) => (
-                                    <button
-                                        key={p.label}
-                                        type="button"
-                                        onClick={() => applyPreset(p.value)}
-                                        className="px-2.5 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
-                                    >
-                                        {p.label}
-                                    </button>
-                                ))}
-                            </div>
-                            {panelNode}
-                        </div>
-                    )}
-                />
-
-                <Checkbox
-                    checked={onlyFree}
-                    onChange={(e) => setOnlyFree(e.target.checked)}
+            {/* Types as pill chips */}
+            <div className="mb-4 border border-gray-200 bg-[var(--card)] p-4">
+                <div className="flex flex-wrap gap-2">
+                    {types.map((type) => {
+                        const active = selectedTypes.includes(type.slug);
+                        return (
+                            <button
+                                key={type.slug}
+                                type="button"
+                                onClick={() => {
+                                    setSelectedTypes((prev) =>
+                                        prev.includes(type.slug)
+                                            ? prev.filter((t) => t !== type.slug)
+                                            : [...prev, type.slug]
+                                    );
+                                }}
+                                className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                                    active
+                                        ? 'bg-gray-800 text-white border-gray-800'
+                                        : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
+                                }`}
+                            >
+                                {type.name}
+                            </button>
+                        );
+                    })}
+                </div>
+                <div className="mt-4">
+                    <Checkbox checked={onlyFree} onChange={(e) => setOnlyFree(e.target.checked)}>
+                        {t('filters.onlyFree')}
+                    </Checkbox>
+                </div>
+                {/* Advanced filters toggle */}
+                <AdvancedFilters
+                    isOpen={advancedOpen}
+                    onToggle={() => setAdvancedOpen((v) => !v)}
                 >
-                    {t('filters.onlyFree')}
-                </Checkbox>
+                    {/* Rango de Fechas */}
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-700 mb-1">Rango de Fechas</span>
+                        <DatePicker.RangePicker
+                            value={dateRange ?? undefined}
+                            onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
+                            allowClear
+                            format="YYYY-MM-DD"
+                            inputReadOnly
+                            placement="bottomLeft"
+                            getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                            className="w-full sm:w-80"
+                            size="large"
+                            classNames={{ popup: { root: 'mobile-range-picker' } }}
+                            open={pickerOpen}
+                            onOpenChange={setPickerOpen}
+                            panelRender={(panelNode) => (
+                                <div>
+                                    <div className="flex flex-wrap gap-2 px-3 pt-3 pb-2 border-b border-gray-200">
+                                        {presets.map((p) => (
+                                            <button
+                                                key={p.label}
+                                                type="button"
+                                                onClick={() => applyPreset(p.value)}
+                                                className="px-2.5 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                            >
+                                                {p.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {panelNode}
+                                </div>
+                            )}
+                        />
+                    </div>
+
+                    {/* Lugares */}
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-700 mb-1">Lugares</span>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            showSearch
+                            placeholder={t('filters.places')}
+                            notFoundContent={t('filters.placesPrompt')}
+                            filterOption={false}
+                            onSearch={searchVenues}
+                            onOpenChange={(open) => { if (open) searchVenues(''); }}
+                            options={venueOptions}
+                            loading={venueLoading}
+                            value={selectedVenues}
+                            onChange={(values) => setSelectedVenues(values as string[])}
+                            style={{ minWidth: 240 }}
+                        />
+                    </div>
+
+                    {/* Barrios */}
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-700 mb-1">Barrios</span>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            showSearch
+                            placeholder={t('filters.barrios')}
+                            notFoundContent={t('filters.barriosPrompt')}
+                            filterOption={false}
+                            onSearch={searchBarrios}
+                            onOpenChange={(open) => { if (open) searchBarrios(''); }}
+                            options={barrioOptions}
+                            loading={barrioLoading}
+                            value={selectedBarrios}
+                            onChange={(values) => setSelectedBarrios(values as string[])}
+                            style={{ minWidth: 240 }}
+                        />
+                    </div>
+
+                    {/* Etiquetas */}
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-700 mb-1">Etiquetas</span>
+                        <Select
+                            aria-label="Event tags filter"
+                            mode="multiple"
+                            allowClear
+                            showSearch
+                            placeholder={t('filters.tags')}
+                            value={selectedTags}
+                            onChange={(values) => setSelectedTags(values as string[])}
+                            options={tagOptions}
+                            optionFilterProp="label"
+                            style={{ minWidth: 240 }}
+                        />
+                    </div>
+                </AdvancedFilters>
             </div>
 
             <div className="events-grid">
