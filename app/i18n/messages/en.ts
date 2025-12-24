@@ -10,6 +10,7 @@ const en = {
 
   "search.label": "Search",
   "search.placeholder": "Search events...",
+  "hero.title": "Discover Events in Buenos Aires",
 
   "filters.allTypes": "All types",
   "filters.onlyFree": "Only free",

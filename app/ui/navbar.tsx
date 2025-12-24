@@ -7,6 +7,7 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 import { useI18n } from '@/i18n/I18nProvider';
 import LanguageSwitcher from '@/ui/LanguageSwitcher';
 import { SHOW_AUTH_BUTTONS } from '@/lib/config';
+import Container from '@/ui/Container';
 
 const NavBar = () => {
     const pathname = usePathname();
@@ -16,41 +17,42 @@ const NavBar = () => {
 
     const isActive = (href: string) => pathname === href;
 
+    const linkClass = (href: string) =>
+      `${isActive(href) ? 'text-foreground font-semibold' : 'text-muted-foreground'} hover:text-foreground`;
+
     return (
-        <nav className="p-4 border-b bg-white shadow-md">
-            <div className="flex justify-between items-center">
-                <Link href="/events" className="font-bold">
+        <header className="border-b border-border bg-background">
+            <Container className="h-16 flex items-center justify-between">
+                {/* Left: Logo/Title */}
+                <Link href="/events" className="font-semibold text-lg">
                     {t('app.title')}
                 </Link>
 
-                {/* Desktop menu */}
+                {/* Right: Nav + language + auth */}
                 <div className="hidden sm:flex items-center gap-6">
-                    <div className="flex items-center gap-3 text-sm">
-                        <Link href="/events" className={isActive('/events') ? 'active font-semibold' : ''}>
+                    <nav className="flex items-center gap-4 text-sm">
+                        <Link href="/events" className={linkClass('/events')}>
                             {t('menu.events')}
                         </Link>
-                        <span>|</span>
-                        <Link href="/about" className={isActive('/about') ? 'active font-semibold' : ''}>
+                        <Link href="/about" className={linkClass('/about')}>
                             {t('menu.about')}
                         </Link>
-                        <span>|</span>
-                        <Link href="/contact" className={isActive('/contact') ? 'active font-semibold' : ''}>
+                        <Link href="/contact" className={linkClass('/contact')}>
                             {t('menu.contact')}
                         </Link>
-                        <span>|</span>
-                        <Link href="/privacy" className={isActive('/privacy') ? 'active font-semibold' : ''}>
+                        <Link href="/privacy" className={linkClass('/privacy')}>
                             {t('menu.privacy')}
                         </Link>
-                    </div>
+                    </nav>
 
                     <LanguageSwitcher />
                     {SHOW_AUTH_BUTTONS && (
                         session?.user ? (
-                            <Link href="#" onClick={(e) => { e.preventDefault(); signOut(); }} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 transition">
+                            <Link href="#" onClick={(e) => { e.preventDefault(); signOut(); }} className="px-3 py-1.5 rounded-md bg-red-500 text-white hover:bg-red-600 transition">
                                 {t('auth.logout')}
                             </Link>
                         ) : (
-                            <Link href="#" onClick={(e) => { e.preventDefault(); signIn(); }} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition">
+                            <Link href="#" onClick={(e) => { e.preventDefault(); signIn(); }} className="px-3 py-1.5 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition">
                                 {t('auth.login')}
                             </Link>
                         )
@@ -65,7 +67,7 @@ const NavBar = () => {
                         aria-label={isOpen ? t('menu.close', 'Close menu') : t('menu.open', 'Open menu')}
                         aria-expanded={isOpen}
                         aria-controls="mobile-menu"
-                        className="inline-flex items-center justify-center p-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100"
+                        className="inline-flex items-center justify-center p-2 rounded-md border border-border text-foreground hover:bg-muted"
                         onClick={() => setIsOpen((v) => !v)}
                     >
                         {/* Icon: hamburger / close */}
@@ -77,40 +79,42 @@ const NavBar = () => {
                         </svg>
                     </button>
                 </div>
-            </div>
+            </Container>
 
             {/* Mobile dropdown */}
-            <div id="mobile-menu" className={`${isOpen ? 'block' : 'hidden'} sm:hidden mt-3`}>
-                <div className="flex flex-col gap-3 text-sm">
-                    <Link href="/events" className={isActive('/events') ? 'active font-semibold' : ''} onClick={() => setIsOpen(false)}>
-                        {t('menu.events')}
-                    </Link>
-                    <Link href="/about" className={isActive('/about') ? 'active font-semibold' : ''} onClick={() => setIsOpen(false)}>
-                        {t('menu.about')}
-                    </Link>
-                    <Link href="/contact" className={isActive('/contact') ? 'active font-semibold' : ''} onClick={() => setIsOpen(false)}>
-                        {t('menu.contact')}
-                    </Link>
-                    <Link href="/privacy" className={isActive('/privacy') ? 'active font-semibold' : ''} onClick={() => setIsOpen(false)}>
-                        {t('menu.privacy')}
-                    </Link>
+            <div id="mobile-menu" className={`${isOpen ? 'block' : 'hidden'} sm:hidden`}> 
+                <Container className="py-3">
+                    <div className="flex flex-col gap-3 text-sm">
+                        <Link href="/events" className={linkClass('/events')} onClick={() => setIsOpen(false)}>
+                            {t('menu.events')}
+                        </Link>
+                        <Link href="/about" className={linkClass('/about')} onClick={() => setIsOpen(false)}>
+                            {t('menu.about')}
+                        </Link>
+                        <Link href="/contact" className={linkClass('/contact')} onClick={() => setIsOpen(false)}>
+                            {t('menu.contact')}
+                        </Link>
+                        <Link href="/privacy" className={linkClass('/privacy')} onClick={() => setIsOpen(false)}>
+                            {t('menu.privacy')}
+                        </Link>
 
-                    {SHOW_AUTH_BUTTONS && (
-                        <div className="pt-2 flex items-center gap-3">
-                            {session?.user ? (
-                                <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signOut(); }} className="px-3 py-1.5 bg-red-500 text-white rounded hover:bg-red-700 transition text-sm">
-                                    {t('auth.logout')}
-                                </Link>
-                            ) : (
-                                <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signIn(); }} className="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-700 transition text-sm">
-                                    {t('auth.login')}
-                                </Link>
-                            )}
-                        </div>
-                    )}
-                </div>
+                        {SHOW_AUTH_BUTTONS && (
+                            <div className="pt-2 flex items-center gap-3">
+                                {session?.user ? (
+                                    <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signOut(); }} className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 transition text-sm">
+                                        {t('auth.logout')}
+                                    </Link>
+                                ) : (
+                                    <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signIn(); }} className="px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition text-sm">
+                                        {t('auth.login')}
+                                    </Link>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </Container>
             </div>
-        </nav>
+        </header>
     );
 };
 

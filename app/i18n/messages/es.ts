@@ -10,6 +10,7 @@ const es = {
 
   "search.label": "Buscar",
   "search.placeholder": "Buscar eventos...",
+  "hero.title": "Descubre Eventos en Buenos Aires",
 
   "filters.allTypes": "Todos los tipos",
   "filters.onlyFree": "Solo gratuitos",

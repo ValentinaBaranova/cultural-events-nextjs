@@ -6,7 +6,7 @@ import { useEvents } from '@/lib/useEvents';
 import React, {useEffect, useRef, useState, Suspense, useMemo} from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
-import Search from "@/ui/search";
+import HeroSearch from "@/ui/HeroSearch";
 import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
 import {API_URL, SHOW_EVENT_DETAILS_LINK} from "@/lib/config";
@@ -220,7 +220,7 @@ function EventsListPageInner() {
 
     return (
         <div className="events-list-container">
-            <Search />
+            <HeroSearch />
 
             <div className="flex items-center gap-4 flex-wrap mb-6">
                 {/* Event types */}

@@ -7,11 +7,11 @@ export default function LanguageSwitcher() {
   const { locale, setLocale, t } = useI18n();
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="inline-flex items-center rounded-full border border-border p-0.5 bg-card">
       <button
         type="button"
         onClick={() => setLocale('es')}
-        className={`px-1.5 py-0.5 text-xs rounded-md border ${locale === 'es' ? 'bg-gray-200 border-gray-300 font-semibold' : 'hover:bg-gray-100 border-transparent'}`}
+        className={`px-2 py-1 text-xs rounded-full transition ${locale === 'es' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         aria-pressed={locale === 'es'}
         aria-label={t('lang.spanish')}
         title={t('lang.spanish')}
@@ -21,7 +21,7 @@ export default function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setLocale('en')}
-        className={`px-1.5 py-0.5 text-xs rounded-md border ${locale === 'en' ? 'bg-gray-200 border-gray-300 font-semibold' : 'hover:bg-gray-100 border-transparent'}`}
+        className={`px-2 py-1 text-xs rounded-full transition ${locale === 'en' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         aria-pressed={locale === 'en'}
         aria-label={t('lang.english')}
         title={t('lang.english')}

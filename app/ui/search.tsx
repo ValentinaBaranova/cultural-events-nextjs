@@ -23,19 +23,34 @@ export default function Search({ placeholder }: { placeholder?: string }) {
     }, 300);
 
     return (
-        <div className="flex justify-start mb-4">
+        <div className="mb-4">
             <label htmlFor="search" className="sr-only">
                 {t('search.label')}
             </label>
-            <input
-                id="search"
-                className="w-full max-w-[300px] rounded-md border border-gray-300 py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder={placeholder ?? t('search.placeholder')}
-                onChange={(e) => {
-                    handleSearch(e.target.value);
-                }}
-                defaultValue={searchParams.get('query')?.toString()}
-            />
+            <div className="relative">
+                {/* Left search icon */}
+                <svg
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    {/* Heroicons outline: magnifying-glass */}
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+                <input
+                    id="search"
+                    className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-base outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                    placeholder={placeholder ?? t('search.placeholder')}
+                    onChange={(e) => {
+                        handleSearch(e.target.value);
+                    }}
+                    defaultValue={searchParams.get('query')?.toString()}
+                />
+            </div>
         </div>
     );
 }

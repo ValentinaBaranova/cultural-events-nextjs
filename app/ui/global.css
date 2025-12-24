@@ -55,8 +55,6 @@ body {
 
 .events-list-container {
     padding: 20px;
-    max-width: var(--container-max);
-    margin: 0 auto;
 }
 
 .events-grid {
@@ -121,8 +119,6 @@ body {
 
 .event-detail-container {
     padding: 20px;
-    max-width: var(--container-max);
-    margin: 0 auto;
 }
 
 .event-info {
@@ -140,8 +136,6 @@ body {
 .navbar {
     display: flex;
     justify-content: center;
-    max-width: var(--container-max);
-    margin: 0 auto 20px;
     padding: 10px 0;
     border-bottom: 1px solid var(--border); /* bottom border */
 }
