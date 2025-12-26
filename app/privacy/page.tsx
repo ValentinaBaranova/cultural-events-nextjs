@@ -9,7 +9,7 @@ export default function PrivacyPage() {
   const email = t("contact.email", "vbaranova87@gmail.com");
 
   return (
-    <main className="max-w-3xl mx-auto p-6 space-y-4">
+    <main className="max-w-3xl mx-auto p-6 space-y-4 bg-white shadow">
       <h1 className="text-2xl font-semibold">{t("privacy.title")}</h1>
       <p>{t("privacy.p1")}</p>
       <p>{t("privacy.p2")}</p>

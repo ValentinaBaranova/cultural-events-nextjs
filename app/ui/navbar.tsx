@@ -21,7 +21,7 @@ const NavBar = () => {
       `${isActive(href) ? 'text-foreground font-semibold' : 'text-muted-foreground'} hover:text-foreground`;
 
     return (
-        <header className="border-b border-border bg-background">
+        <header className="border-b border-border bg-white">
             <Container className="h-16 flex items-center justify-between">
                 {/* Left: Logo/Title */}
                 <Link href="/events" className="font-semibold text-lg">

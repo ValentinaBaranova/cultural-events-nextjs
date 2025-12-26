@@ -85,7 +85,33 @@
   padding: 12px;
 }
 
-/* Filters button */
+/* Desktop filters summary row */
+.filters-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  padding: 6px 2px 8px 2px;
+  border-bottom: 1px solid var(--border);
+  margin: 8px 0 10px 0;
+}
+.filters-summary-clear {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: #6b7280; /* gray-500 */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.filters-summary-clear:hover {
+  color: #111827; /* gray-900 */
+}
+
+/* Filters button (mobile primary) */
 .filters-btn {
   display: flex;
   align-items: center;
@@ -96,6 +122,27 @@
   border: none;
   border-radius: 12px;
   padding: 12px 14px;
+}
+/* Desktop filters toggle (hover background only, match event card toggle style) */
+.filters-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.filters-toggle:hover {
+  background-color: rgba(99, 102, 241, 0.06); /* subtle indigo tint */
+}
+@media (prefers-color-scheme: dark) {
+  .filters-toggle:hover {
+    background-color: rgba(167, 139, 250, 0.08);
+  }
 }
 .filters-icon {
   width: 18px;

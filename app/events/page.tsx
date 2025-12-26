@@ -465,12 +465,6 @@ function EventsListPageInner() {
     );
 
     // Desktop badge should count only advanced filters hidden behind the toggle
-    const advancedBadgeCount = (
-        (dateRange ? 1 : 0) +
-        (selectedVenues.length ? 1 : 0) +
-        (selectedBarrios.length ? 1 : 0) +
-        (selectedTags.length ? 1 : 0)
-    );
 
     return (
         <div className="events-list-container">
@@ -502,18 +496,25 @@ function EventsListPageInner() {
             <div className="hidden sm:block mb-4 filters-block">
                 {/* Primary always visible */}
                 {renderPrimaryFilters()}
+
+                {/* Summary row: visible when any filter is active */}
+                {badgeCount > 0 && (
+                    <div className="filters-summary" role="status" aria-live="polite">
+                        <span>{badgeCount === 1 ? '1 filtro activo' : `${badgeCount} filtros activos`}</span>
+                        <button type="button" className="filters-summary-clear" onClick={clearAll}>Limpiar todo</button>
+                    </div>
+                )}
+
                 {/* Toggle to expand/collapse advanced */}
-                <div className="mb-2">
+                <div className="mb-1">
                     <button
                         type="button"
                         aria-expanded={desktopExpanded}
-                        className="filters-btn"
+                        aria-label={desktopExpanded ? 'Ocultar filtros avanzados' : 'Mostrar filtros avanzados'}
+                        className="filters-toggle"
                         onClick={() => setDesktopExpanded((v) => !v)}
                     >
                         <span>{desktopExpanded ? 'Menos filtros' : 'Más filtros'}</span>
-                        {!desktopExpanded && advancedBadgeCount > 0 && (
-                            <span className="filters-badge">{advancedBadgeCount}</span>
-                        )}
                         <svg
                             className={`filters-icon transition-transform ${desktopExpanded ? 'rotate-180' : ''}`}
                             viewBox="0 0 24 24"
@@ -529,7 +530,7 @@ function EventsListPageInner() {
                     </button>
                 </div>
                 {desktopExpanded && (
-                    <div className="mt-4 pt-4 pb-4 border-t border-gray-200 grid gap-4">
+                    <div className="mt-2 pt-2 pb-4 grid gap-4">
                         {renderAdvancedFilters()}
                     </div>
                 )}

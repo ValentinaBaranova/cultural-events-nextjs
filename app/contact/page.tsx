@@ -8,7 +8,7 @@ export default function ContactPage() {
   const { t } = useI18n();
 
   return (
-    <main className="max-w-3xl mx-auto p-6 space-y-4">
+    <main className="max-w-3xl mx-auto p-6 space-y-4 bg-white shadow">
       <h1 className="text-2xl font-semibold">{t('contact.title', 'Contacto')}</h1>
       <p>{t('contact.q', '¿Tenés una pregunta, una sugerencia o querés proponer un evento o un espacio cultural?')}</p>
       <p>
