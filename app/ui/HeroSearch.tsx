@@ -8,7 +8,7 @@ import Image from "next/image";
 export default function HeroSearch() {
   const { t } = useI18n();
   return (
-    <section className="pt-6 pb-6 sm:py-12">
+    <section className="pt-3 pb-4 sm:pt-6 sm:pb-6">
       <div className="text-center space-y-3">
         <h1 className="text-hero font-normal tracking-tight">
           {t("hero.title", "Descubre Eventos en Buenos Aires")}
@@ -25,14 +25,14 @@ export default function HeroSearch() {
       </div>
 
       {/* Hero banner image below the search bar */}
-      <div className="mt-6 sm:mt-8 mx-auto w-full">
+      <div className="mt-4 sm:mt-6 mx-auto w-full">
         <div className="w-full overflow-hidden border border-border shadow">
           <Image
             src="/images/hero/buenos-aires.jpg"
             alt={t("hero.bannerAlt", "Vista panorámica de Buenos Aires")}
             width={1600}
             height={500}
-            className="h-16 sm:h-56 md:h-64 lg:h-72 w-full object-cover"
+            className="h-11 sm:h-40 md:h-44 lg:h-44 w-full object-cover"
             priority
           />
         </div>

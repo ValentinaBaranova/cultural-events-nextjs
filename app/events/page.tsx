@@ -389,7 +389,7 @@ function EventsListPageInner() {
     // Primary filters: types + only free
     const renderPrimaryFilters = () => (
         <>
-            <div className="mb-4 sm:mt-4">
+            <div className="mb-1 sm:mt-4">
                 <div className="flex flex-wrap gap-2">
                     {types.map((type) => {
                         const active = selectedTypes.includes(type.slug);
@@ -611,12 +611,14 @@ function EventsListPageInner() {
                 {/* Primary always visible */}
                 {renderPrimaryFilters()}
 
-                {/* Summary row: visible when any filter is active */}
-                {badgeCount > 0 && (
+                {/* Summary row + separator: always render separator; show content only when filters are active */}
+                {badgeCount > 0 ? (
                     <div className="filters-summary" role="status" aria-live="polite">
                         <span>{badgeCount === 1 ? '1 filtro activo' : `${badgeCount} filtros activos`}</span>
                         <button type="button" className="filters-summary-clear" onClick={clearAll}>Limpiar todo</button>
                     </div>
+                ) : (
+                    <div className="filters-summary" aria-hidden="true" />
                 )}
 
                 {/* Toggle to expand/collapse advanced */}
