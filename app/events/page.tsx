@@ -594,14 +594,14 @@ function EventsListPageInner() {
                                 <button aria-label={`Clear ${chip.key}`} className="chip-x" onClick={chip.onClear}>×</button>
                             </span>
                         ))}
-                        <button className="chip-clear-all" onClick={clearAll}>Limpiar todo</button>
+                        <button className="chip-clear-all" onClick={clearAll}>Clear all</button>
                     </div>
                 )}
                 <button type="button" className="filters-btn" onClick={() => setSheetOpen(true)}>
                     <svg className="filters-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M3 4h18l-7 8v6l-4 2v-8L3 4z" />
                     </svg>
-                    Filtros
+                    Filters
                     {badgeCount > 0 && <span className="filters-badge">{badgeCount}</span>}
                 </button>
             </div>
@@ -614,8 +614,8 @@ function EventsListPageInner() {
                 {/* Summary row + separator: always render separator; show content only when filters are active */}
                 {badgeCount > 0 ? (
                     <div className="filters-summary" role="status" aria-live="polite">
-                        <span>{badgeCount === 1 ? '1 filtro activo' : `${badgeCount} filtros activos`}</span>
-                        <button type="button" className="filters-summary-clear" onClick={clearAll}>Limpiar todo</button>
+                        <span>{badgeCount === 1 ? '1 filter active' : `${badgeCount} filters active`}</span>
+                        <button type="button" className="filters-summary-clear" onClick={clearAll}>Clear all</button>
                     </div>
                 ) : (
                     <div className="filters-summary" aria-hidden="true" />
@@ -626,11 +626,11 @@ function EventsListPageInner() {
                     <button
                         type="button"
                         aria-expanded={desktopExpanded}
-                        aria-label={desktopExpanded ? 'Ocultar filtros avanzados' : 'Mostrar filtros avanzados'}
+                        aria-label={desktopExpanded ? 'Hide advanced filters' : 'Show advanced filters'}
                         className="filters-toggle"
                         onClick={() => setDesktopExpanded((v) => !v)}
                     >
-                        <span>{desktopExpanded ? 'Menos filtros' : 'Más filtros'}</span>
+                        <span>{desktopExpanded ? 'Fewer filters' : 'More filters'}</span>
                         <svg
                             className={`filters-icon transition-transform ${desktopExpanded ? 'rotate-180' : ''}`}
                             viewBox="0 0 24 24"
@@ -658,15 +658,15 @@ function EventsListPageInner() {
                     <div className="sheet-backdrop" onClick={() => setSheetOpen(false)} />
                     <div className="bottom-sheet" role="dialog" aria-modal="true" aria-label="Filters">
                         <div className="sheet-header">
-                            <span className="sheet-title">Filtros</span>
+                            <span className="sheet-title">Filters</span>
                             <button className="sheet-close" onClick={() => setSheetOpen(false)} aria-label="Close">✕</button>
                         </div>
                         <div className="sheet-content">
                             {renderFiltersContent()}
                         </div>
                         <div className="sheet-footer">
-                            <button className="sheet-apply" onClick={() => setSheetOpen(false)}>Aplicar</button>
-                            <button className="sheet-reset" onClick={clearAll}>Limpiar</button>
+                            <button className="sheet-apply" onClick={() => setSheetOpen(false)}>Apply</button>
+                            <button className="sheet-reset" onClick={clearAll}>Clear</button>
                         </div>
                     </div>
                 </>
@@ -687,15 +687,22 @@ function EventsListPageInner() {
                         className="event-card"
                         ref={index === events.length - 1 ? lastEventRef : null} // ✅ Attach observer to last event
                     >
-                        <Image
-                            src={event.imageExists
-                                ? `/events/${event.id}/image`
-                                : '/events_images/placeholder.png'}
-                            width={400}
-                            height={400}
-                            className="event-image"
-                            alt={event.imageExists ? t('events.imageAlt') : t('events.imagePlaceholderAlt')}
-                        />
+                        <div className="event-image-wrapper">
+                            {event.isFree && (
+                                <span className="badge-free" aria-label={t('events.free')}>
+                                    {t('events.free')}
+                                </span>
+                            )}
+                            <Image
+                                src={event.imageExists
+                                    ? `/events/${event.id}/image`
+                                    : '/events_images/placeholder.png'}
+                                width={400}
+                                height={400}
+                                className="event-image"
+                                alt={event.imageExists ? t('events.imageAlt') : t('events.imagePlaceholderAlt')}
+                            />
+                        </div>
                         <div className="event-details">
                             <h2 className="event-title">{event.name}</h2>
                             <div className="event-divider" aria-hidden="true" />
