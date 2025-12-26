@@ -175,18 +175,35 @@
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   box-shadow: var(--shadow-lg);
-  padding-bottom: env(safe-area-inset-bottom);
+  /* Keep footer above iOS bottom bar */
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
   z-index: 50;
   transform: translateY(0%);
   animation: sheet-in 200ms ease-out;
+  /* Make it behave like a proper sheet with internal scroll and a stable header */
+  display: flex;
+  flex-direction: column;
+  /* Use small/large/dynamic viewport units to avoid iOS URL bar issues */
+  max-height: 100svh; /* iOS 16+ */
+  height: auto;
+  /* Fallbacks for older engines */
+  height: min(100vh, 100dvh);
+  overscroll-behavior: contain;
 }
 @keyframes sheet-in { from { transform: translateY(100%);} to { transform: translateY(0%);} }
 .sheet-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
+  background: var(--card);
+  /* Prevent content from painting under rounded corners */
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 .sheet-title { font-weight: 600; }
 .sheet-close {
@@ -194,12 +211,26 @@
   border: none;
   font-size: 18px;
 }
-.sheet-content { padding: 16px; display: grid; gap: 16px; }
+.sheet-content {
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+  /* Let the content scroll under a sticky header while keeping footer visible */
+  flex: 1 1 auto;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Keep some space so last controls aren't hidden by the footer */
+  padding-bottom: 72px;
+}
 .sheet-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
   display: flex;
   gap: 12px;
-  padding: 12px 16px 16px;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--border);
+  background: var(--card);
 }
 .sheet-apply {
   flex: 1;
