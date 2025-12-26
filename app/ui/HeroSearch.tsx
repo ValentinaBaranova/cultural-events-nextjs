@@ -7,13 +7,20 @@ import Image from "next/image";
 
 export default function HeroSearch() {
   const { t } = useI18n();
+  const rawTitle = t("hero.title", "Descubre Eventos en Buenos Aires");
+  const heroTitle = rawTitle.replace(/Buenos Aires/g, "Buenos\u00A0Aires");
   return (
     <section className="pt-3 pb-4 sm:pt-6 sm:pb-6">
       <div className="text-center space-y-3">
         <h1 className="text-hero font-normal tracking-tight">
-          {t("hero.title", "Descubre Eventos en Buenos Aires")}
+          {heroTitle}
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        {/* Mobile-only subtitle (grammar fix, shorter) */}
+        <p className="text-sm text-muted-foreground sm:hidden">
+          {t("hero.subtitleMobile", "Las mejores experiencias culturales de la ciudad")}
+        </p>
+        {/* Desktop/tablet subtitle */}
+        <p className="hidden sm:block text-base text-muted-foreground">
           {t(
             "hero.subtitle",
             "Los mejores conciertos, exposiciones y experiencias culturales de la ciudad"
@@ -24,8 +31,8 @@ export default function HeroSearch() {
         <Search />
       </div>
 
-      {/* Hero banner image below the search bar */}
-      <div className="mt-4 sm:mt-6 mx-auto w-full">
+      {/* Hero banner image below the search bar (hidden on mobile) */}
+      <div className="hidden sm:block mt-4 sm:mt-6 mx-auto w-full">
         <div className="w-full overflow-hidden border border-border shadow">
           <Image
             src="/images/hero/buenos-aires.jpg"
