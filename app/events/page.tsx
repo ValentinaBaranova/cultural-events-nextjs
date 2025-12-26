@@ -113,7 +113,6 @@ function EventsListPageInner() {
             }
         }
         initializedFromUrlRef.current = true;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
 
     // Push active filters into the URL whenever they change
@@ -218,9 +217,18 @@ function EventsListPageInner() {
         const mq = window.matchMedia('(min-width: 1024px)');
         const apply = () => setIsDesktop(mq.matches);
         apply();
-        mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply as any);
+        if (typeof mq.addEventListener === 'function') {
+            mq.addEventListener('change', apply);
+        } else if ('addListener' in mq) {
+            // Fallback for older browsers
+            (mq as MediaQueryList).addListener(apply);
+        }
         return () => {
-            mq.removeEventListener ? mq.removeEventListener('change', apply) : mq.removeListener(apply as any);
+            if (typeof mq.removeEventListener === 'function') {
+                mq.removeEventListener('change', apply);
+            } else if ('removeListener' in mq) {
+                (mq as MediaQueryList).removeListener(apply);
+            }
         };
     }, []);
 
