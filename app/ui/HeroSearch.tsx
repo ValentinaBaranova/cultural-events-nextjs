@@ -39,7 +39,8 @@ export default function HeroSearch() {
             alt={t("hero.bannerAlt", "Vista panorámica de Buenos Aires")}
             width={1600}
             height={500}
-            className="h-11 sm:h-40 md:h-44 lg:h-44 w-full object-cover"
+            className="h-12 sm:h-44 md:h-48 lg:h-48 w-full object-cover"
+            style={{ objectPosition: "center 46%" }}
             priority
           />
         </div>
