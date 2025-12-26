@@ -107,6 +107,51 @@ function EventsListPageInner() {
         selectedTags,
     );
 
+    // Expand/collapse state
+    // - Mobile/tablet: per-card state via Set
+    // - Desktop (>=1024px): global state — expanding one expands all; collapsing one collapses all
+    const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+    const [isDesktop, setIsDesktop] = useState(false);
+    const [allExpandedDesktop, setAllExpandedDesktop] = useState(false);
+
+    // Listen for viewport changes to determine desktop mode
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const mq = window.matchMedia('(min-width: 1024px)');
+        const apply = () => setIsDesktop(mq.matches);
+        apply();
+        mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply as any);
+        return () => {
+            mq.removeEventListener ? mq.removeEventListener('change', apply) : mq.removeListener(apply as any);
+        };
+    }, []);
+
+    // When switching into desktop, derive global state from current per-card state (any expanded => all expanded)
+    useEffect(() => {
+        if (isDesktop) {
+            setAllExpandedDesktop(expandedCards.size > 0);
+        }
+        // no else: keep per-card state intact for when returning to mobile
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isDesktop]);
+
+    const isCardExpanded = (id: string | number) => {
+        return isDesktop ? allExpandedDesktop : expandedCards.has(String(id));
+    };
+
+    const toggleCard = (id: string | number) => {
+        if (isDesktop) {
+            setAllExpandedDesktop((prev) => !prev);
+            return;
+        }
+        setExpandedCards((prev) => {
+            const next = new Set(prev);
+            const key = String(id);
+            if (next.has(key)) next.delete(key); else next.add(key);
+            return next;
+        });
+    };
+
     const handleTagClick = (tag: string) => {
         setSelectedTags((prev) => (prev.includes(tag) ? prev : [...prev, tag]));
         // Optionally ensure the tag exists in options so it shows up with label
@@ -535,100 +580,170 @@ function EventsListPageInner() {
                             alt={event.imageExists ? t('events.imageAlt') : t('events.imagePlaceholderAlt')}
                         />
                         <div className="event-details">
-                            <h2>{event.name}</h2>
-                            <p>{event.description}</p>
-                            <p><strong>{t('events.type')}</strong> {types.find((ty) => ty.slug === event.type)?.name ?? event.type}</p>
-                            <p><strong>{(!event.endDate || event.endDate !== event.date) ? t('events.startDate') : t('events.date')}</strong> {event.date}{event.startTime ? ` ${event.startTime.slice(0, 5)}` : ''}</p>
-                            <p><strong>{t('events.location')}</strong> {event.venue?.name ?? ''}</p>
-                            {event.venue?.barrio?.name && (
-                                <p><strong>{t('events.barrio')}</strong> {event.venue.barrio.name}</p>
-                            )}
-                            {(event.isFree || event.priceText) && (
-                                <p>
-                                    <strong>{t('events.price')}</strong>{' '}
-                                    {event.isFree ? t('events.free') : event.priceText}
-                                </p>
+                            <h2 className="event-title">{event.name}</h2>
+                            <div className="event-divider" aria-hidden="true" />
+
+                            <div className="event-meta">
+                                <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span className="event-meta-text">
+                                    {event.date}{event.startTime ? ` a las ${event.startTime.slice(0, 5)}` : ''}
+                                </span>
+                            </div>
+
+                            <div className="event-meta">
+                                <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M21 10c0 5.523-9 12-9 12S3 15.523 3 10a9 9 0 1118 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                <span className="event-meta-text">
+                                    {event.venue?.name ?? ''}
+                                    {event.venue?.barrio?.name && (
+                                        <>
+                                            {' '}
+                                            ·{' '}
+                                            <a className="event-link" href={`/events?barrio=${encodeURIComponent(event.venue.barrio.name)}`}>{event.venue.barrio.name}</a>
+                                        </>
+                                    )}
+                                </span>
+                            </div>
+
+                            {/* Toggle collapsed/expanded (top): show only when collapsed */}
+                            {!isCardExpanded(event.id) && (
+                                <button
+                                    type="button"
+                                    className="event-collapse"
+                                    aria-expanded={isCardExpanded(event.id)}
+                                    aria-controls={`event-content-${event.id}`}
+                                    onClick={() => toggleCard(event.id)}
+                                    title={isCardExpanded(event.id) ? t('events.collapse') : t('events.expand')}
+                                >
+                                    <svg className={`event-collapse-icon ${isCardExpanded(event.id) ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </button>
                             )}
 
-                            {/* Tags */}
-                            {event.tags && event.tags.length > 0 && (
-                                <div className="mt-2 flex flex-wrap gap-2" aria-label="event-tags">
-                                    {event.tags.map((tag, idx) => {
-                                        const label = getTagLabel(tag);
-                                        return (
-                                            <button
-                                                key={`tag-${idx}`}
-                                                type="button"
-                                                onClick={() => handleTagClick(tag)}
-                                                className="px-2 py-0.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                aria-label={`Filter by tag ${label}`}
-                                                title={`Filter by #${label}`}
-                                            >
-                                                #{label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            )}
+                            {/* Expanded content */}
+                            {isCardExpanded(event.id) && (
+                                <div id={`event-content-${event.id}`}>
+                                    <p className="event-description">{event.description}</p>
 
-                            {event.paymentChannels && event.paymentChannels.length > 0 && (
-                                <div className="tickets-row flex flex-wrap items-center gap-x-2 gap-y-1">
-                                    <p>
-                                    <strong>{t('events.tickets')}</strong>{' '}
-                                    {event.paymentChannels.map((ch, idx) => {
-                                        const displayName = ch?.name || ch?.url || '';
-                                        const hasUrl = !!ch?.url;
-                                        const normalizedUrl = hasUrl
-                                            ? (ch!.url!.startsWith('http') ? ch!.url! : `https://${ch!.url!}`)
-                                            : '';
-                                        const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
-                                        const spanClasses = "max-w-full break-words";
-                                        const content = hasUrl ? (
+                                    {/* Tags */}
+                                    {event.tags && event.tags.length > 0 && (
+                                        <div className="event-tags" aria-label="event-tags">
+                                            {event.tags.map((tag, idx) => {
+                                                const label = getTagLabel(tag);
+                                                return (
+                                                    <button
+                                                        key={`tag-${idx}`}
+                                                        type="button"
+                                                        onClick={() => handleTagClick(tag)}
+                                                        className="event-tag"
+                                                        aria-label={`Filter by tag ${label}`}
+                                                        title={`Filter by #${label}`}
+                                                    >
+                                                        #{label}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+
+                                    {/* Type row */}
+                                    <div className="event-meta">
+                                        <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                            <path d="M20.59 13.41L12 21l-9-9V3h9l8.59 8.59z" />
+                                            <path d="M7 7h.01" />
+                                        </svg>
+                                        <a className="event-link" href={`/events?type=${encodeURIComponent(event.type)}`}>
+                                            {types.find((ty) => ty.slug === event.type)?.name ?? event.type}
+                                        </a>
+                                    </div>
+
+                                    {/* Tickets */}
+                                    {event.paymentChannels && event.paymentChannels.length > 0 && (
+                                        <>
+                                            <div className="event-divider" aria-hidden="true" />
+                                            <div className="tickets-row flex flex-wrap items-center gap-x-2 gap-y-1">
+                                                <p>
+                                                <strong>{t('events.tickets')}</strong>{' '}
+                                                {event.paymentChannels.map((ch, idx) => {
+                                                    const displayName = ch?.name || ch?.url || '';
+                                                    const hasUrl = !!ch?.url;
+                                                    const normalizedUrl = hasUrl
+                                                        ? (ch!.url!.startsWith('http') ? ch!.url! : `https://${ch!.url!}`)
+                                                        : '';
+                                                    const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
+                                                    const spanClasses = "max-w-full break-words";
+                                                    const content = hasUrl ? (
+                                                        <a
+                                                            key={`ch-${idx}`}
+                                                            href={normalizedUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className={linkClasses}
+                                                            title={displayName}
+                                                        >
+                                                            {displayName}
+                                                        </a>
+                                                    ) : (
+                                                        <span key={`ch-${idx}`} className={spanClasses}>{displayName}</span>
+                                                    );
+
+                                                    return (
+                                                        <React.Fragment key={`frag-${idx}`}>
+                                                            {content}
+                                                            {idx < event.paymentChannels!.length - 1 && <span className="hidden sm:inline"> · </span>}
+                                                        </React.Fragment>
+                                                    );
+                                                })}
+                                                </p>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <div className="event-divider" aria-hidden="true" />
+                                    <UpdateEvent id={event.id}/>
+                                    <div className="event-actions">
+                                        {event.instagramId ? (
                                             <a
-                                                key={`ch-${idx}`}
-                                                href={normalizedUrl}
+                                                href={`https://www.instagram.com/p/${event.instagramId}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className={linkClasses}
-                                                title={displayName}
+                                                className="event-link"
                                             >
-                                                {displayName}
+                                                {t('event.originalSource')}
                                             </a>
                                         ) : (
-                                            <span key={`ch-${idx}`} className={spanClasses}>{displayName}</span>
-                                        );
+                                            <span />
+                                        )}
+                                        {SHOW_EVENT_DETAILS_LINK ? (
+                                            <Link href={`/events/${event.id}`} className="event-link">
+                                                {t('events.viewDetails')}
+                                            </Link>
+                                        ) : <span />}
+                                    </div>
 
-                                        return (
-                                            <React.Fragment key={`frag-${idx}`}>
-                                                {content}
-                                                {idx < event.paymentChannels!.length - 1 && <span className="hidden sm:inline"> · </span>}
-                                            </React.Fragment>
-                                        );
-                                    })}
-                                    </p>
+                                    {/* Toggle (bottom): show only when expanded */}
+                                    <button
+                                        type="button"
+                                        className="event-collapse"
+                                        aria-expanded={isCardExpanded(event.id)}
+                                        aria-controls={`event-content-${event.id}`}
+                                        onClick={() => toggleCard(event.id)}
+                                        title={isCardExpanded(event.id) ? t('events.collapse') : t('events.expand')}
+                                    >
+                                        <svg className={`event-collapse-icon ${isCardExpanded(event.id) ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="6 9 12 15 18 9" />
+                                        </svg>
+                                    </button>
                                 </div>
                             )}
-
-                            <UpdateEvent id={event.id}/>
-                            <div className="event-actions">
-                                {event.instagramId ? (
-                                    <a
-                                        href={`https://www.instagram.com/p/${event.instagramId}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="event-link"
-                                    >
-                                        {t('event.originalSource')}
-                                    </a>
-                                ) : (
-                                    <span />
-                                )}
-                                {SHOW_EVENT_DETAILS_LINK ? (
-                                    <Link href={`/events/${event.id}`} className="event-link">
-                                        {t('events.viewDetails')}
-                                    </Link>
-                                ) : <span />}
-                            </div>
                         </div>
                     </div>
                 ))}
