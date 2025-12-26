@@ -157,6 +157,22 @@ function EventsListPageInner() {
         // Optionally ensure the tag exists in options so it shows up with label
         setTagOptions((prev) => (prev.some(o => o.value === tag) ? prev : [...prev, { label: tag, value: tag }]));
     };
+
+    // When user clicks an event type on an event card, add it to filters
+    const handleTypeClick = (slug: string) => {
+        if (!slug) return;
+        setSelectedTypes((prev) => (prev.includes(slug) ? prev : [...prev, slug]));
+        // Types are fetched from API; no need to inject options here as labels come from `types` list
+    };
+
+    // When user clicks a barrio on an event card, add it to filters
+    const handleBarrioClick = (slug: string, name?: string) => {
+        if (!slug) return;
+        setSelectedBarrios((prev) => (prev.includes(slug) ? prev : [...prev, slug]));
+        // Ensure the barrio appears with a proper label in chips/select
+        setBarrioOptions((prev) => (prev.some(o => o.value === slug) ? prev : [...prev, { label: name ?? slug, value: slug }]));
+        // Optionally open filters sheet on mobile, but keeping behavior simple/minimal.
+    };
     const { t, locale } = useI18n();
 
     const observerRef = useRef<IntersectionObserver | null>(null);
@@ -607,7 +623,15 @@ function EventsListPageInner() {
                                         <>
                                             {' '}
                                             ·{' '}
-                                            <a className="event-link" href={`/events?barrio=${encodeURIComponent(event.venue.barrio.name)}`}>{event.venue.barrio.name}</a>
+                                            <button
+                                                type="button"
+                                                className="event-link"
+                                                onClick={() => handleBarrioClick(event.venue!.barrio!.slug, event.venue!.barrio!.name)}
+                                                aria-label={`Filtrar por barrio ${event.venue!.barrio!.name}`}
+                                                title={`Filtrar por barrio ${event.venue!.barrio!.name}`}
+                                            >
+                                                {event.venue.barrio.name}
+                                            </button>
                                         </>
                                     )}
                                 </span>
@@ -661,9 +685,15 @@ function EventsListPageInner() {
                                             <path d="M20.59 13.41L12 21l-9-9V3h9l8.59 8.59z" />
                                             <path d="M7 7h.01" />
                                         </svg>
-                                        <a className="event-link" href={`/events?type=${encodeURIComponent(event.type)}`}>
+                                        <button
+                                            type="button"
+                                            className="event-link"
+                                            onClick={() => handleTypeClick(event.type)}
+                                            aria-label={`Filtrar por tipo ${typeNameBySlug[event.type] ?? event.type}`}
+                                            title={`Filtrar por tipo ${typeNameBySlug[event.type] ?? event.type}`}
+                                        >
                                             {types.find((ty) => ty.slug === event.type)?.name ?? event.type}
-                                        </a>
+                                        </button>
                                     </div>
 
                                     {/* Tickets */}
