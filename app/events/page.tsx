@@ -57,6 +57,8 @@ function EventsListPageInner() {
     const getTagLabel = (slug: string) => tagNameBySlug[slug] ?? slug;
 
     const [pickerOpen, setPickerOpen] = useState(false);
+    // Desktop filters expand/collapse
+    const [desktopExpanded, setDesktopExpanded] = useState(false);
 
     // Preset ranges for the date picker
     const today = dayjs().startOf('day');
@@ -225,10 +227,9 @@ function EventsListPageInner() {
 
     if (error) return <p>{t('events.error')}</p>;
 
-    // Helpers to render filters content (shared by desktop and mobile sheet)
-    const renderFiltersContent = () => (
+    // Primary filters: types + only free
+    const renderPrimaryFilters = () => (
         <>
-            {/* Types as pill chips */}
             <div className="mb-4">
                 <div className="flex flex-wrap gap-2">
                     {types.map((type) => {
@@ -261,10 +262,14 @@ function EventsListPageInner() {
                     </Checkbox>
                 </div>
             </div>
+        </>
+    );
 
-            {/* Rango de Fechas */}
+    // Advanced filters: date range, venues, barrios, tags
+    const renderAdvancedFilters = () => (
+        <>
             <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-700 mb-1">Rango de Fechas</span>
+                <span className="text-sm font-medium text-gray-700 mb-1">Rango de fechas</span>
                 <DatePicker.RangePicker
                     value={dateRange ?? undefined}
                     onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
@@ -298,7 +303,6 @@ function EventsListPageInner() {
                 />
             </div>
 
-            {/* Lugares */}
             <div className="flex flex-col">
                 <span className="text-sm font-medium text-gray-700 mb-1">Lugares</span>
                 <Select
@@ -318,7 +322,6 @@ function EventsListPageInner() {
                 />
             </div>
 
-            {/* Barrios */}
             <div className="flex flex-col">
                 <span className="text-sm font-medium text-gray-700 mb-1">Barrios</span>
                 <Select
@@ -338,7 +341,6 @@ function EventsListPageInner() {
                 />
             </div>
 
-            {/* Etiquetas */}
             <div className="flex flex-col">
                 <span className="text-sm font-medium text-gray-700 mb-1">Etiquetas</span>
                 <Select
@@ -354,6 +356,14 @@ function EventsListPageInner() {
                     style={{ minWidth: 240 }}
                 />
             </div>
+        </>
+    );
+
+    // Helpers to render filters content (shared by mobile sheet)
+    const renderFiltersContent = () => (
+        <>
+            {renderPrimaryFilters()}
+            {renderAdvancedFilters()}
         </>
     );
 
@@ -409,6 +419,14 @@ function EventsListPageInner() {
         (selectedTags.length ? 1 : 0)
     );
 
+    // Desktop badge should count only advanced filters hidden behind the toggle
+    const advancedBadgeCount = (
+        (dateRange ? 1 : 0) +
+        (selectedVenues.length ? 1 : 0) +
+        (selectedBarrios.length ? 1 : 0) +
+        (selectedTags.length ? 1 : 0)
+    );
+
     return (
         <div className="events-list-container">
             <HeroSearch />
@@ -435,9 +453,41 @@ function EventsListPageInner() {
                 </button>
             </div>
 
-            {/* Desktop filters container */}
+            {/* Desktop filters container with expand/collapse */}
             <div className="hidden sm:block mb-4 filters-block">
-                {renderFiltersContent()}
+                {/* Primary always visible */}
+                {renderPrimaryFilters()}
+                {/* Toggle to expand/collapse advanced */}
+                <div className="mb-2">
+                    <button
+                        type="button"
+                        aria-expanded={desktopExpanded}
+                        className="filters-btn"
+                        onClick={() => setDesktopExpanded((v) => !v)}
+                    >
+                        <span>{desktopExpanded ? 'Menos filtros' : 'Más filtros'}</span>
+                        {!desktopExpanded && advancedBadgeCount > 0 && (
+                            <span className="filters-badge">{advancedBadgeCount}</span>
+                        )}
+                        <svg
+                            className={`filters-icon transition-transform ${desktopExpanded ? 'rotate-180' : ''}`}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                        >
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                </div>
+                {desktopExpanded && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 grid gap-4">
+                        {renderAdvancedFilters()}
+                    </div>
+                )}
             </div>
 
             {/* Mobile: Bottom sheet */}
