@@ -19,6 +19,11 @@ const es = {
   "filters.barrios": "Barrios",
   "filters.barriosPrompt": "",
   "filters.tags": "Etiquetas",
+  "filters.clearAll": "Limpiar todo",
+  "filters.moreFilters": "Más filtros",
+  "filters.fewerFilters": "Menos filtros",
+  "filters.active.singular": "filtro activo",
+  "filters.active.plural": "filtros activos",
 
   "events.error": "Error al cargar eventos",
   "events.viewDetails": "Ver detalles",

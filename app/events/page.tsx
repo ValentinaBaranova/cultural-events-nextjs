@@ -602,7 +602,7 @@ function EventsListPageInner() {
                                 <button aria-label={`Clear ${chip.key}`} className="chip-x" onClick={chip.onClear}>×</button>
                             </span>
                         ))}
-                        <button className="chip-clear-all" onClick={clearAll}>Clear all</button>
+                        <button className="chip-clear-all" onClick={clearAll}>{t('filters.clearAll')}</button>
                     </div>
                 )}
                 <button type="button" className="filters-btn" onClick={() => setSheetOpen(true)}>
@@ -622,8 +622,8 @@ function EventsListPageInner() {
                 {/* Summary row + separator: always render separator; show content only when filters are active */}
                 {badgeCount > 0 ? (
                     <div className="filters-summary" role="status" aria-live="polite">
-                        <span>{badgeCount === 1 ? '1 filter active' : `${badgeCount} filters active`}</span>
-                        <button type="button" className="filters-summary-clear" onClick={clearAll}>Clear all</button>
+                        <span>{badgeCount === 1 ? `1 ${t('filters.active.singular')}` : `${badgeCount} ${t('filters.active.plural')}`}</span>
+                        <button type="button" className="filters-summary-clear" onClick={clearAll}>{t('filters.clearAll')}</button>
                     </div>
                 ) : (
                     <div className="filters-summary" aria-hidden="true" />
@@ -638,7 +638,7 @@ function EventsListPageInner() {
                         className="filters-toggle"
                         onClick={() => setDesktopExpanded((v) => !v)}
                     >
-                        <span>{desktopExpanded ? 'Fewer filters' : 'More filters'}</span>
+                        <span>{desktopExpanded ? t('filters.fewerFilters') : t('filters.moreFilters')}</span>
                         <svg
                             className={`filters-icon transition-transform ${desktopExpanded ? 'rotate-180' : ''}`}
                             viewBox="0 0 24 24"

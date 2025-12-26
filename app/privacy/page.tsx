@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         {t("privacy.p5.prefix")}
         <a
           href={`mailto:${email}`}
-          className="text-blue-600 hover:underline"
+          className="inline-link"
         >
           {t("privacy.p5.link")}
         </a>.

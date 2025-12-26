@@ -433,13 +433,13 @@ body {
     padding: 6px 10px;
     font-size: 12px;
     border-radius: 9999px;
-    background: #eef2ff; /* indigo-100 */
-    color: #1e3a8a; /* indigo-900 */
-    border: 1px solid #e5e7eb;
+    background: #f5f3ff; /* violet-50 */
+    color: #5b21b6; /* violet-800 */
+    border: 1px solid #e9d5ff; /* violet-200 */
 }
 
 .event-tag:hover {
-    background: #e0e7ff; /* indigo-200 */
+    background: #ede9fe; /* violet-100 */
 }
 
 .event-detail-container {
@@ -567,4 +567,12 @@ body {
   .event-meta-icon {
     color: #a78bfa; /* violet-400/500 in dark mode */
   }
+}
+
+
+/* Reusable inline link style (matches event card link style) */
+.inline-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

@@ -20,6 +20,11 @@ const en = {
   "filters.barrios": "Neighborhoods",
   "filters.barriosPrompt": "",
   "filters.tags": "Tags",
+  "filters.clearAll": "Clear all",
+  "filters.moreFilters": "More filters",
+  "filters.fewerFilters": "Fewer filters",
+  "filters.active.singular": "filter active",
+  "filters.active.plural": "filters active",
   
   "events.error": "Error loading events",
   "events.viewDetails": "View details",

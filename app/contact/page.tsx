@@ -12,7 +12,7 @@ export default function ContactPage() {
       <h1 className="text-2xl font-semibold">{t('contact.title', 'Contacto')}</h1>
       <p>{t('contact.q', '¿Tenés una pregunta, una sugerencia o querés proponer un evento o un espacio cultural?')}</p>
       <p>
-        <a href={`mailto:${CONTACT_EMAIL}`} className="text-blue-600 underline">
+        <a href={`mailto:${CONTACT_EMAIL}`} className="inline-link">
           {t('contact.writeLink', 'Escribinos')}
         </a>{' '}
         {t('contact.writeSuffix', 'para esta versión de prueba.')}
