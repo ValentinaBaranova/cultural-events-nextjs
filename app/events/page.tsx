@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEvents } from '@/lib/useEvents';
 import React, {useEffect, useRef, useState, Suspense, useMemo} from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
 import HeroSearch from "@/ui/HeroSearch";
 import { UpdateEvent } from "@/ui/events/buttons";
@@ -27,6 +27,8 @@ type TagOption = { slug: string; name: string };
 
 
 function EventsListPageInner() {
+    const router = useRouter();
+    const pathname = usePathname();
     const [sheetOpen, setSheetOpen] = useState(false);
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
@@ -44,6 +46,9 @@ function EventsListPageInner() {
     const [tagOptions, setTagOptions] = useState<Option[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+    // URL sync helpers
+    const initializedFromUrlRef = useRef(false);
+
     // Maps for quick label lookup (must be declared before any early returns)
     const typeNameBySlug = useMemo(() => Object.fromEntries(types.map(t => [t.slug, t.name])), [types]);
     const barrioNameBySlug = useMemo(() => Object.fromEntries(barrioOptions.map(b => [b.value, b.label])), [barrioOptions]);
@@ -55,6 +60,96 @@ function EventsListPageInner() {
     }, [tagOptions]);
 
     const getTagLabel = (slug: string) => tagNameBySlug[slug] ?? slug;
+
+    // Initialize filters from URL on first mount
+    useEffect(() => {
+        if (initializedFromUrlRef.current) return;
+        // Read arrays as comma-separated lists; support legacy singular names
+        const getArrayParam = (primary: string, legacy?: string): string[] => {
+            const raw = searchParams.get(primary) ?? (legacy ? searchParams.get(legacy) : null);
+            if (!raw) return [];
+            return raw.split(',').map(s => s.trim()).filter(Boolean);
+        };
+        const typesFromUrl = getArrayParam('types', 'type');
+        const venuesFromUrl = getArrayParam('venues', 'venue');
+        const barriosFromUrl = getArrayParam('barrios', 'barrio');
+        const tagsFromUrl = getArrayParam('tags', 'tag');
+        const freeFromUrl = searchParams.get('free');
+        const startFromUrl = searchParams.get('startDate');
+        const endFromUrl = searchParams.get('endDate');
+
+        if (typesFromUrl.length) setSelectedTypes(typesFromUrl);
+        if (venuesFromUrl.length) setSelectedVenues(venuesFromUrl);
+        if (barriosFromUrl.length) {
+            setSelectedBarrios(barriosFromUrl);
+            // ensure options have at least slug-as-label entries to display chips
+            setBarrioOptions(prev => {
+                const existing = new Set(prev.map(o => o.value));
+                const additions = barriosFromUrl.filter(b => !existing.has(b)).map(b => ({ label: b, value: b }));
+                return additions.length ? [...prev, ...additions] : prev;
+            });
+        }
+        if (tagsFromUrl.length) {
+            setSelectedTags(tagsFromUrl);
+            setTagOptions(prev => {
+                const existing = new Set(prev.map(o => o.value));
+                const additions = tagsFromUrl.filter(tg => !existing.has(tg)).map(tg => ({ label: tg, value: tg }));
+                return additions.length ? [...prev, ...additions] : prev;
+            });
+        }
+        if (freeFromUrl) {
+            const normalized = freeFromUrl.toLowerCase();
+            setOnlyFree(normalized === '1' || normalized === 'true' || normalized === 'yes');
+        }
+        if (startFromUrl || endFromUrl) {
+            const start = startFromUrl ? dayjs(startFromUrl) : null;
+            const end = endFromUrl ? dayjs(endFromUrl) : null;
+            if (start && start.isValid() && end && end.isValid()) {
+                setDateRange([start, end]);
+            } else if (start && start.isValid()) {
+                setDateRange([start, start]);
+            } else if (end && end.isValid()) {
+                setDateRange([end, end]);
+            }
+        }
+        initializedFromUrlRef.current = true;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
+
+    // Push active filters into the URL whenever they change
+    useEffect(() => {
+        if (!initializedFromUrlRef.current) return; // wait until initial read
+        const params = new URLSearchParams(searchParams.toString());
+
+        const setOrDelete = (key: string, value?: string | null) => {
+            if (value && value.length > 0) {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+        };
+
+        // Multi-value as comma-separated lists
+        setOrDelete('types', selectedTypes.join(','));
+        setOrDelete('venues', selectedVenues.join(','));
+        setOrDelete('barrios', selectedBarrios.join(','));
+        setOrDelete('tags', selectedTags.join(','));
+        setOrDelete('free', onlyFree ? '1' : null);
+
+        const start = dateRange?.[0]?.format('YYYY-MM-DD');
+        const end = dateRange?.[1]?.format('YYYY-MM-DD');
+        setOrDelete('startDate', start ?? null);
+        setOrDelete('endDate', end ?? null);
+
+        const qs = params.toString();
+        const currentQs = searchParams.toString();
+        const next = qs ? `${pathname}?${qs}` : pathname;
+        const current = currentQs ? `${pathname}?${currentQs}` : pathname;
+        if (next !== current) {
+            router.replace(next, { scroll: false });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedTypes.join(','), selectedVenues.join(','), selectedBarrios.join(','), selectedTags.join(','), onlyFree, dateRange?.[0]?.valueOf(), dateRange?.[1]?.valueOf(), pathname]);
 
     const [pickerOpen, setPickerOpen] = useState(false);
     // Desktop filters expand/collapse
@@ -81,9 +176,12 @@ function EventsListPageInner() {
         { label: 'This Month', value: [monthStart, monthEnd] as [Dayjs, Dayjs] },
     ];
 
-    // Default: next 7 days interval on initial load
+    // Default: next 7 days interval on initial load (but don't override if URL has dates)
     useEffect(() => {
-        setDateRange([today, next7End]);
+        const hasDateInUrl = typeof window !== 'undefined' && (searchParams.get('startDate') || searchParams.get('endDate'));
+        if (!hasDateInUrl) {
+            setDateRange([today, next7End]);
+        }
         // We intentionally run this only once on mount to avoid overwriting user input
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
