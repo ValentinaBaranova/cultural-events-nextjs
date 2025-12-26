@@ -230,7 +230,7 @@ function EventsListPageInner() {
     // Primary filters: types + only free
     const renderPrimaryFilters = () => (
         <>
-            <div className="mb-4">
+            <div className="mb-4 sm:mt-4">
                 <div className="flex flex-wrap gap-2">
                     {types.map((type) => {
                         const active = selectedTypes.includes(type.slug);
@@ -484,7 +484,7 @@ function EventsListPageInner() {
                     </button>
                 </div>
                 {desktopExpanded && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 grid gap-4">
+                    <div className="mt-4 pt-4 pb-4 border-t border-gray-200 grid gap-4">
                         {renderAdvancedFilters()}
                     </div>
                 )}
