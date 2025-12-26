@@ -8,7 +8,7 @@ import Image from "next/image";
 export default function HeroSearch() {
   const { t } = useI18n();
   return (
-    <section className="py-10 sm:py-12">
+    <section className="pt-6 pb-6 sm:py-12">
       <div className="text-center space-y-3">
         <h1 className="text-hero font-normal tracking-tight">
           {t("hero.title", "Descubre Eventos en Buenos Aires")}

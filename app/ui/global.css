@@ -47,6 +47,129 @@
   h1 { @apply text-hero font-semibold tracking-tight; }
 }
 
+/* Compact filter chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e5e7eb; /* gray-200 */
+  border: none;
+  color: var(--foreground);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+.chip-x {
+  background: transparent;
+  border: none;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  line-height: 1;
+}
+.chip-x:hover { color: var(--foreground); }
+.chip-clear-all {
+  font-size: 12px;
+  color: #111827; /* gray-900 */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.chip-clear-all:hover { color: #000000; }
+
+/* Unified filters/chips block */
+.filters-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0; /* square corners */
+  padding: 12px;
+}
+
+/* Filters button */
+.filters-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #f5f3ff; /* indigo-50 */
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.filters-icon {
+  width: 18px;
+  height: 18px;
+  stroke: #6366f1; /* indigo-500 */
+}
+.filters-badge {
+  margin-left: 8px;
+  font-size: 12px;
+  line-height: 1;
+  background: #8b5cf6; /* violet-500 */
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 3px 7px;
+}
+
+/* Bottom sheet */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.35);
+  z-index: 40;
+}
+.bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--card);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 50;
+  transform: translateY(0%);
+  animation: sheet-in 200ms ease-out;
+}
+@keyframes sheet-in { from { transform: translateY(100%);} to { transform: translateY(0%);} }
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sheet-title { font-weight: 600; }
+.sheet-close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+}
+.sheet-content { padding: 16px; display: grid; gap: 16px; }
+.sheet-footer {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--border);
+}
+.sheet-apply {
+  flex: 1;
+  background: #f5f3ff; /* match filters-btn background (indigo-50) */
+  color: #111827; /* dark text to match filters button */
+  border: none;
+  border-radius: 12px; /* match filters-btn radius */
+  padding: 12px 14px; /* match filters-btn padding */
+}
+.sheet-reset {
+  background: transparent; /* weaker style: no background */
+  border: 1px solid var(--border); /* subtle border only */
+  color: #111827; /* dark text */
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
 body {
     color: var(--foreground);
     background: var(--background);
@@ -214,4 +337,24 @@ body {
   .mobile-range-picker .ant-picker-footer {
     padding: 8px;
   }
+}
+
+
+/* Scoped AntD Checkbox color override for "Solo gratuitos" */
+.only-free-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #8b5cf6; /* violet-500 */
+  border-color: #8b5cf6;
+}
+.only-free-checkbox .ant-checkbox:hover .ant-checkbox-inner,
+.only-free-checkbox:hover .ant-checkbox-inner {
+  border-color: #8b5cf6;
+}
+.only-free-checkbox .ant-checkbox-input:focus + .ant-checkbox-inner,
+.only-free-checkbox .ant-checkbox-input:focus-visible + .ant-checkbox-inner {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+.only-free-checkbox .ant-checkbox-checked:hover .ant-checkbox-inner {
+  background-color: #7c3aed; /* violet-600 on hover */
+  border-color: #7c3aed;
 }
