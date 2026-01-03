@@ -27,7 +27,6 @@ type TagOption = { slug: string; name: string };
 
 
 function EventsListPageInner() {
-    const [isMobile, setIsMobile] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
     const [sheetOpen, setSheetOpen] = useState(false);
@@ -46,24 +45,6 @@ function EventsListPageInner() {
 
     const [tagOptions, setTagOptions] = useState<Option[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
-    // Detect mobile to tweak Select behavior (avoid keyboard auto-focus)
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        const computeIsMobile = () => {
-            const mq = window.matchMedia ? window.matchMedia('(pointer: coarse)') : null;
-            return (mq ? mq.matches : false) || window.innerWidth <= 640;
-        };
-        const update = () => setIsMobile(computeIsMobile());
-        update();
-        const mq = window.matchMedia ? window.matchMedia('(pointer: coarse)') : null;
-        mq?.addEventListener?.('change', update);
-        window.addEventListener('resize', update);
-        return () => {
-            mq?.removeEventListener?.('change', update);
-            window.removeEventListener('resize', update);
-        };
-    }, []);
 
     // URL sync helpers
     const initializedFromUrlRef = useRef(false);
@@ -496,12 +477,11 @@ function EventsListPageInner() {
                 <span className="text-sm font-medium text-gray-700 mb-1">Lugares</span>
                 <Select
                     mode="multiple"
-                    showSearch={!isMobile}
+                    showSearch
                     placeholder={t('filters.places')}
                     notFoundContent={t('filters.placesPrompt')}
                     filterOption={false}
                     onSearch={searchVenues}
-                    onDropdownVisibleChange={(open) => { if (open) searchVenues(''); }}
                     onOpenChange={(open) => { if (open) searchVenues(''); }}
                     options={venueOptions}
                     loading={venueLoading}
@@ -515,12 +495,11 @@ function EventsListPageInner() {
                 <span className="text-sm font-medium text-gray-700 mb-1">Barrios</span>
                 <Select
                     mode="multiple"
-                    showSearch={!isMobile}
+                    showSearch
                     placeholder={t('filters.barrios')}
                     notFoundContent={t('filters.barriosPrompt')}
                     filterOption={false}
                     onSearch={searchBarrios}
-                    onDropdownVisibleChange={(open) => { if (open) searchBarrios(''); }}
                     onOpenChange={(open) => { if (open) searchBarrios(''); }}
                     options={barrioOptions}
                     loading={barrioLoading}
@@ -535,7 +514,7 @@ function EventsListPageInner() {
                 <Select
                     aria-label="Event tags filter"
                     mode="multiple"
-                    showSearch={!isMobile}
+                    showSearch
                     placeholder={t('filters.tags')}
                     value={selectedTags}
                     onChange={(values) => setSelectedTags(values as string[])}
