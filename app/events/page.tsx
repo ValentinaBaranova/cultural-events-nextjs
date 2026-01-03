@@ -477,7 +477,6 @@ function EventsListPageInner() {
                 <span className="text-sm font-medium text-gray-700 mb-1">Lugares</span>
                 <Select
                     mode="multiple"
-                    allowClear
                     showSearch
                     placeholder={t('filters.places')}
                     notFoundContent={t('filters.placesPrompt')}
@@ -496,7 +495,6 @@ function EventsListPageInner() {
                 <span className="text-sm font-medium text-gray-700 mb-1">Barrios</span>
                 <Select
                     mode="multiple"
-                    allowClear
                     showSearch
                     placeholder={t('filters.barrios')}
                     notFoundContent={t('filters.barriosPrompt')}
@@ -516,7 +514,6 @@ function EventsListPageInner() {
                 <Select
                     aria-label="Event tags filter"
                     mode="multiple"
-                    allowClear
                     showSearch
                     placeholder={t('filters.tags')}
                     value={selectedTags}
