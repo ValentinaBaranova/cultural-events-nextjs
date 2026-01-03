@@ -28,6 +28,24 @@
     --shadow-card: var(--shadow);
 }
 
+/* Prevent iOS Safari zoom on focus by ensuring font-size >= 16px on small screens */
+@media (max-width: 600px) {
+  input,
+  textarea,
+  select,
+  .ant-input,
+  .ant-input input,
+  .ant-input-affix-wrapper input,
+  .ant-select-selector,
+  .ant-select-selection-search-input,
+  .ant-picker,
+  .ant-picker input,
+  .ant-picker-input > input {
+    font-size: 16px !important;
+    line-height: 1.4;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --background: #0a0a0a;

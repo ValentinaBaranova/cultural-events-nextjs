@@ -16,6 +16,10 @@ export default function RootLayout({
     return (
     <SessionProvider>
         <html lang="es">
+        <head>
+          {/* Ensure proper mobile scaling and disable user scaling to reduce accidental zoom */}
+          <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        </head>
         <body className="bg-background text-foreground min-h-screen">
         {/* Cookie/Consent banner and conditional GA loading */}
         <GATracker />
