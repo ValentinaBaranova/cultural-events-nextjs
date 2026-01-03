@@ -24,6 +24,10 @@ const es = {
   "filters.fewerFilters": "Menos filtros",
   "filters.active.singular": "filtro activo",
   "filters.active.plural": "filtros activos",
+  "filters.cancel": "Cancelar",
+  "filters.done": "Listo",
+  "filters.search": "Buscar",
+  "filters.moreCountSuffix": "más",
 
   "events.error": "Error al cargar eventos",
   "events.viewDetails": "Ver detalles",

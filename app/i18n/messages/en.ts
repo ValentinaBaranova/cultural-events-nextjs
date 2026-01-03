@@ -25,6 +25,10 @@ const en = {
   "filters.fewerFilters": "Fewer filters",
   "filters.active.singular": "filter active",
   "filters.active.plural": "filters active",
+  "filters.cancel": "Cancel",
+  "filters.done": "Done",
+  "filters.search": "Search",
+  "filters.moreCountSuffix": "more",
   
   "events.error": "Error loading events",
   "events.viewDetails": "View details",

@@ -52,7 +52,7 @@ function EventsListPageInner() {
     // Maps for quick label lookup (must be declared before any early returns)
     const typeNameBySlug = useMemo(() => Object.fromEntries(types.map(t => [t.slug, t.name])), [types]);
     const barrioNameBySlug = useMemo(() => Object.fromEntries(barrioOptions.map(b => [b.value, b.label])), [barrioOptions]);
-
+    const venueNameBySlug = useMemo(() => Object.fromEntries(venueOptions.map(v => [v.value, v.label])), [venueOptions]);
 
     // Map slug -> localized tag name for quick lookup
     const tagNameBySlug = useMemo(() => {
@@ -60,6 +60,7 @@ function EventsListPageInner() {
     }, [tagOptions]);
 
     const getTagLabel = (slug: string) => tagNameBySlug[slug] ?? slug;
+    const getVenueLabel = (slug: string) => venueNameBySlug[slug] ?? slug;
 
     // Initialize filters from URL on first mount
     useEffect(() => {
@@ -281,6 +282,40 @@ function EventsListPageInner() {
     };
     const { t, locale } = useI18n();
 
+    // Mobile pickers for Lugares/Barrios/Etiquetas
+    type PickerKind = 'venues' | 'barrios' | 'tags' | null;
+    const [mobilePicker, setMobilePicker] = useState<{
+        kind: PickerKind;
+        temp: string[];
+        query: string;
+    }>({ kind: null, temp: [], query: '' });
+
+    const openMobilePicker = (kind: Exclude<PickerKind, null>) => {
+        // Seed temp with current selection
+        const seed = kind === 'venues' ? selectedVenues : kind === 'barrios' ? selectedBarrios : selectedTags;
+        setMobilePicker({ kind, temp: [...seed], query: '' });
+        // Prime suggestions when opening
+        if (kind === 'venues') searchVenues('');
+        if (kind === 'barrios') searchBarrios('');
+    };
+
+    const toggleTemp = (value: string) => {
+        setMobilePicker((prev) => {
+            const exists = prev.temp.includes(value);
+            const next = exists ? prev.temp.filter(v => v !== value) : [...prev.temp, value];
+            return { ...prev, temp: next };
+        });
+    };
+
+    const applyMobilePicker = () => {
+        if (mobilePicker.kind === 'venues') setSelectedVenues(mobilePicker.temp);
+        if (mobilePicker.kind === 'barrios') setSelectedBarrios(mobilePicker.temp);
+        if (mobilePicker.kind === 'tags') setSelectedTags(mobilePicker.temp);
+        setMobilePicker({ kind: null, temp: [], query: '' });
+    };
+
+    const cancelMobilePicker = () => setMobilePicker({ kind: null, temp: [], query: '' });
+
     const observerRef = useRef<IntersectionObserver | null>(null);
     const lastEventRef = useRef<HTMLDivElement | null>(null);
 
@@ -436,7 +471,7 @@ function EventsListPageInner() {
     // Split into helpers so we can order differently on mobile
     const renderDateRangeFilter = () => (
         <div className="flex flex-col">
-            <span className="text-sm font-medium text-gray-700 mb-1">Rango de fechas</span>
+            <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">Rango de fechas</span>
             <DatePicker.RangePicker
                 value={dateRange ?? undefined}
                 onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
@@ -474,57 +509,121 @@ function EventsListPageInner() {
     const renderAdvancedFiltersRest = () => (
         <>
             <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-700 mb-1">Lugares</span>
-                <Select
-                    mode="multiple"
-                    allowClear
-                    showSearch
-                    placeholder={t('filters.places')}
-                    notFoundContent={t('filters.placesPrompt')}
-                    filterOption={false}
-                    onSearch={searchVenues}
-                    onOpenChange={(open) => { if (open) searchVenues(''); }}
-                    options={venueOptions}
-                    loading={venueLoading}
-                    value={selectedVenues}
-                    onChange={(values) => setSelectedVenues(values as string[])}
-                    style={{ minWidth: 240 }}
-                />
+                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">Lugares</span>
+                {/* Desktop >= sm: keep Select. Mobile: show trigger that opens full-screen picker */}
+                <div className="hidden sm:block">
+                    <Select
+                        mode="multiple"
+                        allowClear
+                        showSearch
+                        placeholder={t('filters.places')}
+                        notFoundContent={t('filters.placesPrompt')}
+                        filterOption={false}
+                        onSearch={searchVenues}
+                        onOpenChange={(open) => { if (open) searchVenues(''); }}
+                        options={venueOptions}
+                        loading={venueLoading}
+                        value={selectedVenues}
+                        onChange={(values) => setSelectedVenues(values as string[])}
+                        style={{ minWidth: 240 }}
+                    />
+                </div>
+                <div className="sm:hidden">
+                    <button type="button" className="filter-trigger w-full" onClick={() => openMobilePicker('venues')}>
+                        <span>{t('filters.places')}</span>
+                        {selectedVenues.length > 0 && <span className="count">{selectedVenues.length}</span>}
+                    </button>
+                    {selectedVenues.length > 0 && (
+                        <div className="chips-row mt-2">
+                            {selectedVenues.slice(0, 2).map(v => (
+                                <span key={v} className="chip">
+                                    {getVenueLabel(v)}
+                                    <button aria-label={`Remove venue ${getVenueLabel(v)}`} className="chip-x" onClick={() => setSelectedVenues(prev => prev.filter(x => x !== v))}>×</button>
+                                </span>
+                            ))}
+                            {selectedVenues.length > 2 && (
+                                <span className="text-sm text-gray-600">+{selectedVenues.length - 2} {t('filters.moreCountSuffix')}</span>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-700 mb-1">Barrios</span>
-                <Select
-                    mode="multiple"
-                    allowClear
-                    showSearch
-                    placeholder={t('filters.barrios')}
-                    notFoundContent={t('filters.barriosPrompt')}
-                    filterOption={false}
-                    onSearch={searchBarrios}
-                    onOpenChange={(open) => { if (open) searchBarrios(''); }}
-                    options={barrioOptions}
-                    loading={barrioLoading}
-                    value={selectedBarrios}
-                    onChange={(values) => setSelectedBarrios(values as string[])}
-                    style={{ minWidth: 240 }}
-                />
+                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">Barrios</span>
+                <div className="hidden sm:block">
+                    <Select
+                        mode="multiple"
+                        allowClear
+                        showSearch
+                        placeholder={t('filters.barrios')}
+                        notFoundContent={t('filters.barriosPrompt')}
+                        filterOption={false}
+                        onSearch={searchBarrios}
+                        onOpenChange={(open) => { if (open) searchBarrios(''); }}
+                        options={barrioOptions}
+                        loading={barrioLoading}
+                        value={selectedBarrios}
+                        onChange={(values) => setSelectedBarrios(values as string[])}
+                        style={{ minWidth: 240 }}
+                    />
+                </div>
+                <div className="sm:hidden">
+                    <button type="button" className="filter-trigger w-full" onClick={() => openMobilePicker('barrios')}>
+                        <span>{t('filters.barrios')}</span>
+                        {selectedBarrios.length > 0 && <span className="count">{selectedBarrios.length}</span>}
+                    </button>
+                    {selectedBarrios.length > 0 && (
+                        <div className="chips-row mt-2">
+                            {selectedBarrios.slice(0, 2).map(b => (
+                                <span key={b} className="chip">
+                                    {barrioNameBySlug[b] ?? b}
+                                    <button aria-label={`Remove barrio ${barrioNameBySlug[b] ?? b}`} className="chip-x" onClick={() => setSelectedBarrios(prev => prev.filter(x => x !== b))}>×</button>
+                                </span>
+                            ))}
+                            {selectedBarrios.length > 2 && (
+                                <span className="text-sm text-gray-600">+{selectedBarrios.length - 2} {t('filters.moreCountSuffix')}</span>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-700 mb-1">Etiquetas</span>
-                <Select
-                    aria-label="Event tags filter"
-                    mode="multiple"
-                    allowClear
-                    showSearch
-                    placeholder={t('filters.tags')}
-                    value={selectedTags}
-                    onChange={(values) => setSelectedTags(values as string[])}
-                    options={tagOptions}
-                    optionFilterProp="label"
-                    style={{ minWidth: 240 }}
-                />
+                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">Etiquetas</span>
+                <div className="hidden sm:block">
+                    <Select
+                        aria-label="Event tags filter"
+                        mode="multiple"
+                        allowClear
+                        showSearch
+                        placeholder={t('filters.tags')}
+                        value={selectedTags}
+                        onChange={(values) => setSelectedTags(values as string[])}
+                        options={tagOptions}
+                        optionFilterProp="label"
+                        style={{ minWidth: 240 }}
+                    />
+                </div>
+                <div className="sm:hidden">
+                    <button type="button" className="filter-trigger w-full" onClick={() => openMobilePicker('tags')}>
+                        <span>{t('filters.tags')}</span>
+                        {selectedTags.length > 0 && <span className="count">{selectedTags.length}</span>}
+                    </button>
+                    {selectedTags.length > 0 && (
+                        <div className="chips-row mt-2">
+                            {selectedTags.slice(0, 2).map(tag => (
+                                <span key={tag} className="chip">
+                                    {getTagLabel(tag)}
+                                    <button aria-label={`Remove tag ${getTagLabel(tag)}`} className="chip-x" onClick={() => setSelectedTags(prev => prev.filter(x => x !== tag))}>×</button>
+                                </span>
+                            ))}
+                            {selectedTags.length > 2 && (
+                                <span className="chip">+{selectedTags.length - 2}</span>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </>
     );
@@ -685,11 +784,50 @@ function EventsListPageInner() {
                             {renderFiltersContent()}
                         </div>
                         <div className="sheet-footer">
-                            <button className="sheet-apply" onClick={() => setSheetOpen(false)}>Apply</button>
-                            <button className="sheet-reset" onClick={clearAll}>Clear</button>
+                            <button className="sheet-apply" onClick={() => setSheetOpen(false)}>{t('filters.done')}</button>
+                            <button className="sheet-reset" onClick={clearAll}>{t('filters.clearAll')}</button>
                         </div>
                     </div>
                 </>
+            )}
+
+            {/* Mobile full-screen picker for Venues/Barrios/Tags */}
+            {mobilePicker.kind && (
+                <div className="mobile-picker-overlay" role="dialog" aria-modal="true">
+                    <div className="mobile-picker-header">
+                        <div className="mobile-picker-titlebar">
+                            <button type="button" className="mobile-picker-btn" onClick={cancelMobilePicker}>{t('filters.cancel')}</button>
+                            <div className="font-semibold">
+                                {mobilePicker.kind === 'venues' ? t('filters.places') : mobilePicker.kind === 'barrios' ? t('filters.barrios') : t('filters.tags')}
+                            </div>
+                            <button type="button" className="mobile-picker-btn primary" onClick={applyMobilePicker}>{t('filters.done')}</button>
+                        </div>
+                        <input
+                            className="mobile-picker-search"
+                            type="search"
+                            value={mobilePicker.query}
+                            placeholder={`${t('filters.search')}...`}
+                            onChange={(e) => {
+                                const q = e.target.value;
+                                setMobilePicker(prev => ({ ...prev, query: q }));
+                                if (mobilePicker.kind === 'venues') searchVenues(q);
+                                if (mobilePicker.kind === 'barrios') searchBarrios(q);
+                            }}
+                        />
+                    </div>
+                    <div className="mobile-picker-content">
+                        <ul className="mobile-picker-list">
+                            {(mobilePicker.kind === 'venues' ? venueOptions : mobilePicker.kind === 'barrios' ? barrioOptions : tagOptions)
+                                .filter(opt => mobilePicker.kind !== 'tags' || opt.label.toLowerCase().includes(mobilePicker.query.toLowerCase()))
+                                .map(opt => (
+                                <li key={opt.value} className="mobile-picker-item" onClick={() => toggleTemp(opt.value)}>
+                                    <span className="label">{opt.label}</span>
+                                    {mobilePicker.temp.includes(opt.value) && <span className="check" aria-hidden="true" />}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
             )}
 
             <div className="events-grid">
