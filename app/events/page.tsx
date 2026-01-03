@@ -667,22 +667,24 @@ function EventsListPageInner() {
         return `${s.format(showYear ? 'DD MMM YYYY' : 'DD MMM')} – ${e.format(showYear ? 'DD MMM YYYY' : 'DD MMM')}`;
     };
 
-    // Build prioritized chips: Date, Gratis, Type, Barrio (max 2 shown)
+    // Build prioritized chips: Date, Gratis, then individual Type and Barrio chips (no grouping). Show max 2, append +N más if more.
 
     const chipCandidates: { key: string; label: string; onClear: () => void }[] = [];
     if (dateRange) chipCandidates.push({ key: 'date', label: formatDateChip(), onClear: () => setDateRange(null) });
     if (onlyFree) chipCandidates.push({ key: 'free', label: 'Gratis', onClear: () => setOnlyFree(false) });
+    // One chip per selected type (no grouping)
     if (selectedTypes.length) {
-        const first = selectedTypes[0];
-        const firstName = typeNameBySlug[first] ?? first;
-        const extra = selectedTypes.length > 1 ? ` +${selectedTypes.length - 1}` : '';
-        chipCandidates.push({ key: 'types', label: `${firstName}${extra}` , onClear: () => setSelectedTypes([]) });
+        selectedTypes.forEach((slug) => {
+            const name = typeNameBySlug[slug] ?? slug;
+            chipCandidates.push({ key: `type-${slug}` , label: name, onClear: () => setSelectedTypes(prev => prev.filter(t => t !== slug)) });
+        });
     }
+    // One chip per selected barrio (no grouping)
     if (selectedBarrios.length) {
-        const first = selectedBarrios[0];
-        const firstName = barrioNameBySlug[first] ?? first;
-        const extra = selectedBarrios.length > 1 ? ` +${selectedBarrios.length - 1}` : '';
-        chipCandidates.push({ key: 'barrios', label: `${firstName}${extra}`, onClear: () => setSelectedBarrios([]) });
+        selectedBarrios.forEach((slug) => {
+            const name = barrioNameBySlug[slug] ?? slug;
+            chipCandidates.push({ key: `barrio-${slug}`, label: name, onClear: () => setSelectedBarrios(prev => prev.filter(b => b !== slug)) });
+        });
     }
 
     const prioritizedChips = chipCandidates.slice(0, 2);
@@ -713,6 +715,20 @@ function EventsListPageInner() {
                                 <button aria-label={`Clear ${chip.key}`} className="chip-x" onClick={chip.onClear}>×</button>
                             </span>
                         ))}
+                        {/* Append +N más if more than 2 filters are active overall */}
+                        {(() => {
+                            const totalActive =
+                                (dateRange ? 1 : 0) +
+                                (onlyFree ? 1 : 0) +
+                                selectedTypes.length +
+                                selectedBarrios.length +
+                                selectedVenues.length +
+                                selectedTags.length;
+                            const extra = totalActive - prioritizedChips.length;
+                            return totalActive > 2 ? (
+                                <span className="text-sm text-gray-600">+{extra} {t('filters.moreCountSuffix')}</span>
+                            ) : null;
+                        })()}
                         <button className="chip-clear-all" onClick={clearAll}>{t('filters.clearAll')}</button>
                     </div>
                 )}
@@ -721,7 +737,6 @@ function EventsListPageInner() {
                         <path d="M3 4h18l-7 8v6l-4 2v-8L3 4z" />
                     </svg>
                     Filters
-                    {badgeCount > 0 && <span className="filters-badge">{badgeCount}</span>}
                 </button>
             </div>
 
