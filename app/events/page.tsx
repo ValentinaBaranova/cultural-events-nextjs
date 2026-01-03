@@ -433,43 +433,46 @@ function EventsListPageInner() {
     );
 
     // Advanced filters: date range, venues, barrios, tags
-    const renderAdvancedFilters = () => (
-        <>
-            <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-700 mb-1">Rango de fechas</span>
-                <DatePicker.RangePicker
-                    value={dateRange ?? undefined}
-                    onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
-                    allowClear
-                    format="YYYY-MM-DD"
-                    inputReadOnly
-                    placement="bottomLeft"
-                    getPopupContainer={(trigger) => trigger?.parentElement || document.body}
-                    className="w-full sm:w-80"
-                    size="large"
-                    classNames={{ popup: { root: 'mobile-range-picker' } }}
-                    open={pickerOpen}
-                    onOpenChange={setPickerOpen}
-                    panelRender={(panelNode) => (
-                        <div>
-                            <div className="flex flex-wrap gap-2 px-3 pt-3 pb-2 border-b border-gray-200">
-                                {presets.map((p) => (
-                                    <button
-                                        key={p.label}
-                                        type="button"
-                                        onClick={() => applyPreset(p.value)}
-                                        className="px-2.5 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
-                                    >
-                                        {p.label}
-                                    </button>
-                                ))}
-                            </div>
-                            {panelNode}
+    // Split into helpers so we can order differently on mobile
+    const renderDateRangeFilter = () => (
+        <div className="flex flex-col">
+            <span className="text-sm font-medium text-gray-700 mb-1">Rango de fechas</span>
+            <DatePicker.RangePicker
+                value={dateRange ?? undefined}
+                onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
+                allowClear
+                format="YYYY-MM-DD"
+                inputReadOnly
+                placement="bottomLeft"
+                getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+                className="w-full sm:w-80"
+                size="large"
+                classNames={{ popup: { root: 'mobile-range-picker' } }}
+                open={pickerOpen}
+                onOpenChange={setPickerOpen}
+                panelRender={(panelNode) => (
+                    <div>
+                        <div className="flex flex-wrap gap-2 px-3 pt-3 pb-2 border-b border-gray-200">
+                            {presets.map((p) => (
+                                <button
+                                    key={p.label}
+                                    type="button"
+                                    onClick={() => applyPreset(p.value)}
+                                    className="px-2.5 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                >
+                                    {p.label}
+                                </button>
+                            ))}
                         </div>
-                    )}
-                />
-            </div>
+                        {panelNode}
+                    </div>
+                )}
+            />
+        </div>
+    );
 
+    const renderAdvancedFiltersRest = () => (
+        <>
             <div className="flex flex-col">
                 <span className="text-sm font-medium text-gray-700 mb-1">Lugares</span>
                 <Select
@@ -526,11 +529,20 @@ function EventsListPageInner() {
         </>
     );
 
+    const renderAdvancedFilters = () => (
+        <>
+            {renderDateRangeFilter()}
+            {renderAdvancedFiltersRest()}
+        </>
+    );
+
     // Helpers to render filters content (shared by mobile sheet)
+    // Mobile order must be: Date range → Types (chips) → Only free → Lugares → Barrios → Etiquetas
     const renderFiltersContent = () => (
         <>
+            {renderDateRangeFilter()}
             {renderPrimaryFilters()}
-            {renderAdvancedFilters()}
+            {renderAdvancedFiltersRest()}
         </>
     );
 

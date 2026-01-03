@@ -219,8 +219,8 @@
   flex: 1 1 auto;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  /* Keep some space so last controls aren't hidden by the footer */
-  padding-bottom: 72px;
+  /* Reduce extra space below the last input; footer is sticky and reserves its own space */
+  padding-bottom: 8px;
 }
 .sheet-footer {
   position: sticky;
@@ -524,11 +524,14 @@ body {
         right: 0 !important;
         padding: 20px;
     }
-  /* Stack calendars vertically for mobile */
+  /* Show only one calendar month on mobile */
   .mobile-range-picker .ant-picker-panels {
     display: flex;
-    flex-direction: column; /* stack two calendars */
     gap: 8px;
+  }
+  /* Hide the second month panel for range picker */
+  .mobile-range-picker .ant-picker-panels > *:nth-child(2) {
+    display: none !important;
   }
   .mobile-range-picker .ant-picker-panel {
     width: 100%;
@@ -575,4 +578,15 @@ body {
   color: inherit;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+
+@media (max-width: 640px) {
+  /* Force-show next month controls on the first (visible) panel of the RangePicker */
+  .mobile-range-picker .ant-picker-panels > *:first-child .ant-picker-header-next-btn,
+  .mobile-range-picker .ant-picker-panels > *:first-child .ant-picker-header-super-next-btn {
+    visibility: visible !important;
+    pointer-events: auto !important;
+    display: inline-flex !important;
+  }
 }
