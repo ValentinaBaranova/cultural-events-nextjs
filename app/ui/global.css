@@ -104,7 +104,6 @@
 /* Enlarge clear (x) controls inside inputs/selects/pickers for better tap targets */
 /* Ant Design clear icons: input, select, date/range pickers */
 .ant-input-clear-icon,
-.ant-select-clear,
 .ant-picker-clear {
   width: 24px;
   height: 24px;
@@ -115,11 +114,25 @@
   /* keep visual size compact while enlarging tap target */
   margin-right: -4px;
 }
+/* Keep Select's clear icon aligned with the arrow position (do not shift inward) */
+.ant-select-clear {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  /* Do not use negative margins here to avoid overlapping the dropdown arrow */
+  margin-right: 0;
+}
 /* Slightly larger on small screens */
 @media (max-width: 640px) {
   .ant-input-clear-icon,
-  .ant-select-clear,
   .ant-picker-clear {
+    width: 28px;
+    height: 28px;
+  }
+  .ant-select-clear {
     width: 28px;
     height: 28px;
   }
@@ -131,6 +144,13 @@
   outline: 2px solid #9ca3af;
   outline-offset: 2px;
 }
+/* When the select has a value and clear icon is visible, hide the arrow to prevent visual overlap in narrow layouts */
+.ant-select .ant-select-clear + .ant-select-arrow { display: none; }
+
+/* Date range picker: when a value is selected (clear icon is rendered), hide the calendar suffix and show the clear icon instead */
+.ant-picker:has(.ant-picker-clear) .ant-picker-suffix { display: none; }
+/* Ensure the clear icon stays visible (AntD shows it only on hover by default) */
+.ant-picker:has(.ant-picker-clear) .ant-picker-clear { visibility: visible; opacity: 1; }
 
 .chip-clear-all {
   font-size: 12px;
