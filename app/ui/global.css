@@ -78,13 +78,60 @@
   font-size: 12px;
 }
 .chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 2px;
+  margin-right: -4px; /* keep visual size compact while enlarging tap target */
   background: transparent;
   border: none;
   color: var(--muted-foreground);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1;
+  border-radius: 9999px;
+  cursor: pointer;
 }
 .chip-x:hover { color: var(--foreground); }
+.chip-x:focus-visible { outline: 2px solid #9ca3af; outline-offset: 2px; }
+
+/* Make the tap target a bit larger on very small screens */
+@media (max-width: 640px) {
+  .chip-x { width: 28px; height: 28px; }
+}
+
+/* Enlarge clear (x) controls inside inputs/selects/pickers for better tap targets */
+/* Ant Design clear icons: input, select, date/range pickers */
+.ant-input-clear-icon,
+.ant-select-clear,
+.ant-picker-clear {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  /* keep visual size compact while enlarging tap target */
+  margin-right: -4px;
+}
+/* Slightly larger on small screens */
+@media (max-width: 640px) {
+  .ant-input-clear-icon,
+  .ant-select-clear,
+  .ant-picker-clear {
+    width: 28px;
+    height: 28px;
+  }
+}
+/* Improve focus visibility for accessibility */
+.ant-input-clear-icon:focus-visible,
+.ant-select-clear:focus-visible,
+.ant-picker-clear:focus-visible {
+  outline: 2px solid #9ca3af;
+  outline-offset: 2px;
+}
+
 .chip-clear-all {
   font-size: 12px;
   color: #111827; /* gray-900 */
