@@ -811,11 +811,17 @@ function EventsListPageInner() {
                 <div className="mobile-picker-overlay" role="dialog" aria-modal="true">
                     <div className="mobile-picker-header">
                         <div className="mobile-picker-titlebar">
-                            <button type="button" className="mobile-picker-btn" onClick={cancelMobilePicker}>{t('filters.cancel')}</button>
                             <div className="font-semibold">
                                 {mobilePicker.kind === 'venues' ? t('filters.places') : mobilePicker.kind === 'barrios' ? t('filters.barrios') : t('filters.tags')}
                             </div>
-                            <button type="button" className="mobile-picker-btn primary" onClick={applyMobilePicker}>{t('filters.done')}</button>
+                            <button
+                                type="button"
+                                className="sheet-close"
+                                aria-label="Close"
+                                onClick={cancelMobilePicker}
+                            >
+                                ✕
+                            </button>
                         </div>
                         <input
                             className="mobile-picker-search"
@@ -835,12 +841,33 @@ function EventsListPageInner() {
                             {(mobilePicker.kind === 'venues' ? venueOptions : mobilePicker.kind === 'barrios' ? barrioOptions : tagOptions)
                                 .filter(opt => mobilePicker.kind !== 'tags' || opt.label.toLowerCase().includes(mobilePicker.query.toLowerCase()))
                                 .map(opt => (
-                                <li key={opt.value} className="mobile-picker-item" onClick={() => toggleTemp(opt.value)}>
+                                <li
+                                    key={opt.value}
+                                    className={`mobile-picker-item ${mobilePicker.temp.includes(opt.value) ? 'selected' : ''}`}
+                                    aria-selected={mobilePicker.temp.includes(opt.value)}
+                                    onClick={() => toggleTemp(opt.value)}
+                                >
                                     <span className="label">{opt.label}</span>
-                                    {mobilePicker.temp.includes(opt.value) && <span className="check" aria-hidden="true" />}
+                                    {mobilePicker.temp.includes(opt.value) && (
+                                        <svg
+                                            className="check"
+                                            viewBox="0 0 24 24"
+                                            aria-hidden="true"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2.5"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                    )}
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                    <div className="sheet-footer">
+                        <button type="button" className="sheet-apply" onClick={applyMobilePicker}>{t('filters.done')}</button>
                     </div>
                 </div>
             )}
