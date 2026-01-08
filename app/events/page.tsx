@@ -29,7 +29,6 @@ type TagOption = { slug: string; name: string };
 function EventsListPageInner() {
     // Lock body scroll when a full-screen overlay is open (mobile filters sheet or pickers)
     // This prevents background content from moving on iOS and ensures correct viewport calculations
-    const [isOverlayOpen, setIsOverlayOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
     const [sheetOpen, setSheetOpen] = useState(false);
@@ -311,7 +310,6 @@ function EventsListPageInner() {
     // Body scroll lock for overlays (sheet or mobile pickers)
     useEffect(() => {
         const anyOverlay = sheetOpen || mobilePicker.kind !== null;
-        setIsOverlayOpen(anyOverlay);
         if (anyOverlay) {
             const prev = document.body.style.overflow;
             document.body.style.overflow = 'hidden';
@@ -848,7 +846,6 @@ function EventsListPageInner() {
                                 <li
                                     key={opt.value}
                                     className={`mobile-picker-item ${mobilePicker.temp.includes(opt.value) ? 'selected' : ''}`}
-                                    aria-selected={mobilePicker.temp.includes(opt.value)}
                                     onClick={() => toggleTemp(opt.value)}
                                 >
                                     <span className="label">{opt.label}</span>
