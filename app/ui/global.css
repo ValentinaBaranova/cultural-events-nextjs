@@ -262,6 +262,7 @@
   position: fixed;
   left: 0;
   right: 0;
+  top: 0; /* ensure full-screen overlay even after page scroll on iOS */
   bottom: 0;
   background: var(--card);
   border-top-left-radius: 0;
@@ -276,10 +277,11 @@
   display: flex;
   flex-direction: column;
   /* Use small/large/dynamic viewport units to avoid iOS URL bar issues */
-  max-height: 100svh; /* iOS 16+ */
-  height: auto;
-  /* Fallbacks for older engines */
-  height: min(100vh, 100dvh);
+  /* Order fallbacks so the most modern unit wins when supported */
+  height: 100vh;       /* basic fallback */
+  height: 100dvh;      /* dynamic viewport (Chrome, Android) */
+  height: 100svh;      /* small viewport (iOS 16+) */
+  max-height: none;
   overscroll-behavior: contain;
 }
 @keyframes sheet-in { from { transform: translateY(100%);} to { transform: translateY(0%);} }

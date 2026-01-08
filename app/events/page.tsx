@@ -27,9 +27,14 @@ type TagOption = { slug: string; name: string };
 
 
 function EventsListPageInner() {
+    // Lock body scroll when a full-screen overlay is open (mobile filters sheet or pickers)
+    // This prevents background content from moving on iOS and ensures correct viewport calculations
+    const [isOverlayOpen, setIsOverlayOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
     const [sheetOpen, setSheetOpen] = useState(false);
+    
+    // Body scroll lock will be applied in an effect declared after mobilePicker is defined
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('query') || ''; // ✅ Read query from URL
     const [types, setTypes] = useState<EventTypeOption[]>([]);
@@ -302,6 +307,18 @@ function EventsListPageInner() {
     };
 
     const cancelMobilePicker = () => setMobilePicker({ kind: null, temp: [], query: '' });
+
+    // Body scroll lock for overlays (sheet or mobile pickers)
+    useEffect(() => {
+        const anyOverlay = sheetOpen || mobilePicker.kind !== null;
+        setIsOverlayOpen(anyOverlay);
+        if (anyOverlay) {
+            const prev = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            return () => { document.body.style.overflow = prev; };
+        }
+        return;
+    }, [sheetOpen, mobilePicker.kind]);
 
     const observerRef = useRef<IntersectionObserver | null>(null);
     const lastEventRef = useRef<HTMLDivElement | null>(null);
