@@ -9,6 +9,8 @@ export type Venue = {
     name: string;
     slug: string;
     barrio?: Barrio | null;
+    latitude?: number | null;
+    longitude?: number | null;
 };
 
 export type PaymentChannel = {

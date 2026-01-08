@@ -943,7 +943,24 @@ function EventsListPageInner() {
                                     <circle cx="12" cy="10" r="3"></circle>
                                 </svg>
                                 <span className="event-meta-text">
-                                    {event.venue?.name ?? ''}
+                                    {event.venue?.name ? (
+                                        <a
+                                            href={(() => {
+                                                const v = event.venue!;
+                                                if (v.latitude != null && v.longitude != null) {
+                                                    return `https://www.google.com/maps/search/?api=1&query=${v.latitude},${v.longitude}`;
+                                                }
+                                                const name = v.name ? `${v.name}, Buenos Aires` : 'Buenos Aires';
+                                                return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
+                                            })()}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="event-link"
+                                            title={event.venue.name}
+                                        >
+                                            {event.venue.name}
+                                        </a>
+                                    ) : ''}
                                     {event.venue?.barrio?.name && (
                                         <>
                                             {' '}

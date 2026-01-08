@@ -44,6 +44,25 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                     <p><strong><ClientT k="event.description" /></strong> {event.description}</p>
                     <p><strong><ClientT k="events.date" /></strong> {formatDateDDMMYY(event.date)}</p>
                     <p><strong><ClientT k="events.location" /></strong> {event.venue?.name ?? event.venueDetail ?? ''}</p>
+                    {event.venue && (
+                        <p className="mt-1">
+                            <a
+                                href={(() => {
+                                    const v = event.venue!;
+                                    if (v.latitude != null && v.longitude != null) {
+                                        return `https://www.google.com/maps/search/?api=1&query=${v.latitude},${v.longitude}`;
+                                    }
+                                    const name = v.name ? `${v.name}, Buenos Aires` : (event.venueDetail ?? 'Buenos Aires');
+                                    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
+                                })()}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                            >
+                                Ver en Google Maps
+                            </a>
+                        </p>
+                    )}
                     {(event.isFree || event.priceText) && (
                         <p>
                             <strong><ClientT k="events.price" /></strong>{' '}
