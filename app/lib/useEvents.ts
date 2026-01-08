@@ -5,7 +5,23 @@ import { API_URL } from '@/lib/config';
 import { CulturalEvent } from '@/lib/definitions';
 import { useEffect, useMemo } from 'react';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+// Robust fetcher: throw on non-OK and network failures so UI can show a friendly message
+const fetcher = async (url: string) => {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      const err = new Error(`API error ${res.status}`) as Error & { status?: number; body?: string };
+      err.status = res.status;
+      err.body = text;
+      throw err;
+    }
+    return await res.json();
+  } catch (e) {
+    // Network error or JSON parse
+    throw e;
+  }
+};
 
 const PAGE_SIZE = 10;
 

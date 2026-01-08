@@ -31,6 +31,9 @@ const en = {
   "filters.moreCountSuffix": "more",
   
   "events.error": "Error loading events",
+  "events.backendDown.title": "The service is temporarily unavailable",
+  "events.backendDown.message": "Please try again in a minute or",
+  "events.backendDown.contact": "contact us",
   "events.viewDetails": "View details",
   "events.date": "Date:",
   "events.startDate": "Start date:",

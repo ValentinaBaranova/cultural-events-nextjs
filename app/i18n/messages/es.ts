@@ -11,7 +11,7 @@ const es = {
   "search.label": "Buscar",
   "search.placeholder": "Buscar eventos...",
   "hero.title": "Descubre Eventos en Buenos Aires",
-
+  
   "filters.allTypes": "Todos los tipos",
   "filters.onlyFree": "Solo gratuitos",
   "filters.places": "Lugares",
@@ -30,6 +30,9 @@ const es = {
   "filters.moreCountSuffix": "más",
 
   "events.error": "Error al cargar eventos",
+  "events.backendDown.title": "El servicio no está disponible temporalmente",
+  "events.backendDown.message": "Probá de nuevo en un minuto o",
+  "events.backendDown.contact": "contactanos",
   "events.viewDetails": "Ver detalles",
   "events.date": "Fecha:",
   "events.startDate": "Fecha de inicio:",

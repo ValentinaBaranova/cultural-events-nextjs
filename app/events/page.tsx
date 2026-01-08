@@ -11,7 +11,7 @@ import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
 import {API_URL, SHOW_EVENT_DETAILS_LINK} from "@/lib/config";
 import { useI18n } from '@/i18n/I18nProvider';
-import { DatePicker, Select, Checkbox } from 'antd';
+import { DatePicker, Select, Checkbox, Alert } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 // import Skeleton from "@/ui/Skeleton"; // ✅ Import Skeleton Loader
 
@@ -429,7 +429,24 @@ function EventsListPageInner() {
         }, 250);
     };
 
-    if (error) return <p>{t('events.error')}</p>;
+    if (error) {
+        return (
+            <div className="max-w-3xl mx-auto p-4">
+                <Alert
+                    type="error"
+                    showIcon
+                    title={t('events.backendDown.title')}
+                    description={
+                        <span>
+                            {t('events.backendDown.message')}
+                            {' '}
+                            <Link href="/contact" className="underline">{t('events.backendDown.contact')}</Link>.
+                        </span>
+                    }
+                />
+            </div>
+        );
+    }
 
     // Primary filters: types + only free
     const renderPrimaryFilters = () => (
