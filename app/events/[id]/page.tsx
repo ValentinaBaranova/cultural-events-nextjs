@@ -49,11 +49,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                             <a
                                 href={(() => {
                                     const v = event.venue!;
-                                    if (v.latitude != null && v.longitude != null) {
-                                        return `https://www.google.com/maps/search/?api=1&query=${v.latitude},${v.longitude}`;
-                                    }
                                     const name = v.name ? `${v.name}, Buenos Aires` : (event.venueDetail ?? 'Buenos Aires');
-                                    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
+                                    if (v.googlePlaceId) {
+                                        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(v.googlePlaceId)}`;
+                                    }
+                                    if (v.latitude != null && v.longitude != null) {
+                                        return `https://www.google.com/maps/@?api=1&map_action=map&center=${v.latitude},${v.longitude}&zoom=16`;
+                                    }
+                                    return `https://www.google.com/maps/search/?api=1&map_action=map&query=${encodeURIComponent(name)}`;
                                 })()}
                                 target="_blank"
                                 rel="noopener noreferrer"

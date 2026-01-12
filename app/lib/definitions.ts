@@ -11,6 +11,7 @@ export type Venue = {
     barrio?: Barrio | null;
     latitude?: number | null;
     longitude?: number | null;
+    googlePlaceId?: string | null;
 };
 
 export type PaymentChannel = {
