@@ -67,6 +67,8 @@ const en = {
   "contact.q": "Do you have a question, a suggestion, or want to propose an event or a cultural venue?",
   "contact.writeLink": "Write to us",
   "contact.writeSuffix": "for this preview version.",
+  "contact.fillOrEmailPrefix": "Fill the form or ",
+  "contact.sendEmail": "send us an email",
   "contact.alpha1": "We are in an alpha version.",
   "contact.alpha2": "Information may be incomplete or contain errors.",
   "lang.english": "English",

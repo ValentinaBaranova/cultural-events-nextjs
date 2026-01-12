@@ -67,6 +67,8 @@ const es = {
   "contact.write": "Para esta versión de prueba, podés escribirnos a:",
   "contact.writeLink": "Escribinos",
   "contact.writeSuffix": "para esta versión de prueba.",
+  "contact.fillOrEmailPrefix": "Completa el formulario o ",
+  "contact.sendEmail": "envíanos un email",
   "contact.email": "vbaranova87@gmail.com",
   "contact.alpha1": "Estamos en una versión alpha.",
   "contact.alpha2": "La información puede estar incompleta o contener errores.",
