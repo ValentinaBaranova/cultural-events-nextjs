@@ -10,7 +10,7 @@ const en = {
 
   "search.label": "Search",
   "search.placeholder": "Search events...",
-  "hero.title": "Discover Events in Buenos Aires",
+  "hero.title": "Discover Events in Baires",
   "hero.subtitle": "The best concerts, exhibitions, and cultural experiences in the city",
   
   "filters.allTypes": "All types",
@@ -23,12 +23,18 @@ const en = {
   "filters.clearAll": "Clear all",
   "filters.moreFilters": "More filters",
   "filters.fewerFilters": "Fewer filters",
+  "filters.dateRange": "Date range",
   "filters.active.singular": "filter active",
   "filters.active.plural": "filters active",
   "filters.cancel": "Cancel",
   "filters.done": "Done",
   "filters.search": "Search",
   "filters.moreCountSuffix": "more",
+  "filters.date.today": "Today",
+  "filters.date.tomorrow": "Tomorrow",
+  "filters.date.thisWeekend": "This Weekend",
+  "filters.date.next7Days": "Next 7 Days",
+  "filters.date.thisMonth": "This Month",
   
   "events.error": "Error loading events",
   "events.backendDown.title": "The service is temporarily unavailable",

@@ -198,12 +198,15 @@ function EventsListPageInner() {
     const monthStart = today.startOf('month');
     const monthEnd = today.endOf('month');
 
+    // Use i18n before creating presets to avoid "Cannot access 't' before initialization"
+    const { t, locale } = useI18n();
+
     const presets = [
-        { label: 'Today', value: [today, today] as [Dayjs, Dayjs] },
-        { label: 'Tomorrow', value: [tomorrow, tomorrow] as [Dayjs, Dayjs] },
-        { label: 'This Weekend', value: [weekendStart, weekendEnd] as [Dayjs, Dayjs] },
-        { label: 'Next 7 Days', value: [today, next7End] as [Dayjs, Dayjs] },
-        { label: 'This Month', value: [monthStart, monthEnd] as [Dayjs, Dayjs] },
+        { label: t('filters.date.today', 'Today'), value: [today, today] as [Dayjs, Dayjs] },
+        { label: t('filters.date.tomorrow', 'Tomorrow'), value: [tomorrow, tomorrow] as [Dayjs, Dayjs] },
+        { label: t('filters.date.thisWeekend', 'This Weekend'), value: [weekendStart, weekendEnd] as [Dayjs, Dayjs] },
+        { label: t('filters.date.next7Days', 'Next 7 Days'), value: [today, next7End] as [Dayjs, Dayjs] },
+        { label: t('filters.date.thisMonth', 'This Month'), value: [monthStart, monthEnd] as [Dayjs, Dayjs] },
     ];
 
     // Default: next 7 days interval on initial load (but don't override if URL has dates)
@@ -297,7 +300,6 @@ function EventsListPageInner() {
 
     // Note: Previously, clicking event type or barrio on the card added filters.
     // Per UX update, these are now plain text, so handlers are removed.
-    const { t, locale } = useI18n();
 
     // Mobile pickers for Lugares/Barrios/Etiquetas
     type PickerKind = 'venues' | 'barrios' | 'tags' | null;
@@ -516,7 +518,7 @@ function EventsListPageInner() {
     // Split into helpers so we can order differently on mobile
     const renderDateRangeFilter = () => (
         <div className="flex flex-col">
-            <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">Rango de fechas</span>
+            <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">{t('filters.dateRange')}</span>
             <DatePicker.RangePicker
                 value={dateRange ?? undefined}
                 onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
@@ -554,7 +556,7 @@ function EventsListPageInner() {
     const renderAdvancedFiltersRest = () => (
         <>
             <div className="flex flex-col">
-                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">Lugares</span>
+                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">{t('filters.places')}</span>
                 {/* Desktop >= sm: keep Select. Mobile: show trigger that opens full-screen picker */}
                 <div className="hidden sm:block">
                     <Select
@@ -595,7 +597,7 @@ function EventsListPageInner() {
             </div>
 
             <div className="flex flex-col">
-                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">Barrios</span>
+                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">{t('filters.barrios')}</span>
                 <div className="hidden sm:block">
                     <Select
                         mode="multiple"
@@ -635,7 +637,7 @@ function EventsListPageInner() {
             </div>
 
             <div className="flex flex-col">
-                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">Etiquetas</span>
+                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1">{t('filters.tags')}</span>
                 <div className="hidden sm:block">
                     <Select
                         aria-label="Event tags filter"
@@ -704,9 +706,9 @@ function EventsListPageInner() {
         if (!dateRange) return '';
         const [s, e] = dateRange;
         const same = (a: Dayjs, b: Dayjs) => a.isSame(b, 'day');
-        if (same(s, today) && same(e, today)) return 'Hoy';
-        if (same(s, tomorrow) && same(e, tomorrow)) return 'Mañana';
-        if (same(s, weekendStart) && same(e, weekendEnd)) return 'Este finde';
+        if (same(s, today) && same(e, today)) return t('filters.date.today', 'Today');
+        if (same(s, tomorrow) && same(e, tomorrow)) return t('filters.date.tomorrow', 'Tomorrow');
+        if (same(s, weekendStart) && same(e, weekendEnd)) return t('filters.date.thisWeekend', 'This Weekend');
         if (same(s, e)) return s.format('DD/MM/YYYY');
         return `${s.format('DD/MM/YYYY')} – ${e.format('DD/MM/YYYY')}`;
     };
