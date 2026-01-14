@@ -46,6 +46,7 @@ const en = {
   "events.imagePlaceholderAlt": "Event placeholder image",
   "events.buyTickets": "Buy tickets",
   "events.tickets": "Tickets:",
+  "events.since": "Since",
   "events.durationNotProvided": "Duration not provided",
   
   "event.missingId": "Event ID is missing",

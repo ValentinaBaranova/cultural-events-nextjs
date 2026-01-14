@@ -45,6 +45,7 @@ const es = {
   "events.imagePlaceholderAlt": "Imagen de marcador de posición del evento",
   "events.buyTickets": "Comprar entradas",
   "events.tickets": "Entradas:",
+  "events.since": "Desde",
   "events.durationNotProvided": "Duración no informada",
 
   "event.missingId": "Falta el ID del evento",

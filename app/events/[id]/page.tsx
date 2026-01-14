@@ -11,7 +11,7 @@ function formatDateDDMMYY(input?: string | Date | null): string {
         return new Intl.DateTimeFormat('en-GB', {
             day: '2-digit',
             month: '2-digit',
-            year: '2-digit',
+            year: 'numeric', // DD/MM/YYYY
         }).format(date);
     } catch {
         return String(input);
@@ -73,7 +73,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                         </p>
                     )}
                     {event.startTime && <p><strong><ClientT k="event.startTime" /></strong> {event.startTime}</p>}
-                    {event.endDate && <p><strong><ClientT k="event.endDate" /></strong> {event.endDate}</p>}
+                    {event.endDate && <p><strong><ClientT k="event.endDate" /></strong> {formatDateDDMMYY(event.endDate)}</p>}
                     <p><strong><ClientT k="event.type" /></strong> {event.type}</p>
                     {event.instagramId && (
                         <p className="mt-4">

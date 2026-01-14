@@ -25,6 +25,32 @@ type Option = { label: string; value: string };
 
 type TagOption = { slug: string; name: string };
 
+// Helper: format date for event cards per product rules.
+// - Single-day event: "Jueves 15/01 · 17:30" (weekday localized and capitalized, DD/MM, optional time HH:mm)
+// - Multi-day or missing endDate: "Desde jueves 15/01" (weekday localized and lowercased)
+// Notes: dayjs locale is synced by I18nProvider; keep literal "Desde" per spec.
+export function formatEventCardDate(event: CulturalEvent, sinceWord: string, locale?: string): string {
+    const d = dayjs(event.date);
+    if (!d.isValid()) return String(event.date ?? '');
+
+    const weekday = d.format('dddd'); // localized weekday name
+    const datePart = d.format('DD/MM');
+    const sinceText = `${sinceWord} ${weekday} ${datePart}`;
+
+    // Determine if we should show "Desde ..."
+    const hasEnd = !!event.endDate;
+    const e = hasEnd ? dayjs(event.endDate as string) : null;
+    const isMultiDay = hasEnd && e!.isValid() && !e!.isSame(d, 'day');
+    if (!hasEnd || isMultiDay) {
+        return sinceText;
+    }
+
+    // Single-day event formatting
+    const weekdayCap = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    const timePart = event.startTime ? event.startTime.slice(0, 5) : null;
+    return timePart ? `${weekdayCap} ${datePart} · ${timePart}` : `${weekdayCap} ${datePart}`;
+}
+
 
 function EventsListPageInner() {
     // Lock body scroll when a full-screen overlay is open (mobile filters sheet or pickers)
@@ -495,7 +521,7 @@ function EventsListPageInner() {
                 value={dateRange ?? undefined}
                 onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
                 allowClear
-                format="YYYY-MM-DD"
+                format="DD/MM/YYYY"
                 inputReadOnly
                 placement="bottomLeft"
                 getPopupContainer={(trigger) => trigger?.parentElement || document.body}
@@ -673,7 +699,7 @@ function EventsListPageInner() {
         setSelectedTags([]);
     };
 
-    // Format date chip label according to priority rules (Hoy / Mañana / Este finde / range)
+    // Format date chip label according to priority rules (Hoy / Mañana / Este finde / numeric DD/MM/YYYY)
     const formatDateChip = (): string => {
         if (!dateRange) return '';
         const [s, e] = dateRange;
@@ -681,10 +707,10 @@ function EventsListPageInner() {
         if (same(s, today) && same(e, today)) return 'Hoy';
         if (same(s, tomorrow) && same(e, tomorrow)) return 'Mañana';
         if (same(s, weekendStart) && same(e, weekendEnd)) return 'Este finde';
-        if (same(s, e)) return s.format('DD MMM');
-        const showYear = !same(s, e) && !s.isSame(e, 'year');
-        return `${s.format(showYear ? 'DD MMM YYYY' : 'DD MMM')} – ${e.format(showYear ? 'DD MMM YYYY' : 'DD MMM')}`;
+        if (same(s, e)) return s.format('DD/MM/YYYY');
+        return `${s.format('DD/MM/YYYY')} – ${e.format('DD/MM/YYYY')}`;
     };
+
 
     // Build prioritized chips: Date, Gratis, then individual Type and Barrio chips (no grouping). Show max 2, append +N más if more.
 
@@ -933,7 +959,7 @@ function EventsListPageInner() {
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
                                 <span className="event-meta-text">
-                                    {event.date}{event.startTime ? ` a las ${event.startTime.slice(0, 5)}` : ''}
+                                    {formatEventCardDate(event, t('events.since'), locale)}
                                     {!event.endDate && (
                                         <>
                                             <br />
