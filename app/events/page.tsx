@@ -934,6 +934,12 @@ function EventsListPageInner() {
                                 </svg>
                                 <span className="event-meta-text">
                                     {event.date}{event.startTime ? ` a las ${event.startTime.slice(0, 5)}` : ''}
+                                    {!event.endDate && (
+                                        <>
+                                            <br />
+                                            <span className="event-meta-note">{t('events.durationNotProvided')}</span>
+                                        </>
+                                    )}
                                 </span>
                             </div>
 
