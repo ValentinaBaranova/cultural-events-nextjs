@@ -28,8 +28,7 @@ type TagOption = { slug: string; name: string };
 // Helper: format date for event cards per product rules.
 // - Single-day event: "Jueves 15/01 · 17:30" (weekday localized and capitalized, DD/MM, optional time HH:mm)
 // - Multi-day or missing endDate: "Desde jueves 15/01" (weekday localized and lowercased)
-// Notes: dayjs locale is synced by I18nProvider; keep literal "Desde" per spec.
-export function formatEventCardDate(event: CulturalEvent, sinceWord: string, locale?: string): string {
+function formatEventCardDate(event: CulturalEvent, sinceWord: string): string {
     const d = dayjs(event.date);
     if (!d.isValid()) return String(event.date ?? '');
 
@@ -961,7 +960,7 @@ function EventsListPageInner() {
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
                                 <span className="event-meta-text">
-                                    {formatEventCardDate(event, t('events.since'), locale)}
+                                    {formatEventCardDate(event, t('events.since'))}
                                     {!event.endDate && (
                                         <>
                                             <br />
