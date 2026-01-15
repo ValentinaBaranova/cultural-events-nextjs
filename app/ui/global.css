@@ -258,9 +258,11 @@
   background: rgb(0 0 0 / 0.35);
   z-index: 40;
   /* Ensure backdrop always covers full viewport on iOS when the page is scrolled */
-  height: 100vh;
-  height: 100dvh;
-  height: 100svh;
+  height: 100vh;        /* basic */
+  height: 100dvh;       /* dynamic */
+  height: 100svh;       /* small viewport */
+  height: -webkit-fill-available; /* older iOS */
+  height: calc(var(--vh, 1vh) * 100); /* JS fallback for iOS URL bar */
 }
 .bottom-sheet {
   position: fixed;
@@ -278,11 +280,12 @@
   display: flex;
   flex-direction: column;
   /* Use small/large/dynamic viewport units to avoid iOS URL bar issues */
-  /* Order fallbacks so the most modern unit wins when supported */
-  height: calc(var(--vh, 1vh) * 100);
+  /* Order fallbacks so the most reliable unit wins last (JS --vh override) */
   height: 100vh;       /* basic fallback */
   height: 100dvh;      /* dynamic viewport (Chrome, Android) */
   height: 100svh;      /* small viewport (iOS 16+) */
+  height: -webkit-fill-available; /* older iOS Safari */
+  height: calc(var(--vh, 1vh) * 100); /* JS-updated fallback for iOS URL bar show/hide */
   max-height: none;
   overscroll-behavior: contain;
 }
@@ -695,10 +698,11 @@ body {
   background: var(--card);
   display: flex;
   flex-direction: column;
-  height: calc(var(--vh, 1vh) * 100);
-  height: 100vh;
-  height: 100dvh;
-  height: 100svh;
+  height: 100vh;        /* basic */
+  height: 100dvh;       /* dynamic */
+  height: 100svh;       /* small viewport */
+  height: -webkit-fill-available; /* older iOS */
+  height: calc(var(--vh, 1vh) * 100); /* JS fallback */
   max-height: none;
 }
 .mobile-picker-header {
