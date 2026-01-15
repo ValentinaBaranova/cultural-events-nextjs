@@ -257,13 +257,14 @@
   inset: 0;
   background: rgb(0 0 0 / 0.35);
   z-index: 40;
+  /* Ensure backdrop always covers full viewport on iOS when the page is scrolled */
+  height: 100vh;
+  height: 100dvh;
+  height: 100svh;
 }
 .bottom-sheet {
   position: fixed;
-  left: 0;
-  right: 0;
-  top: 0; /* ensure full-screen overlay even after page scroll on iOS */
-  bottom: 0;
+  inset: 0; /* cover the viewport regardless of page scroll */
   background: var(--card);
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -278,6 +279,7 @@
   flex-direction: column;
   /* Use small/large/dynamic viewport units to avoid iOS URL bar issues */
   /* Order fallbacks so the most modern unit wins when supported */
+  height: calc(var(--vh, 1vh) * 100);
   height: 100vh;       /* basic fallback */
   height: 100dvh;      /* dynamic viewport (Chrome, Android) */
   height: 100svh;      /* small viewport (iOS 16+) */
@@ -693,8 +695,11 @@ body {
   background: var(--card);
   display: flex;
   flex-direction: column;
-  max-height: 100svh;
-  height: min(100vh, 100dvh);
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100vh;
+  height: 100dvh;
+  height: 100svh;
+  max-height: none;
 }
 .mobile-picker-header {
   /* Match spacing with .sheet-header (expanded filters panel) */

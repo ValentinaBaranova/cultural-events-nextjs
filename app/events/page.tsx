@@ -52,6 +52,21 @@ function formatEventCardDate(event: CulturalEvent, sinceWord: string): string {
 
 
 function EventsListPageInner() {
+    // Set CSS --vh variable to handle 100vh issues on iOS Safari when the URL bar collapses/expands
+    React.useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const setVh = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        setVh();
+        window.addEventListener('resize', setVh);
+        window.addEventListener('orientationchange', setVh);
+        return () => {
+            window.removeEventListener('resize', setVh);
+            window.removeEventListener('orientationchange', setVh);
+        };
+    }, []);
     // Lock body scroll when a full-screen overlay is open (mobile filters sheet or pickers)
     // This prevents background content from moving on iOS and ensures correct viewport calculations
     const router = useRouter();
