@@ -31,9 +31,10 @@ export default function RootLayout({
                     {children}
                   </Container>
                 </main>
-                <Container className="py-6">
+                {/* Temporarily hidden cookie/consent banner */}
+                {/* <Container className="py-6">
                   <ConsentBanner />
-                </Container>
+                </Container> */}
             </AntdLocaleProvider>
         </I18nProvider>
         </body>
