@@ -106,6 +106,8 @@ function EventsListPageInner() {
     const getTagLabel = (slug: string) => tagNameBySlug[slug] ?? slug;
     const getVenueLabel = (slug: string) => venueNameBySlug[slug] ?? slug;
 
+    const { t, locale } = useI18n();
+
     // Initialize filters from URL on first mount
     useEffect(() => {
         if (initializedFromUrlRef.current) return;
@@ -212,7 +214,7 @@ function EventsListPageInner() {
             }
         }
         initializedFromUrlRef.current = true;
-    }, [searchParams]);
+    }, [searchParams, locale]);
 
     // Push active filters into the URL whenever they change
     useEffect(() => {
@@ -267,7 +269,6 @@ function EventsListPageInner() {
     const monthEnd = today.endOf('month');
 
     // Use i18n before creating presets to avoid "Cannot access 't' before initialization"
-    const { t, locale } = useI18n();
 
     const presets = [
         { label: t('filters.date.today', 'Today'), value: [today, today] as [Dayjs, Dayjs] },
@@ -791,7 +792,7 @@ function EventsListPageInner() {
                 const qs = params.toString();
                 router.replace(qs ? `${pathname}?${qs}` : pathname);
             }
-        } catch (_) {
+        } catch {
             // no-op
         }
     };
