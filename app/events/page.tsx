@@ -124,23 +124,77 @@ function EventsListPageInner() {
         const endFromUrl = searchParams.get('endDate');
 
         if (typesFromUrl.length) setSelectedTypes(typesFromUrl);
-        if (venuesFromUrl.length) setSelectedVenues(venuesFromUrl);
+        if (venuesFromUrl.length) {
+            setSelectedVenues(venuesFromUrl);
+            // Preload labels for selected venue slugs so chips show names after refresh
+            (async () => {
+                try {
+                    const url = `${API_URL}/places/by-slugs?slugs=${encodeURIComponent(venuesFromUrl.join(','))}`;
+                    const resp = await fetch(url);
+                    if (resp.ok) {
+                        const data: VenueSuggest[] = await resp.json();
+                        if (Array.isArray(data) && data.length) {
+                            setVenueOptions(prev => {
+                                const existing = new Set(prev.map(o => o.value));
+                                const additions: Option[] = data
+                                    .filter(v => !existing.has(v.slug))
+                                    .map(v => ({ label: v.name, value: v.slug }));
+                                return additions.length ? [...prev, ...additions] : prev;
+                            });
+                        }
+                    }
+                } catch {
+                    // ignore network errors; fallback labels will be slugs via getVenueLabel
+                }
+            })();
+        }
         if (barriosFromUrl.length) {
             setSelectedBarrios(barriosFromUrl);
-            // ensure options have at least slug-as-label entries to display chips
-            setBarrioOptions(prev => {
-                const existing = new Set(prev.map(o => o.value));
-                const additions = barriosFromUrl.filter(b => !existing.has(b)).map(b => ({ label: b, value: b }));
-                return additions.length ? [...prev, ...additions] : prev;
-            });
+            // Preload labels for selected barrio slugs so chips show names after refresh
+            (async () => {
+                try {
+                    const url = `${API_URL}/barrios/by-slugs?slugs=${encodeURIComponent(barriosFromUrl.join(','))}`;
+                    const resp = await fetch(url);
+                    if (resp.ok) {
+                        const data: BarrioSuggest[] = await resp.json();
+                        if (Array.isArray(data) && data.length) {
+                            setBarrioOptions(prev => {
+                                const existing = new Set(prev.map(o => o.value));
+                                const additions: Option[] = data
+                                    .filter(b => !existing.has(b.slug))
+                                    .map(b => ({ label: b.name, value: b.slug }));
+                                return additions.length ? [...prev, ...additions] : prev;
+                            });
+                        }
+                    }
+                } catch {
+                    // ignore network errors; fallback labels will be slugs
+                }
+            })();
         }
         if (tagsFromUrl.length) {
             setSelectedTags(tagsFromUrl);
-            setTagOptions(prev => {
-                const existing = new Set(prev.map(o => o.value));
-                const additions = tagsFromUrl.filter(tg => !existing.has(tg)).map(tg => ({ label: tg, value: tg }));
-                return additions.length ? [...prev, ...additions] : prev;
-            });
+            // Preload labels for selected tag slugs so chips show localized names after refresh
+            (async () => {
+                try {
+                    const url = `${API_URL}/tags/by-slugs?slugs=${encodeURIComponent(tagsFromUrl.join(','))}&locale=${encodeURIComponent(locale)}`;
+                    const resp = await fetch(url);
+                    if (resp.ok) {
+                        const data: { slug: string; name: string }[] = await resp.json();
+                        if (Array.isArray(data) && data.length) {
+                            setTagOptions(prev => {
+                                const existing = new Set(prev.map(o => o.value));
+                                const additions: Option[] = data
+                                    .filter(tg => !existing.has(tg.slug))
+                                    .map(tg => ({ label: tg.name, value: tg.slug }));
+                                return additions.length ? [...prev, ...additions] : prev;
+                            });
+                        }
+                    }
+                } catch {
+                    // ignore network errors; fallback labels will be slugs
+                }
+            })();
         }
         if (freeFromUrl) {
             const normalized = freeFromUrl.toLowerCase();
