@@ -1022,6 +1022,19 @@ function EventsListPageInner() {
                                 </span>
                             </div>
 
+                            {/* Event type: show only when collapsed */}
+                            {!isCardExpanded(event.id) && (
+                                <div className="event-meta">
+                                    <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                        <path d="M20.59 13.41L12 21l-9-9V3h9l8.59 8.59z" />
+                                        <path d="M7 7h.01" />
+                                    </svg>
+                                    <span>
+                                        {typeNameBySlug[event.type] ?? event.type}
+                                    </span>
+                                </div>
+                            )}
+
                             {/* Toggle collapsed/expanded (top): show only when collapsed */}
                             {!isCardExpanded(event.id) && (
                                 <button
@@ -1041,6 +1054,16 @@ function EventsListPageInner() {
                             {/* Expanded content */}
                             {isCardExpanded(event.id) && (
                                 <div id={`event-content-${event.id}`}>
+                                    {/* Type row (moved above description) */}
+                                    <div className="event-meta">
+                                        <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                            <path d="M20.59 13.41L12 21l-9-9V3h9l8.59 8.59z" />
+                                            <path d="M7 7h.01" />
+                                        </svg>
+                                        <span>
+                                            {types.find((ty) => ty.slug === event.type)?.name ?? event.type}
+                                        </span>
+                                    </div>
                                     <p className="event-description">{event.description}</p>
 
                                     {/* Tags */}
@@ -1064,16 +1087,6 @@ function EventsListPageInner() {
                                         </div>
                                     )}
 
-                                    {/* Type row */}
-                                    <div className="event-meta">
-                                        <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                            <path d="M20.59 13.41L12 21l-9-9V3h9l8.59 8.59z" />
-                                            <path d="M7 7h.01" />
-                                        </svg>
-                                        <span>
-                                            {types.find((ty) => ty.slug === event.type)?.name ?? event.type}
-                                        </span>
-                                    </div>
 
                                     {/* Tickets */}
                                     {event.paymentChannels && event.paymentChannels.length > 0 && (
