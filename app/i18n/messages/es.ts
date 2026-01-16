@@ -54,6 +54,10 @@ const es = {
   "events.since": "Desde",
   "events.durationNotProvided": "Duración no informada",
 
+  "events.empty.title": "No encontramos eventos",
+  "events.empty.subtitle": "Probá ajustar las fechas o los filtros, o limpiarlos para ver todos los próximos eventos.",
+  "events.empty.clearFilters": "Limpiar filtros",
+
   "event.missingId": "Falta el ID del evento",
   "event.notFound": "Evento no encontrado",
   "event.description": "Descripción:",

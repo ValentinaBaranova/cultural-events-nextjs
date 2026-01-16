@@ -1025,6 +1025,17 @@ function EventsListPageInner() {
                     </>
                 )}
 
+                {/* ✅ Empty state: show polite message when no events match filters */}
+                {!isLoading && !isFetchingMore && (!events || events.length === 0) && (
+                    <div className="empty-state-card">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-1">{t('events.empty.title')}</h3>
+                        <p className="text-gray-600 mb-4">{t('events.empty.subtitle')}</p>
+                        <button type="button" className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300" onClick={clearAll}>
+                            {t('events.empty.clearFilters')}
+                        </button>
+                    </div>
+                )}
+
                 {events?.map((event: CulturalEvent, index) => (
                     <div
                         key={event.id}

@@ -55,6 +55,10 @@ const en = {
   "events.since": "Since",
   "events.durationNotProvided": "Duration not provided",
   
+  "events.empty.title": "No events found",
+  "events.empty.subtitle": "Try adjusting the dates or filters, or clear them to see all upcoming events.",
+  "events.empty.clearFilters": "Clear filters",
+  
   "event.missingId": "Event ID is missing",
   "event.notFound": "Event not found",
   "event.description": "Description:",

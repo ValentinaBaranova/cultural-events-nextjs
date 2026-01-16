@@ -359,6 +359,16 @@ body {
     gap: 20px;
 }
 
+/* Empty state card: match filters panel width and styling */
+.empty-state-card {
+    grid-column: 1 / -1; /* span full grid like filters panel width */
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 0; /* no rounded corners */
+    padding: 16px;
+    text-align: center;
+}
+
 .event-card {
     border: 1px solid var(--border);
     border-radius: 0;
