@@ -3,6 +3,7 @@
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import { useI18n } from '@/i18n/I18nProvider';
+import React from 'react';
 
 export default function Search({ placeholder }: { placeholder?: string }) {
     const searchParams = useSearchParams();
@@ -10,9 +11,16 @@ export default function Search({ placeholder }: { placeholder?: string }) {
     const { replace } = useRouter();
     const { t } = useI18n();
 
-    const handleSearch = useDebouncedCallback((term) => {
-        console.log(`Searching... ${term}`);
+    // Local state mirrors the input, but stays in sync with URL changes too
+    const [value, setValue] = React.useState<string>(searchParams.get('query')?.toString() ?? '');
 
+    // When URL search params change (e.g., via Clear All), sync input value
+    React.useEffect(() => {
+        const urlValue = searchParams.get('query')?.toString() ?? '';
+        setValue(urlValue);
+    }, [searchParams]);
+
+    const handleSearch = useDebouncedCallback((term: string) => {
         const params = new URLSearchParams(searchParams);
         if (term) {
             params.set('query', term);
@@ -46,9 +54,11 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                     className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-base outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                     placeholder={placeholder ?? t('search.placeholder')}
                     onChange={(e) => {
-                        handleSearch(e.target.value);
+                        const term = e.target.value;
+                        setValue(term);
+                        handleSearch(term);
                     }}
-                    defaultValue={searchParams.get('query')?.toString()}
+                    value={value}
                 />
             </div>
         </div>

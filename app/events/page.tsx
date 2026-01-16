@@ -252,6 +252,20 @@ function EventsListPageInner() {
         selectedTags,
     );
 
+    // Highlight & scroll into view if highlight param is present
+    const highlightId = searchParams.get('highlight');
+    const hasHighlight = !!highlightId;
+
+    useEffect(() => {
+        if (!hasHighlight) return;
+        // Wait a tick to allow DOM to render
+        const id = `evt-${highlightId}`;
+        const el = document.getElementById(id);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [hasHighlight, highlightId, events?.length]);
+
     // Expand/collapse state
     // - Mobile/tablet: per-card state via Set
     // - Desktop (>=1024px): global state — expanding one expands all; collapsing one collapses all
@@ -713,6 +727,19 @@ function EventsListPageInner() {
         setSelectedVenues([]);
         setSelectedBarrios([]);
         setSelectedTags([]);
+        // Also clear the search query and highlight from URL so the search field and card highlighting reset
+        try {
+            const params = new URLSearchParams(searchParams);
+            let changed = false;
+            if (params.has('query')) { params.delete('query'); changed = true; }
+            if (params.has('highlight')) { params.delete('highlight'); changed = true; }
+            if (changed) {
+                const qs = params.toString();
+                router.replace(qs ? `${pathname}?${qs}` : pathname);
+            }
+        } catch (_) {
+            // no-op
+        }
     };
 
     // Format date chip label according to priority rules (Hoy / Mañana / Este finde / numeric DD/MM/YYYY)
@@ -757,7 +784,8 @@ function EventsListPageInner() {
         (selectedTypes.length ? 1 : 0) +
         (selectedVenues.length ? 1 : 0) +
         (selectedBarrios.length ? 1 : 0) +
-        (selectedTags.length ? 1 : 0)
+        (selectedTags.length ? 1 : 0) +
+        (searchQuery ? 1 : 0)
     );
 
     // Desktop badge should count only advanced filters hidden behind the toggle
@@ -784,7 +812,8 @@ function EventsListPageInner() {
                                 selectedTypes.length +
                                 selectedBarrios.length +
                                 selectedVenues.length +
-                                selectedTags.length;
+                                selectedTags.length +
+                                (searchQuery ? 1 : 0);
                             const extra = totalActive - prioritizedChips.length;
                             return totalActive > 2 ? (
                                 <span className="text-sm text-gray-600">+{extra} {t('filters.moreCountSuffix')}</span>
@@ -944,7 +973,8 @@ function EventsListPageInner() {
                 {events?.map((event: CulturalEvent, index) => (
                     <div
                         key={event.id}
-                        className="event-card"
+                        id={`evt-${event.id}`}
+                        className={`event-card ${searchParams.get('highlight') === event.id ? 'event-card-highlight' : ''}`}
                         ref={index === events.length - 1 ? lastEventRef : null} // ✅ Attach observer to last event
                     >
                         <div className="event-image-wrapper">
@@ -953,6 +983,79 @@ function EventsListPageInner() {
                                     {t('events.free')}
                                 </span>
                             )}
+                            {/* Share button */}
+                            <button
+                                type="button"
+                                className="event-share-btn"
+                                aria-label={t('events.share', 'Share event')}
+                                title={t('events.share', 'Share event')}
+                                onClick={async (e) => {
+                                    e.preventDefault();
+                                    try {
+                                        const url = (() => {
+                                            const loc = typeof window !== 'undefined' ? window.location : null;
+                                            const origin = loc ? loc.origin : '';
+                                            const params = new URLSearchParams();
+
+                                            // Always highlight this specific event
+                                            params.set('highlight', event.id);
+
+                                            // Include title as the search query
+                                            if (event.name) {
+                                                params.set('query', event.name);
+                                            }
+
+                                            // Include venue if we have a slug (canonical for filters)
+                                            const venueSlug = event.venue?.slug;
+                                            if (venueSlug) {
+                                                params.set('venues', venueSlug);
+                                            }
+
+                                            // Include proper date(s)
+                                            const start = dayjs(event.date).isValid() ? dayjs(event.date).format('YYYY-MM-DD') : '';
+                                            const end = event.endDate && dayjs(event.endDate).isValid()
+                                                ? dayjs(event.endDate).format('YYYY-MM-DD')
+                                                : start;
+                                            if (start) params.set('startDate', start);
+                                            if (end) params.set('endDate', end);
+
+                                            const qs = params.toString();
+                                            const path = `${pathname}${qs ? `?${qs}` : ''}`;
+                                            return origin ? `${origin}${path}` : path;
+                                        })();
+                                        if (navigator.share) {
+                                            await navigator.share({ url, title: event.name });
+                                        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                                            await navigator.clipboard.writeText(url);
+                                            alert(t('events.linkCopied', 'Link copied to clipboard'));
+                                        } else {
+                                            // Fallback: prompt for manual copy
+                                            prompt(t('events.copyLink', 'Copy this link'), url);
+                                        }
+                                    } catch (err) {
+                                        console.error('Share failed', err);
+                                        alert(t('events.shareFailed', 'Could not share the link'));
+                                    }
+                                }}
+                            >
+                                <svg
+                                    className="event-share-icon"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    {/* Icon: Share-2 from Lucide */}
+                                    <circle cx="18" cy="5" r="3"></circle>
+                                    <circle cx="6" cy="12" r="3"></circle>
+                                    <circle cx="18" cy="19" r="3"></circle>
+                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                                </svg>
+                            </button>
                             <Image
                                 src={event.imageExists
                                     ? `/events/${event.id}/image`
