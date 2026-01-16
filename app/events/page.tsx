@@ -491,11 +491,13 @@ function EventsListPageInner() {
                 if (!query) {
                     const start = dateRange?.[0]?.format('YYYY-MM-DD');
                     const end = dateRange?.[1]?.format('YYYY-MM-DD');
-                    const startParam = start ? `&startDate=${encodeURIComponent(start)}` : '';
-                    const endParam = end ? `&endDate=${encodeURIComponent(end)}` : '';
-                    url = `${API_URL}/places/with-events?limit=8${startParam}${endParam}`;
+                    const params: string[] = [];
+                    if (start) params.push(`startDate=${encodeURIComponent(start)}`);
+                    if (end) params.push(`endDate=${encodeURIComponent(end)}`);
+                    const suffix = params.length ? `?${params.join('&')}` : '';
+                    url = `${API_URL}/places/with-events${suffix}`;
                 } else {
-                    url = `${API_URL}/places/suggest?q=${encodeURIComponent(query)}&limit=8`;
+                    url = `${API_URL}/places/suggest?q=${encodeURIComponent(query)}`;
                 }
                 const resp = await fetch(url, { signal: ctrl.signal });
                 const data: VenueSuggest[] = await resp.json();
@@ -522,11 +524,13 @@ function EventsListPageInner() {
                 if (!query) {
                     const start = dateRange?.[0]?.format('YYYY-MM-DD');
                     const end = dateRange?.[1]?.format('YYYY-MM-DD');
-                    const startParam = start ? `&startDate=${encodeURIComponent(start)}` : '';
-                    const endParam = end ? `&endDate=${encodeURIComponent(end)}` : '';
-                    url = `${API_URL}/barrios/with-events?limit=8${startParam}${endParam}`;
+                    const params: string[] = [];
+                    if (start) params.push(`startDate=${encodeURIComponent(start)}`);
+                    if (end) params.push(`endDate=${encodeURIComponent(end)}`);
+                    const suffix = params.length ? `?${params.join('&')}` : '';
+                    url = `${API_URL}/barrios/with-events${suffix}`;
                 } else {
-                    url = `${API_URL}/barrios/suggest?q=${encodeURIComponent(query)}&limit=8`;
+                    url = `${API_URL}/barrios/suggest?q=${encodeURIComponent(query)}`;
                 }
                 const resp = await fetch(url, { signal: ctrl.signal });
                 const data: BarrioSuggest[] = await resp.json();
