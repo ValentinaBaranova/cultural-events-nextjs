@@ -4,7 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import NavBar from '@/ui/navbar';
 import { I18nProvider } from '@/i18n/I18nProvider';
 import AntdLocaleProvider from '@/antd/AntdLocaleProvider';
-// import ConsentBanner from '@/consent/ConsentBanner';
+import ConsentBanner from '@/consent/ConsentBanner';
 import GATracker from '@/consent/GATracker';
 import Container from '@/ui/Container';
 
