@@ -24,7 +24,7 @@ const NavBar = () => {
         <header className="border-b border-border bg-white">
             <Container className="h-16 flex items-center justify-between">
                 {/* Left: Logo/Title */}
-                <Link href="/events" className="font-semibold text-lg">
+                <Link href="/events" className="text-lg">
                     {t('app.title')}
                 </Link>
 
