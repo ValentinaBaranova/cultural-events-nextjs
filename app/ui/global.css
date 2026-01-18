@@ -875,3 +875,60 @@ body {
     color: var(--muted-foreground);
     opacity: 0.85;
 }
+
+
+/* Icon-only kebab (more) button on the date row */
+.event-kebab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--muted-foreground);
+    border-radius: 9999px;
+    cursor: pointer;
+}
+.event-kebab-btn:hover {
+    background: rgba(17, 24, 39, 0.06); /* subtle gray hover */
+}
+.event-kebab-btn:focus-visible {
+    outline: 2px solid #6366f1; /* indigo-500 */
+    outline-offset: 2px;
+}
+.event-kebab-btn span[aria-hidden="true"] {
+    line-height: 1;
+    font-size: 18px; /* similar to share icon size */
+}
+
+
+/* Performance: simplify AntD Modal overlay (no blur, just dim) */
+/* This removes costly backdrop blur that can cause jank while the modal is open. */
+.ant-modal-root .ant-modal-mask {
+  background-color: rgba(17, 24, 39, 0.40) !important; /* slightly dark, no blur */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+}
+
+/* Also keep the wrapper lightweight (avoid unexpected filters) */
+.ant-modal-root .ant-modal-wrap {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+
+
+/* Add clear separator line under the modal title with spacing */
+.ant-modal .ant-modal-header {
+  border-bottom: 1px solid var(--border) !important;
+  padding-bottom: 12px !important; /* space above the line (between title and separator) */
+  margin-bottom: 12px !important;  /* space below the line (between separator and content) */
+}
+
+
+/* Ensure square corners on AntD Modal container too (dev-only scoped selector may set radius) */
+.ant-modal .ant-modal-container {
+  border-radius: 0 !important;
+}

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEvents } from '@/lib/useEvents';
-import React, {useEffect, useRef, useState, Suspense, useMemo} from 'react';
+import React, {useEffect, useRef, useState, Suspense, useMemo, useImperativeHandle, forwardRef, memo} from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
 import HeroSearch from "@/ui/HeroSearch";
@@ -11,9 +11,8 @@ import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
 import {API_URL, SHOW_EVENT_DETAILS_LINK} from "@/lib/config";
 import { useI18n } from '@/i18n/I18nProvider';
-import { DatePicker, Select, Checkbox, Alert } from 'antd';
+import { DatePicker, Select, Checkbox, Alert, Modal, Radio, Input, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-// import Skeleton from "@/ui/Skeleton"; // ✅ Import Skeleton Loader
 
 type EventTypeOption = { slug: string; name: string };
 
@@ -50,6 +49,89 @@ function formatEventCardDate(event: CulturalEvent, sinceWord: string): string {
     return timePart ? `${weekdayCap} ${datePart} · ${timePart}` : `${weekdayCap} ${datePart}`;
 }
 
+// Fast, isolated Report Problem modal to avoid re-rendering the whole page
+export type ReportModalHandle = {
+    open: (eventId: string) => void;
+};
+
+const ReportProblemModal = memo(forwardRef<ReportModalHandle, {
+    t: ReturnType<typeof useI18n>['t'];
+    locale: string;
+    messageApi: ReturnType<typeof message.useMessage>[0];
+}>(({ t, locale, messageApi }, ref) => {
+    const [open, setOpen] = useState(false);
+    const [eventId, setEventId] = useState<string | null>(null);
+    const [reason, setReason] = useState<string>('');
+    const [comment, setComment] = useState<string>('');
+    const reasons = useMemo(() => ['wrongDateTime','wrongVenue','wrongPrice','duplicate','canceled','other'], []);
+
+    // Client-only render to avoid hydration mismatch with Antd Modal
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => { setMounted(true); }, []);
+
+    useImperativeHandle(ref, () => ({
+        open: (id: string) => {
+            setEventId(id);
+            setReason('');
+            setComment('');
+            setOpen(true);
+        }
+    }), []);
+
+    if (!mounted) return null;
+
+    return (
+        <Modal
+            open={open}
+            title={t('events.report.title')}
+            forceRender
+            onCancel={() => setOpen(false)}
+            onOk={async () => {
+                if (!eventId || !reason) {
+                    messageApi.warning(t('events.report.reason'));
+                    return;
+                }
+                try {
+                    const resp = await fetch(`${API_URL}/events/${eventId}/report`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reason, comment, locale })
+                    });
+                    if (resp.ok) {
+                        messageApi.success(t('events.report.success'));
+                        setOpen(false);
+                    } else {
+                        messageApi.error(t('events.report.error'));
+                    }
+                } catch (e) {
+                    messageApi.error(t('events.report.error'));
+                }
+            }}
+            okButtonProps={{ disabled: !reason }}
+        >
+            <div className="space-y-3">
+                <div>
+                    <div className="mb-2 text-sm font-medium">{t('events.report.reason')}</div>
+                    <Radio.Group value={reason} onChange={(e) => setReason(e.target.value)}>
+                        <div className="flex flex-col gap-2">
+                            {reasons.map((key) => (
+                                <Radio key={key} value={key}>{t(`events.report.reasons.${key}`)}</Radio>
+                            ))}
+                        </div>
+                    </Radio.Group>
+                </div>
+                {reason === 'other' && (
+                    <Input.TextArea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        placeholder={t('events.report.otherPlaceholder')}
+                        rows={3}
+                    />
+                )}
+            </div>
+        </Modal>
+    );
+}));
 
 function EventsListPageInner() {
     // Set CSS --vh variable to handle 100vh issues on iOS Safari when the URL bar collapses/expands
@@ -89,6 +171,44 @@ function EventsListPageInner() {
 
     const [tagOptions, setTagOptions] = useState<Option[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+    // Kebab menu state
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+    // Imperative modal instance
+    const reportModalRef = useRef<ReportModalHandle>(null);
+
+    // Close kebab menu on outside click or when pressing Escape
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        function handlePointerDown(e: MouseEvent | TouchEvent) {
+            if (!openMenuId) return;
+            const target = e.target as Node | null;
+            const menu = document.getElementById(`actions-menu-${openMenuId}`);
+            const btn = document.querySelector(`button[aria-controls="actions-menu-${openMenuId}"]`);
+            // If click is inside the menu or on its trigger button, ignore
+            if (menu && target && menu.contains(target)) return;
+            if (btn && target && btn.contains(target)) return;
+            setOpenMenuId(null);
+        }
+        function handleKeyDown(e: KeyboardEvent) {
+            if (!openMenuId) return;
+            if (e.key === 'Escape') {
+                setOpenMenuId(null);
+            }
+        }
+        document.addEventListener('mousedown', handlePointerDown, true);
+        document.addEventListener('touchstart', handlePointerDown, true);
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('mousedown', handlePointerDown, true);
+            document.removeEventListener('touchstart', handlePointerDown, true);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [openMenuId]);
+
+    // Antd message API (avoid static calls to consume context)
+    const [messageApi, messageContextHolder] = message.useMessage();
 
     // URL sync helpers
     const initializedFromUrlRef = useRef(false);
@@ -1020,7 +1140,13 @@ function EventsListPageInner() {
                 </div>
             )}
 
-            <div className="events-grid">
+            {messageContextHolder}
+            {/* Report Problem Modal instance */}
+            <ReportProblemModal ref={reportModalRef} t={t} locale={locale} messageApi={messageApi} />
+
+            {/* Report modal handled by ReportProblemModal component */}
+
+                <div className="events-grid">
                 {/* ✅ Show skeleton while first request is loading */}
                 {isLoading && (
                     <>
@@ -1140,22 +1266,71 @@ function EventsListPageInner() {
                             <h2 className="event-title">{event.name}</h2>
                             <div className="event-divider" aria-hidden="true" />
 
-                            <div className="event-meta">
-                                <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                                <span className="event-meta-text">
-                                    {formatEventCardDate(event, t('events.since'))}
-                                    {!event.endDate && (
-                                        <>
-                                            <br />
-                                            <span className="event-meta-note">{t('events.durationNotProvided')}</span>
-                                        </>
+                            <div className="event-meta justify-between">
+                                <div className="flex items-center gap-2">
+                                    <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    <span className="event-meta-text">
+                                        {formatEventCardDate(event, t('events.since'))}
+                                        {!event.endDate && (
+                                            <>
+                                                <br />
+                                                <span className="event-meta-note">{t('events.durationNotProvided')}</span>
+                                            </>
+                                        )}
+                                    </span>
+                                </div>
+
+                                {/* Kebab menu aligned to the right of the date line */}
+                                <div className="relative inline-block text-left">
+                                    <button
+                                        type="button"
+                                        className="event-kebab-btn"
+                                        aria-haspopup="menu"
+                                        aria-expanded={openMenuId === event.id}
+                                        aria-controls={`actions-menu-${event.id}`}
+                                        onClick={() => setOpenMenuId(prev => prev === event.id ? null : event.id)}
+                                        title={t ? t('filters.moreFilters') : 'More'}
+                                    >
+                                        <span aria-hidden="true">⋮</span>
+                                        <span className="sr-only">More actions</span>
+                                    </button>
+                                    {openMenuId === event.id && (
+                                        <div
+                                            id={`actions-menu-${event.id}`}
+                                            role="menu"
+                                            tabIndex={-1}
+                                            className="absolute right-0 mt-2 w-44 origin-top-right bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+                                        >
+                                            <button
+                                                type="button"
+                                                role="menuitem"
+                                                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                                onClick={() => { setOpenMenuId(null); reportModalRef.current?.open(event.id); }}
+                                            >
+                                                <svg
+                                                    className="w-4 h-4 text-gray-700"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                                </svg>
+                                                <span>{t('events.report.button')}</span>
+                                            </button>
+                                        </div>
                                     )}
-                                </span>
+                                </div>
                             </div>
 
                             <div className="event-meta">
@@ -1305,7 +1480,7 @@ function EventsListPageInner() {
 
                                     <div className="event-divider" aria-hidden="true" />
                                     <UpdateEvent id={event.id}/>
-                                    <div className="event-actions">
+                                    <div className="event-actions relative">
                                         {event.instagramId ? (
                                             <a
                                                 href={`https://www.instagram.com/p/${event.instagramId}`}
