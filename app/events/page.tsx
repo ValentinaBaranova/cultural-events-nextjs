@@ -103,7 +103,7 @@ const ReportProblemModal = memo(forwardRef<ReportModalHandle, {
                     } else {
                         messageApi.error(t('events.report.error'));
                     }
-                } catch (e) {
+                } catch {
                     messageApi.error(t('events.report.error'));
                 }
             }}
