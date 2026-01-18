@@ -66,6 +66,7 @@ const es = {
   "events.report.reasons.duplicate": "Evento duplicado",
   "events.report.reasons.canceled": "Evento cancelado",
   "events.report.reasons.other": "️Otro",
+  "events.addToGoogleCalendar": "Agregar a Google Calendar",
 
   "events.empty.title": "No encontramos eventos",
   "events.empty.subtitle": "Probá ajustar las fechas o los filtros, o limpiarlos para ver todos los próximos eventos.",
