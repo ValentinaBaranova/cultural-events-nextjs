@@ -1263,7 +1263,7 @@ function EventsListPageInner() {
                             />
                         </div>
                         <div className="event-details">
-                            <h2 className="event-title">{event.name}</h2>
+                            <h2 className="event-title">{locale === 'en' ? (event.nameEn || event.name) : event.name}</h2>
                             <div className="event-divider" aria-hidden="true" />
 
                             <div className="event-meta justify-between">
@@ -1477,7 +1477,7 @@ function EventsListPageInner() {
                                             {types.find((ty) => ty.slug === event.type)?.name ?? event.type}
                                         </span>
                                     </div>
-                                    <p className="event-description">{event.description}</p>
+                                    <p className="event-description">{locale === 'en' ? (event.descriptionEn || event.description) : event.description}</p>
 
                                     {/* Tags */}
                                     {event.tags && event.tags.length > 0 && (

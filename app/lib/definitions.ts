@@ -21,9 +21,11 @@ export type PaymentChannel = {
 
 export type CulturalEvent = {
     id: string; // Unique identifier for the event
-    name: string; // Name of the event
+    name: string; // Name of the event (Spanish)
+    nameEn?: string | null; // Name in English (optional)
     date: string; // Start date of the event in ISO format
-    description: string; // A brief description of the event
+    description: string; // A brief description of the event (Spanish)
+    descriptionEn?: string | null; // Description in English (optional)
     venueDetail?: string | null; // Detailed venue description (room, address, etc.)
     image: string; //Filename of event image
     startTime?: string; // (Optional) Start time of the event, in "HH:mm" format
