@@ -7,6 +7,13 @@ import AntdLocaleProvider from '@/antd/AntdLocaleProvider';
 import ConsentBanner from '@/consent/ConsentBanner';
 import GATracker from '@/consent/GATracker';
 import Container from '@/ui/Container';
+import { Montserrat } from "next/font/google";
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function RootLayout({
    children,
@@ -20,7 +27,7 @@ export default function RootLayout({
           {/* Ensure proper mobile scaling and disable user scaling to reduce accidental zoom */}
           <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         </head>
-        <body className="bg-background text-foreground min-h-screen">
+        <body className={`${montserrat.className} bg-background text-foreground min-h-screen`}>
         {/* Cookie/Consent banner and conditional GA loading */}
         <GATracker />
         <I18nProvider>

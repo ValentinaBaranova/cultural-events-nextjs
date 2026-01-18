@@ -4,6 +4,13 @@ import React from "react";
 import Search from "@/ui/search";
 import { useI18n } from "@/i18n/I18nProvider";
 import Image from "next/image";
+import { Piazzolla } from "next/font/google";
+
+const piazzolla = Piazzolla({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400"],
+});
 
 export default function HeroSearch() {
   const { t } = useI18n();
@@ -12,7 +19,7 @@ export default function HeroSearch() {
   return (
     <section className="pt-3 pb-4 sm:pt-6 sm:pb-6">
       <div className="text-center space-y-3">
-        <h1 className="text-hero font-normal tracking-tight">
+        <h1 className={`${piazzolla.className} text-hero font-normal tracking-[-0.01em]`}>
           {heroTitle}
         </h1>
         {/* Mobile-only subtitle (grammar fix, shorter) */}
