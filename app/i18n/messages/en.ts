@@ -54,6 +54,8 @@ const en = {
   "events.tickets": "Tickets:",
   "events.since": "Since",
   "events.durationNotProvided": "Duration not provided",
+  "events.mainAction.tickets": "Tickets",
+  "events.mainAction.howToAttend": "How to attend",
   
   "events.report.button": "Report issue",
   "events.report.title": "Report a problem with this event",

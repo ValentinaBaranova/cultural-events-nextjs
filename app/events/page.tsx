@@ -1462,6 +1462,36 @@ function EventsListPageInner() {
                                 </div>
                             )}
 
+                            {/* Main action (collapsed): Tickets for paid, How to attend (map) for free */}
+                            {(!isCardExpanded(event.id)) && (() => {
+                                // Build venue Google Maps URL (same logic as venue link above)
+                                const venue = event.venue;
+                                const mapUrl = venue ? (() => {
+                                    const name = venue.name ? `${venue.name}, Buenos Aires` : 'Buenos Aires';
+                                    if (venue.googlePlaceId) {
+                                        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(venue.googlePlaceId)}`;
+                                    }
+                                    if (venue.latitude != null && venue.longitude != null) {
+                                        return `https://www.google.com/maps/@?api=1&map_action=map&center=${venue.latitude},${venue.longitude}&zoom=16`;
+                                    }
+                                    return `https://www.google.com/maps/search/?api=1&map_action=map&query=${encodeURIComponent(name)}`;
+                                })() : '';
+
+                                if (!mapUrl) return null;
+                                return (
+                                    <div className="event-main-action">
+                                        <a
+                                            className="event-main-action-btn"
+                                            href={mapUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {t('events.mainAction.howToAttend', 'Cómo asistir')}
+                                        </a>
+                                    </div>
+                                );
+                            })()}
+
                             {/* Toggle collapsed/expanded (top): show only when collapsed */}
                             {!isCardExpanded(event.id) && (
                                 <button
@@ -1480,7 +1510,7 @@ function EventsListPageInner() {
 
                             {/* Expanded content */}
                             {isCardExpanded(event.id) && (
-                                <div id={`event-content-${event.id}`}>
+                                <div id={`event-content-${event.id}`} className="event-expanded">
                                     {/* Type row (moved above description) */}
                                     <div className="event-meta">
                                         <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1578,6 +1608,36 @@ function EventsListPageInner() {
                                             </Link>
                                         ) : <span />}
                                     </div>
+
+                                    {/* Main action (expanded, positioned above bottom chevron): How to attend (map) */}
+                                    {(() => {
+                                        // Build venue Google Maps URL (same logic as venue link above)
+                                        const venue = event.venue;
+                                        const mapUrl = venue ? (() => {
+                                            const name = venue.name ? `${venue.name}, Buenos Aires` : 'Buenos Aires';
+                                            if (venue.googlePlaceId) {
+                                                return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(venue.googlePlaceId)}`;
+                                            }
+                                            if (venue.latitude != null && venue.longitude != null) {
+                                                return `https://www.google.com/maps/@?api=1&map_action=map&center=${venue.latitude},${venue.longitude}&zoom=16`;
+                                            }
+                                            return `https://www.google.com/maps/search/?api=1&map_action=map&query=${encodeURIComponent(name)}`;
+                                        })() : '';
+
+                                        if (!mapUrl) return null;
+                                        return (
+                                            <div className="event-main-action">
+                                                <a
+                                                    className="event-main-action-btn"
+                                                    href={mapUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {t('events.mainAction.howToAttend', 'Cómo asistir')}
+                                                </a>
+                                            </div>
+                                        );
+                                    })()}
 
                                     {/* Toggle (bottom): show only when expanded */}
                                     <button

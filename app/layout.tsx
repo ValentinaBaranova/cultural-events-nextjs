@@ -8,6 +8,7 @@ import ConsentBanner from '@/consent/ConsentBanner';
 import GATracker from '@/consent/GATracker';
 import Container from '@/ui/Container';
 import { Montserrat } from "next/font/google";
+import { Suspense } from 'react';
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -30,19 +31,21 @@ export default function RootLayout({
         <body className={`${montserrat.className} bg-background text-foreground min-h-screen`}>
         {/* Cookie/Consent banner and conditional GA loading */}
         <GATracker />
-        <I18nProvider>
-            <AntdLocaleProvider>
-                <NavBar />
-                <main>
+        <Suspense fallback={null}>
+          <I18nProvider>
+              <AntdLocaleProvider>
+                  <NavBar />
+                  <main>
+                    <Container className="py-6">
+                      {children}
+                    </Container>
+                  </main>
                   <Container className="py-6">
-                    {children}
+                    <ConsentBanner />
                   </Container>
-                </main>
-                <Container className="py-6">
-                  <ConsentBanner />
-                </Container>
-            </AntdLocaleProvider>
-        </I18nProvider>
+              </AntdLocaleProvider>
+          </I18nProvider>
+        </Suspense>
         </body>
         </html>
     </SessionProvider>

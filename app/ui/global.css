@@ -449,6 +449,9 @@ body {
 
 .event-details {
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
 }
 
 .event-title {
@@ -470,7 +473,7 @@ body {
     gap: 10px;
     color: var(--muted-foreground);
     font-size: 0.95rem;
-    margin: 10px 0;
+    margin: 4px 0; /* tightened spacing between metadata rows */
 }
 
 .event-meta-icon {
@@ -724,6 +727,31 @@ body {
   }
 }
 
+/* Main action button inside event card (collapsed) */
+.event-main-action {
+  margin-top: auto; /* push primary action to the bottom of the card */
+  padding-top: 20px; /* add comfortable space above the button */
+}
+.event-main-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: #f5f3ff; /* indigo-50 to match style */
+  color: #111827;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.event-main-action-btn:hover {
+  background: #ede9fe; /* indigo-100 */
+}
+.event-main-action-btn:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
 
 /* Reusable inline link style (matches event card link style) */
 .inline-link {
@@ -931,4 +959,12 @@ body {
 /* Ensure square corners on AntD Modal container too (dev-only scoped selector may set radius) */
 .ant-modal .ant-modal-container {
   border-radius: 0 !important;
+}
+
+
+/* Expanded content container should fill remaining space and stack children vertically */
+.event-expanded {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
 }

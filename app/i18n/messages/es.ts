@@ -53,6 +53,8 @@ const es = {
   "events.tickets": "Entradas:",
   "events.since": "Desde",
   "events.durationNotProvided": "Duración no informada",
+  "events.mainAction.tickets": "Entradas",
+  "events.mainAction.howToAttend": "Cómo asistir",
 
   "events.report.button": "Reportar problema",
   "events.report.title": "Reportar un problema con este evento",
