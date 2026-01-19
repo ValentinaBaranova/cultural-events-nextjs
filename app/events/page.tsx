@@ -934,7 +934,7 @@ function EventsListPageInner() {
     };
 
 
-    // Build prioritized chips: Date, Gratis, then individual Type and Barrio chips (no grouping). Show max 2, append +N más if more.
+    // Build prioritized chips: Date, Gratis, then individual Type, Barrio (zona), Venue (lugar) and Tag (etiqueta) chips (no grouping). Show max 2, append +N if more.
 
     const chipCandidates: { key: string; label: string; onClear: () => void }[] = [];
     if (dateRange) chipCandidates.push({ key: 'date', label: formatDateChip(), onClear: () => setDateRange(null) });
@@ -951,6 +951,20 @@ function EventsListPageInner() {
         selectedBarrios.forEach((slug) => {
             const name = barrioNameBySlug[slug] ?? slug;
             chipCandidates.push({ key: `barrio-${slug}`, label: name, onClear: () => setSelectedBarrios(prev => prev.filter(b => b !== slug)) });
+        });
+    }
+    // One chip per selected venue (no grouping)
+    if (selectedVenues.length) {
+        selectedVenues.forEach((slug) => {
+            const name = getVenueLabel(slug);
+            chipCandidates.push({ key: `venue-${slug}`, label: name, onClear: () => setSelectedVenues(prev => prev.filter(v => v !== slug)) });
+        });
+    }
+    // One chip per selected tag (no grouping)
+    if (selectedTags.length) {
+        selectedTags.forEach((slug) => {
+            const name = getTagLabel(slug);
+            chipCandidates.push({ key: `tag-${slug}`, label: name, onClear: () => setSelectedTags(prev => prev.filter(tg => tg !== slug)) });
         });
     }
 
