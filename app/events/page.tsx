@@ -739,6 +739,7 @@ function EventsListPageInner() {
                 classNames={{ popup: { root: 'mobile-range-picker' } }}
                 open={pickerOpen}
                 onOpenChange={setPickerOpen}
+                disabledDate={(current) => !!current && current.isBefore(dayjs().startOf('day'))}
                 panelRender={(panelNode) => (
                     <div>
                         <div className="flex flex-wrap gap-2 px-3 pt-3 pb-2 border-b border-gray-200">
