@@ -1512,7 +1512,7 @@ function EventsListPageInner() {
                                                                     } else {
                                                                         messageApi.error({ content: t('events.refetch.error'), key: `refetch-${event.id}` });
                                                                     }
-                                                                } catch (e) {
+                                                                } catch {
                                                                     messageApi.error({ content: t('events.refetch.error'), key: `refetch-${event.id}` });
                                                                 }
                                                             }}
