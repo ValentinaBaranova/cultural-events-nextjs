@@ -78,6 +78,11 @@ const en = {
   "events.hide.success": "Event hidden.",
   "events.hide.error": "Could not hide the event. Please try later.",
   
+  "events.refetch.button": "Refetch from Instagram",
+  "events.refetch.loading": "Refetching from Instagram...",
+  "events.refetch.success": "Refetched. Parsing will run shortly.",
+  "events.refetch.error": "Could not refetch from Instagram.",
+  
   "events.empty.title": "No events found",
   "events.empty.subtitle": "Try adjusting the dates or filters, or clear them to see all upcoming events.",
   "events.empty.clearFilters": "Clear filters",

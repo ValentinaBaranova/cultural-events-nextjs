@@ -36,6 +36,7 @@ export type CulturalEvent = {
     priceText?: string | null; // (Optional) Price text, e.g., "$5.000"
     venue?: Venue | null; // Optional venue info
     instagramId?: string | null; // Optional Instagram post shortcode
+    instagramPostId?: string | null; // Optional internal Instagram post UUID (for admin actions)
     paymentChannels?: PaymentChannel[]; // Optional ticket purchase links
     tags?: string[]; // Optional list of tag slugs
 };

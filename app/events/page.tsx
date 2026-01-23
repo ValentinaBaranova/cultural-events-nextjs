@@ -1471,6 +1471,7 @@ function EventsListPageInner() {
 
                                             {session?.user && (
                                                 <>
+                                                    <div className="my-1 border-t border-gray-200" role="separator" aria-hidden="true"></div>
                                                     <a
                                                         role="menuitem"
                                                         className="block w-full px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
@@ -1492,6 +1493,49 @@ function EventsListPageInner() {
                                                         </svg>
                                                         <span>{t('events.edit')}</span>
                                                     </a>
+
+                                                    {event.instagramPostId && (
+                                                        <button
+                                                            type="button"
+                                                            role="menuitem"
+                                                            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                                            onClick={async () => {
+                                                                setOpenMenuId(null);
+                                                                try {
+                                                                    messageApi.loading({ content: t('events.refetch.loading'), key: `refetch-${event.id}` });
+                                                                    const resp = await fetch(`${API_URL}/admin/instagram/posts/${event.instagramPostId}/refetch`, {
+                                                                        method: 'POST'
+                                                                    });
+                                                                    if (resp.ok) {
+                                                                        messageApi.success({ content: t('events.refetch.success'), key: `refetch-${event.id}` });
+                                                                        refresh();
+                                                                    } else {
+                                                                        messageApi.error({ content: t('events.refetch.error'), key: `refetch-${event.id}` });
+                                                                    }
+                                                                } catch (e) {
+                                                                    messageApi.error({ content: t('events.refetch.error'), key: `refetch-${event.id}` });
+                                                                }
+                                                            }}
+                                                        >
+                                                            <svg
+                                                                className="w-4 h-4 text-gray-700"
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                strokeWidth="2"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                aria-hidden="true"
+                                                            >
+                                                                <polyline points="23 4 23 10 17 10"></polyline>
+                                                                <polyline points="1 20 1 14 7 14"></polyline>
+                                                                <path d="M3.51 9a9 9 0 0114.13-3.36L23 10"></path>
+                                                                <path d="M20.49 15a9 9 0 01-14.13 3.36L1 14"></path>
+                                                            </svg>
+                                                            <span>{t('events.refetch.button')}</span>
+                                                        </button>
+                                                    )}
+
                                                     <button
                                                         type="button"
                                                         role="menuitem"
@@ -1508,9 +1552,9 @@ function EventsListPageInner() {
                                                             strokeLinejoin="round"
                                                             aria-hidden="true"
                                                         >
-                                                            <path d="M3 6h18"></path>
-                                                            <path d="M8 6v14h8V6"></path>
-                                                            <path d="M10 10h4"></path>
+                                                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                                                            <circle cx="12" cy="12" r="3"></circle>
+                                                            <line x1="2" y1="2" x2="22" y2="22"></line>
                                                         </svg>
                                                         <span>{t('events.hide.button')}</span>
                                                     </button>

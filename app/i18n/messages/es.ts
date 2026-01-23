@@ -77,6 +77,11 @@ const es = {
   "events.hide.success": "Evento ocultado.",
   "events.hide.error": "No pudimos ocultar el evento. Probá más tarde.",
 
+  "events.refetch.button": "Recargar desde IG",
+  "events.refetch.loading": "Recargando desde Instagram...",
+  "events.refetch.success": "Recargado. El análisis se ejecutará en breve.",
+  "events.refetch.error": "No pudimos recargar desde Instagram.",
+
   "events.empty.title": "No encontramos eventos",
   "events.empty.subtitle": "Probá ajustar las fechas o los filtros, o limpiarlos para ver todos los próximos eventos.",
   "events.empty.clearFilters": "Limpiar filtros",
