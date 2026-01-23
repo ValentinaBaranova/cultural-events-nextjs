@@ -5,14 +5,23 @@ import { redirect } from 'next/navigation';
 import { UpdateEventSchema } from '@/lib/validation/eventSchema';
 import { API_URL } from '@/lib/config';
 
+
 export async function updateEvent(id: string, formData: FormData) {
     if (!id) throw new Error('Event ID is missing');
 
     const parsedData = UpdateEventSchema.parse({
         name: formData.get('name'),
+        nameEn: ((): string | null => {
+            const v = formData.get('nameEn');
+            return v && typeof v === 'string' && v.trim().length > 0 ? v.toString() : null;
+        })(),
         date: formData.get('date'),
         venueDetail: formData.get('venueDetail'),
         description: formData.get('description'),
+        descriptionEn: ((): string | null => {
+            const v = formData.get('descriptionEn');
+            return v && typeof v === 'string' && v.trim().length > 0 ? v.toString() : null;
+        })(),
         startTime: formData.get('startTime') || null,
         endDate: formData.get('endDate') || null,
         isFree: ((): boolean | null => {
@@ -28,16 +37,44 @@ export async function updateEvent(id: string, formData: FormData) {
             return (t && typeof t === 'string' && t.trim().length > 0) ? t.toString() : null;
         })(),
         type: formData.get('type'),
+        tags: ((): string[] => {
+            const values = formData.getAll('tags');
+            const slugs = values.filter((v): v is string => typeof v === 'string').map(v => v.trim()).filter(Boolean);
+            // Always send an array. Empty array means clear all tags.
+            return slugs;
+        })()
     });
 
-    const response = await fetch(`${API_URL}/events/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsedData),
-    });
+    try {
+        const response = await fetch(`${API_URL}/events/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(parsedData),
+        });
 
-    if (!response.ok) {
-        throw new Error(`Failed to update event: ${response.statusText}`);
+        if (!response.ok) {
+            // statusText can be empty in some runtimes; attempt to parse a meaningful message from body
+            let detail = '';
+            try {
+                const contentType = response.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    const data = await response.json();
+                    const msg = (data && (data.message || data.error)) || '';
+                    const errors = Array.isArray(data?.errors) ? JSON.stringify(data.errors) : '';
+                    detail = [msg, errors].filter(Boolean).join(' ');
+                } else {
+                    detail = await response.text();
+                }
+            } catch {
+                // ignore body parse errors
+            }
+            const suffix = detail ? ` - ${detail}` : '';
+            throw new Error(`Failed to update event (${response.status})${suffix}`);
+        }
+    } catch (e: unknown) {
+        // Normalize network or unexpected errors to a consistent message
+        const msg = e instanceof Error ? e.message : (typeof e === 'string' ? e : 'Unknown error');
+        throw new Error(msg.startsWith('Failed to update event') ? msg : `Failed to update event: ${msg}`);
     }
 
     revalidatePath('/events');

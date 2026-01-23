@@ -1470,28 +1470,51 @@ function EventsListPageInner() {
                                             </button>
 
                                             {session?.user && (
-                                                <button
-                                                    type="button"
-                                                    role="menuitem"
-                                                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
-                                                    onClick={() => { setOpenMenuId(null); hideModalRef.current?.open(event.id); }}
-                                                >
-                                                    <svg
-                                                        className="w-4 h-4 text-gray-700"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        aria-hidden="true"
+                                                <>
+                                                    <a
+                                                        role="menuitem"
+                                                        className="block w-full px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                                        href={`/events/${event.id}/edit`}
+                                                        onClick={() => setOpenMenuId(null)}
                                                     >
-                                                        <path d="M3 6h18"></path>
-                                                        <path d="M8 6v14h8V6"></path>
-                                                        <path d="M10 10h4"></path>
-                                                    </svg>
-                                                    <span>{t('events.hide.button')}</span>
-                                                </button>
+                                                        <svg
+                                                            className="w-4 h-4 text-gray-700"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            aria-hidden="true"
+                                                        >
+                                                            <path d="M12 20h9"></path>
+                                                            <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                                                        </svg>
+                                                        <span>{t('events.edit')}</span>
+                                                    </a>
+                                                    <button
+                                                        type="button"
+                                                        role="menuitem"
+                                                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                                        onClick={() => { setOpenMenuId(null); hideModalRef.current?.open(event.id); }}
+                                                    >
+                                                        <svg
+                                                            className="w-4 h-4 text-gray-700"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            aria-hidden="true"
+                                                        >
+                                                            <path d="M3 6h18"></path>
+                                                            <path d="M8 6v14h8V6"></path>
+                                                            <path d="M10 10h4"></path>
+                                                        </svg>
+                                                        <span>{t('events.hide.button')}</span>
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
                                     )}
