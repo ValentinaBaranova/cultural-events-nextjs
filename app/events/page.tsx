@@ -1379,7 +1379,7 @@ function EventsListPageInner() {
                                             id={`actions-menu-${event.id}`}
                                             role="menu"
                                             tabIndex={-1}
-                                            className="absolute right-0 mt-2 w-56 origin-top-right bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+                                            className="absolute right-0 mt-2 w-64 origin-top-right bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
                                         >
                                             <a
                                                 role="menuitem"
