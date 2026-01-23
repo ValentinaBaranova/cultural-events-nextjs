@@ -69,6 +69,12 @@ const es = {
   "events.report.reasons.canceled": "Evento cancelado",
   "events.report.reasons.other": "️Otro",
   "events.addToGoogleCalendar": "Agregar a Google Calendar",
+  "events.hide.button": "Ocultar evento",
+  "events.hide.title": "¿Ocultar este evento?",
+  "events.hide.confirmMessage": "Este evento ya no aparecerá en la lista pública.",
+  "events.hide.confirm": "Ocultar",
+  "events.hide.success": "Evento ocultado.",
+  "events.hide.error": "No pudimos ocultar el evento. Probá más tarde.",
 
   "events.empty.title": "No encontramos eventos",
   "events.empty.subtitle": "Probá ajustar las fechas o los filtros, o limpiarlos para ver todos los próximos eventos.",

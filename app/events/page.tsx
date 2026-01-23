@@ -7,9 +7,9 @@ import React, {useEffect, useRef, useState, Suspense, useMemo, useImperativeHand
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
 import HeroSearch from "@/ui/HeroSearch";
-import { UpdateEvent } from "@/ui/events/buttons";
 import Skeleton from "@/ui/skeleton";
 import {API_URL, SHOW_EVENT_DETAILS_LINK} from "@/lib/config";
+import { useSession } from 'next-auth/react';
 import { useI18n } from '@/i18n/I18nProvider';
 import { DatePicker, Select, Checkbox, Alert, Modal, Radio, Input, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
@@ -51,6 +51,10 @@ function formatEventCardDate(event: CulturalEvent, sinceWord: string): string {
 
 // Fast, isolated Report Problem modal to avoid re-rendering the whole page
 export type ReportModalHandle = {
+    open: (eventId: string) => void;
+};
+
+export type HideModalHandle = {
     open: (eventId: string) => void;
 };
 
@@ -133,7 +137,61 @@ const ReportProblemModal = memo(forwardRef<ReportModalHandle, {
     );
 }));
 
+// Confirm Hide modal similar in style to ReportProblemModal
+const ConfirmHideModal = memo(forwardRef<HideModalHandle, {
+    t: ReturnType<typeof useI18n>['t'];
+    messageApi: ReturnType<typeof message.useMessage>[0];
+    onHidden?: (eventId: string) => void;
+}>(({ t, messageApi, onHidden }, ref) => {
+    const [open, setOpen] = useState(false);
+    const [eventId, setEventId] = useState<string | null>(null);
+
+    // Client-only render to avoid hydration mismatch with Antd Modal
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => { setMounted(true); }, []);
+
+    useImperativeHandle(ref, () => ({
+        open: (id: string) => {
+            setEventId(id);
+            setOpen(true);
+        }
+    }), []);
+
+    if (!mounted) return null;
+
+    return (
+        <Modal
+            open={open}
+            title={t('events.hide.title')}
+            onCancel={() => setOpen(false)}
+            onOk={async () => {
+                if (!eventId) return;
+                try {
+                    const resp = await fetch(`${API_URL}/admin/events/${eventId}/hidden`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ hidden: true })
+                    });
+                    if (resp.ok) {
+                        messageApi.success(t('events.hide.success'));
+                        setOpen(false);
+                        onHidden?.(eventId);
+                    } else {
+                        messageApi.error(t('events.hide.error'));
+                    }
+                } catch {
+                    messageApi.error(t('events.hide.error'));
+                }
+            }}
+            okText={t('events.hide.confirm')}
+        >
+            <p>{t('events.hide.confirmMessage')}</p>
+        </Modal>
+    );
+}));
+
 function EventsListPageInner() {
+    const { data: session } = useSession();
     // Set CSS --vh variable to handle 100vh issues on iOS Safari when the URL bar collapses/expands
     React.useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -177,6 +235,7 @@ function EventsListPageInner() {
 
     // Imperative modal instance
     const reportModalRef = useRef<ReportModalHandle>(null);
+        const hideModalRef = useRef<HideModalHandle>(null);
 
     // Close kebab menu on outside click or when pressing Escape
     useEffect(() => {
@@ -416,7 +475,7 @@ function EventsListPageInner() {
     const startDate = dateRange?.[0]?.format('YYYY-MM-DD');
     const endDate = dateRange?.[1]?.format('YYYY-MM-DD');
 
-    const { events, isLoading, error, loadMore, isFetchingMore, hasMore } = useEvents(
+    const { events, isLoading, error, loadMore, isFetchingMore, hasMore, refresh } = useEvents(
         searchQuery,
         selectedTypes,
         onlyFree,
@@ -1158,6 +1217,7 @@ function EventsListPageInner() {
             {messageContextHolder}
             {/* Report Problem Modal instance */}
             <ReportProblemModal ref={reportModalRef} t={t} locale={locale} messageApi={messageApi} />
+                        <ConfirmHideModal ref={hideModalRef} t={t} messageApi={messageApi} onHidden={() => refresh()} />
 
             {/* Report modal handled by ReportProblemModal component */}
 
@@ -1408,6 +1468,31 @@ function EventsListPageInner() {
                                                 </svg>
                                                 <span>{t('events.report.button')}</span>
                                             </button>
+
+                                            {session?.user && (
+                                                <button
+                                                    type="button"
+                                                    role="menuitem"
+                                                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                                    onClick={() => { setOpenMenuId(null); hideModalRef.current?.open(event.id); }}
+                                                >
+                                                    <svg
+                                                        className="w-4 h-4 text-gray-700"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <path d="M3 6h18"></path>
+                                                        <path d="M8 6v14h8V6"></path>
+                                                        <path d="M10 10h4"></path>
+                                                    </svg>
+                                                    <span>{t('events.hide.button')}</span>
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -1589,7 +1674,6 @@ function EventsListPageInner() {
                                     )}
 
                                     <div className="event-divider" aria-hidden="true" />
-                                    <UpdateEvent id={event.id}/>
                                     <div className="event-actions relative">
                                         {event.instagramId ? (
                                             <a

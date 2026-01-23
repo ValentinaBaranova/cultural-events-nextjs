@@ -70,6 +70,12 @@ const en = {
   "events.report.reasons.canceled": "Event canceled",
   "events.report.reasons.other": "Other",
   "events.addToGoogleCalendar": "Add to Google Calendar",
+  "events.hide.button": "Hide event",
+  "events.hide.title": "Hide this event?",
+  "events.hide.confirmMessage": "This event will no longer appear in the public list.",
+  "events.hide.confirm": "Hide",
+  "events.hide.success": "Event hidden.",
+  "events.hide.error": "Could not hide the event. Please try later.",
   
   "events.empty.title": "No events found",
   "events.empty.subtitle": "Try adjusting the dates or filters, or clear them to see all upcoming events.",
