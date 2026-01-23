@@ -47,13 +47,22 @@ export const authConfig: NextAuthConfig = {
         strategy: 'jwt',
     },
     callbacks: {
-        async session({session, token}) { // ✅ Ensure `session` callback is `async`
-            session.user = {id: token.sub as string, email: token.email as string, emailVerified: null};
+        async session({ session, token }) {
+            // When unauthenticated, NextAuth passes `session` as null. Return it as is to avoid 500 errors.
+            if (!session) return session;
+
+            // Only augment the session when we have a valid token/user
+            if (token?.sub && session.user) {
+                (session.user as any).id = token.sub as string;
+                if (token.email) {
+                    (session.user as any).email = token.email as string;
+                }
+            }
             return session;
         },
-        async jwt({token, user}) { // ✅ Ensure `jwt` callback is `async`
+        async jwt({ token, user }) {
             if (user) {
-                token.sub = user.id || '';
+                token.sub = (user as any).id || '';
                 token.email = user.email || '';
             }
             return token;
