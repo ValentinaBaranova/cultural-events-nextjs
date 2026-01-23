@@ -393,12 +393,15 @@ body {
 
 .event-image-wrapper {
     position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5; /* Keep a fixed 16:9 ratio for all event images */
+    overflow: hidden; /* Hide overflow when cropping to the aspect ratio */
 }
 
 .event-image {
     width: 100%;
-    height: 300px;
-    object-fit: cover;
+    height: 100%;
+    object-fit: cover; /* Fill the wrapper while preserving image proportions */
 }
 
 .badge-free {
