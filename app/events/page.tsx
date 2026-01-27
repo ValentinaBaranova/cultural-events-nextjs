@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEvents } from '@/lib/useEvents';
-import React, {useEffect, useRef, useState, Suspense, useMemo, useImperativeHandle, forwardRef, memo} from 'react';
+import React, {useEffect, useRef, useState, Suspense, useMemo} from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
 import HeroSearch from "@/ui/HeroSearch";
@@ -11,7 +11,7 @@ import Skeleton from "@/ui/skeleton";
 import {API_URL, SHOW_EVENT_DETAILS_LINK} from "@/lib/config";
 import { useSession } from 'next-auth/react';
 import { useI18n } from '@/i18n/I18nProvider';
-import { DatePicker, Select, Checkbox, Alert, Modal, Radio, Input, message } from 'antd';
+import { DatePicker, Select, Checkbox, Alert, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 
 type EventTypeOption = { slug: string; name: string };
@@ -24,171 +24,10 @@ type Option = { label: string; value: string };
 
 type TagOption = { slug: string; name: string };
 
-// Helper: format date for event cards per product rules.
-// - Single-day event: "Jueves 15/01 · 17:30" (weekday localized and capitalized, DD/MM, optional time HH:mm)
-// - Multi-day or missing endDate: "Desde jueves 15/01" (weekday localized and lowercased)
-function formatEventCardDate(event: CulturalEvent, sinceWord: string): string {
-    const d = dayjs(event.date);
-    if (!d.isValid()) return String(event.date ?? '');
+import { formatEventCardDate } from './utils/formatEventCardDate';
 
-    const weekday = d.format('dddd'); // localized weekday name
-    const datePart = d.format('DD/MM');
-    const sinceText = `${sinceWord} ${weekday} ${datePart}`;
-
-    // Determine if we should show "Desde ..."
-    const hasEnd = !!event.endDate;
-    const e = hasEnd ? dayjs(event.endDate as string) : null;
-    const isMultiDay = hasEnd && e!.isValid() && !e!.isSame(d, 'day');
-    if (!hasEnd || isMultiDay) {
-        return sinceText;
-    }
-
-    // Single-day event formatting
-    const weekdayCap = weekday.charAt(0).toUpperCase() + weekday.slice(1);
-    const timePart = event.startTime ? event.startTime.slice(0, 5) : null;
-    return timePart ? `${weekdayCap} ${datePart} · ${timePart}` : `${weekdayCap} ${datePart}`;
-}
-
-// Fast, isolated Report Problem modal to avoid re-rendering the whole page
-export type ReportModalHandle = {
-    open: (eventId: string) => void;
-};
-
-export type HideModalHandle = {
-    open: (eventId: string) => void;
-};
-
-const ReportProblemModal = memo(forwardRef<ReportModalHandle, {
-    t: ReturnType<typeof useI18n>['t'];
-    locale: string;
-    messageApi: ReturnType<typeof message.useMessage>[0];
-}>(({ t, locale, messageApi }, ref) => {
-    const [open, setOpen] = useState(false);
-    const [eventId, setEventId] = useState<string | null>(null);
-    const [reason, setReason] = useState<string>('');
-    const [comment, setComment] = useState<string>('');
-    const reasons = useMemo(() => ['wrongDateTime','wrongVenue','wrongPrice','duplicate','canceled','other'], []);
-
-    // Client-only render to avoid hydration mismatch with Antd Modal
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => { setMounted(true); }, []);
-
-    useImperativeHandle(ref, () => ({
-        open: (id: string) => {
-            setEventId(id);
-            setReason('');
-            setComment('');
-            setOpen(true);
-        }
-    }), []);
-
-    if (!mounted) return null;
-
-    return (
-        <Modal
-            open={open}
-            title={t('events.report.title')}
-            forceRender
-            onCancel={() => setOpen(false)}
-            onOk={async () => {
-                if (!eventId || !reason) {
-                    messageApi.warning(t('events.report.reason'));
-                    return;
-                }
-                try {
-                    const resp = await fetch(`${API_URL}/events/${eventId}/report`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ reason, comment, locale })
-                    });
-                    if (resp.ok) {
-                        messageApi.success(t('events.report.success'));
-                        setOpen(false);
-                    } else {
-                        messageApi.error(t('events.report.error'));
-                    }
-                } catch {
-                    messageApi.error(t('events.report.error'));
-                }
-            }}
-            okButtonProps={{ disabled: !reason }}
-        >
-            <div className="space-y-3">
-                <div>
-                    <div className="mb-2 text-sm font-medium">{t('events.report.reason')}</div>
-                    <Radio.Group value={reason} onChange={(e) => setReason(e.target.value)}>
-                        <div className="flex flex-col gap-2">
-                            {reasons.map((key) => (
-                                <Radio key={key} value={key}>{t(`events.report.reasons.${key}`)}</Radio>
-                            ))}
-                        </div>
-                    </Radio.Group>
-                </div>
-                {reason === 'other' && (
-                    <Input.TextArea
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        placeholder={t('events.report.otherPlaceholder')}
-                        rows={3}
-                    />
-                )}
-            </div>
-        </Modal>
-    );
-}));
-
-// Confirm Hide modal similar in style to ReportProblemModal
-const ConfirmHideModal = memo(forwardRef<HideModalHandle, {
-    t: ReturnType<typeof useI18n>['t'];
-    messageApi: ReturnType<typeof message.useMessage>[0];
-    onHidden?: (eventId: string) => void;
-}>(({ t, messageApi, onHidden }, ref) => {
-    const [open, setOpen] = useState(false);
-    const [eventId, setEventId] = useState<string | null>(null);
-
-    // Client-only render to avoid hydration mismatch with Antd Modal
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => { setMounted(true); }, []);
-
-    useImperativeHandle(ref, () => ({
-        open: (id: string) => {
-            setEventId(id);
-            setOpen(true);
-        }
-    }), []);
-
-    if (!mounted) return null;
-
-    return (
-        <Modal
-            open={open}
-            title={t('events.hide.title')}
-            onCancel={() => setOpen(false)}
-            onOk={async () => {
-                if (!eventId) return;
-                try {
-                    const resp = await fetch(`${API_URL}/admin/events/${eventId}/hidden`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ hidden: true })
-                    });
-                    if (resp.ok) {
-                        messageApi.success(t('events.hide.success'));
-                        setOpen(false);
-                        onHidden?.(eventId);
-                    } else {
-                        messageApi.error(t('events.hide.error'));
-                    }
-                } catch {
-                    messageApi.error(t('events.hide.error'));
-                }
-            }}
-            okText={t('events.hide.confirm')}
-        >
-            <p>{t('events.hide.confirmMessage')}</p>
-        </Modal>
-    );
-}));
+import { ReportProblemModal, type ReportModalHandle } from './components/ReportProblemModal';
+import { ConfirmHideModal, type HideModalHandle } from './components/ConfirmHideModal';
 
 function EventsListPageInner() {
     const { data: session } = useSession();
@@ -1216,8 +1055,8 @@ function EventsListPageInner() {
 
             {messageContextHolder}
             {/* Report Problem Modal instance */}
-            <ReportProblemModal ref={reportModalRef} t={t} locale={locale} messageApi={messageApi} />
-                        <ConfirmHideModal ref={hideModalRef} t={t} messageApi={messageApi} onHidden={() => refresh()} />
+            <ReportProblemModal ref={reportModalRef} locale={locale} />
+                        <ConfirmHideModal ref={hideModalRef} onHidden={() => refresh()} />
 
             {/* Report modal handled by ReportProblemModal component */}
 
