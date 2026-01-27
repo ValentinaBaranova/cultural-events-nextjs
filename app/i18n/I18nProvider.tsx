@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/en";
 import "dayjs/locale/es";
 import updateLocale from "dayjs/plugin/updateLocale";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 // Ensure we can adjust week start per locale (used by antd DatePicker rendering)
 dayjs.extend(updateLocale);
@@ -51,27 +51,22 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // After mount, load locale from URL (?lang=xx) or saved locale (if any) and apply it.
+  // On mount, read initial locale from URL (?lang=xx) or localStorage without mutating URL
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
-    const paramLang = searchParams?.get('lang');
+    const params = new URLSearchParams(window.location.search);
+    const paramLang = params.get('lang');
     if (paramLang === 'en' || paramLang === 'es') {
-      if (paramLang !== locale) {
-        setLocaleState(paramLang);
-        try { localStorage.setItem(STORAGE_KEY, paramLang); } catch {}
-      }
+      setLocaleState(paramLang);
+      try { localStorage.setItem(STORAGE_KEY, paramLang); } catch {}
       return;
     }
-
-    // Fallback to saved locale
     const saved = localStorage.getItem(STORAGE_KEY) as Locale | null;
-    if ((saved === 'en' || saved === 'es') && saved !== locale) {
+    if (saved === 'en' || saved === 'es') {
       setLocaleState(saved);
     }
-  }, [locale, searchParams]);
+  }, []);
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -85,20 +80,8 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     setLocaleState(l);
     if (typeof window !== 'undefined') {
       try { localStorage.setItem(STORAGE_KEY, l); } catch {}
-      // Update URL query parameter (?lang=...); preserve other params and hash
-      const params = new URLSearchParams(window.location.search);
-      params.set('lang', l);
-      const query = params.toString();
-      const newUrl = query ? `${pathname}?${query}` : pathname;
-      // Use replace so we don't clutter history when toggling language
-      try {
-        router.replace(newUrl, { scroll: false });
-      } catch {
-        // As a fallback, use history.replaceState
-        try { window.history.replaceState(null, '', newUrl); } catch {}
-      }
     }
-  }, [pathname, router]);
+  }, []);
 
   // Keep URL in sync with current locale on route changes or after hydration.
   useEffect(() => {
