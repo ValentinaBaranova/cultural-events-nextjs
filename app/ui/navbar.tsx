@@ -52,7 +52,7 @@ const NavBar = () => {
                                 {t('auth.logout')}
                             </Link>
                         ) : (
-                            <Link href="#" onClick={(e) => { e.preventDefault(); signIn(); }} className="px-3 py-1.5 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition">
+                            <Link href="#" onClick={(e) => { e.preventDefault(); signIn(); }} className="px-3 py-1.5 rounded-md bg-violet-500 text-white hover:bg-violet-600 transition">
                                 {t('auth.login')}
                             </Link>
                         )
@@ -105,7 +105,7 @@ const NavBar = () => {
                                         {t('auth.logout')}
                                     </Link>
                                 ) : (
-                                    <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signIn(); }} className="px-3 py-1.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition text-sm">
+                                    <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signIn(); }} className="px-3 py-1.5 bg-violet-500 text-white rounded-md hover:bg-violet-600 transition text-sm">
                                         {t('auth.login')}
                                     </Link>
                                 )}

@@ -51,15 +51,43 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                 </svg>
                 <input
                     id="search"
-                    className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-base outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+                    className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-28 text-base outline-none focus:ring-2 focus:ring-violet-500 shadow-sm"
                     placeholder={placeholder ?? t('search.placeholder')}
                     onChange={(e) => {
                         const term = e.target.value;
                         setValue(term);
                         handleSearch(term);
                     }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            const params = new URLSearchParams(searchParams);
+                            if (value) {
+                                params.set('query', value);
+                            } else {
+                                params.delete('query');
+                            }
+                            replace(`${pathname}?${params.toString()}`);
+                        }
+                    }}
                     value={value}
                 />
+                {/* Right aligned Search button on the same line */}
+                <button
+                    type="button"
+                    aria-label={t('filters.search')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors btn-entradas-theme"
+                    onClick={() => {
+                        const params = new URLSearchParams(searchParams);
+                        if (value) {
+                            params.set('query', value);
+                        } else {
+                            params.delete('query');
+                        }
+                        replace(`${pathname}?${params.toString()}`);
+                    }}
+                >
+                    {t('filters.search')}
+                </button>
             </div>
         </div>
     );

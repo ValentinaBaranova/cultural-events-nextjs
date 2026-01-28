@@ -735,25 +735,33 @@ body {
   margin-top: auto; /* push primary action to the bottom of the card */
   padding-top: 20px; /* add comfortable space above the button */
 }
+/* Shared visual theme for Entradas-style buttons */
+.event-main-action-btn,
+.btn-entradas-theme {
+  background: #f5f3ff; /* indigo-50 to match style */
+  color: #111827;
+  border: 1px solid var(--border);
+  font-weight: 400; /* normal (not bold) */
+}
+.event-main-action-btn:hover,
+.btn-entradas-theme:hover {
+  background: #ede9fe; /* indigo-100 */
+}
+.event-main-action-btn:focus-visible,
+.btn-entradas-theme:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* Main action button layout */
 .event-main-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  background: #f5f3ff; /* indigo-50 to match style */
-  color: #111827;
-  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px 14px;
   text-decoration: none;
-  font-weight: 600;
-}
-.event-main-action-btn:hover {
-  background: #ede9fe; /* indigo-100 */
-}
-.event-main-action-btn:focus-visible {
-  outline: 2px solid #6366f1;
-  outline-offset: 2px;
 }
 
 /* Reusable inline link style (matches event card link style) */

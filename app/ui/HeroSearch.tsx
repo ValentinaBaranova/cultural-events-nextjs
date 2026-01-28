@@ -10,7 +10,7 @@ export default function HeroSearch() {
   const rawTitle = t("hero.title", "Descubre Eventos en Buenos Aires");
   const heroTitle = rawTitle.replace(/Buenos Aires/g, "Buenos\u00A0Aires");
   return (
-    <section className="pt-3 pb-4 sm:pt-6 sm:pb-6">
+    <section className="pt-3 pb-2 sm:pt-6 sm:pb-3">
       <div className="text-center space-y-3">
         <h1 className="text-hero font-normal tracking-[-0.01em]">
           {heroTitle}
@@ -27,11 +27,7 @@ export default function HeroSearch() {
           )}
         </p>
       </div>
-      <div className="mt-6 sm:mt-8 mx-auto w-full max-w-3xl">
-        <Search />
-      </div>
-
-      {/* Hero banner image below the search bar (hidden on mobile) */}
+      {/* Hero banner image above the search bar on desktop, hidden on mobile */}
       <div className="hidden sm:block mt-4 sm:mt-6 mx-auto w-full">
         <div className="w-full overflow-hidden border border-border shadow">
           <Image
@@ -44,6 +40,10 @@ export default function HeroSearch() {
             priority
           />
         </div>
+      </div>
+
+      <div className="mt-4 sm:mt-5 w-full">
+        <Search />
       </div>
     </section>
   );
