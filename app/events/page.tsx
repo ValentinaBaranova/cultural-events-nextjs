@@ -803,12 +803,6 @@ function EventsListPageInner() {
         </>
     );
 
-    const renderAdvancedFilters = () => (
-        <>
-            {renderDateRangeFilter()}
-            {renderAdvancedFiltersRest()}
-        </>
-    );
 
     // Helpers to render filters content (shared by mobile sheet)
     // Mobile order must be: Date range → Types (chips) → Only free → Lugares → Barrios → Etiquetas
