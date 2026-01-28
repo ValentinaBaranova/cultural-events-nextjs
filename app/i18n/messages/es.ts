@@ -55,6 +55,7 @@ const es = {
   "events.durationNotProvided": "Duración no informada",
   "events.mainAction.tickets": "Entradas",
   "events.mainAction.howToAttend": "Cómo asistir",
+  "events.mainAction.moreInfo": "Fuente original",
 
   "events.report.button": "Reportar problema",
   "events.report.title": "Reportar un problema con este evento",

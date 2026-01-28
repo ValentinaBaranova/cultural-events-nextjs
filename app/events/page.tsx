@@ -108,6 +108,21 @@ function EventsListPageInner() {
     // Antd message API (avoid static calls to consume context)
     const [messageApi, messageContextHolder] = message.useMessage();
 
+    // Helper utilities to avoid duplicated logic across collapsed/expanded blocks
+    const getFirstPaymentUrl = React.useCallback((ev: CulturalEvent): string => {
+        const chs = ev.paymentChannels || [];
+        for (const ch of chs) {
+            const url = ch?.url?.trim();
+            if (url) return url.startsWith('http') ? url : `https://${url}`;
+        }
+        return '';
+    }, []);
+
+    const hasTicketsButton = React.useCallback((ev: CulturalEvent): boolean => {
+        const isPaid = ev.isFree === false;
+        return isPaid && !!getFirstPaymentUrl(ev);
+    }, [getFirstPaymentUrl]);
+
     // URL sync helpers
     const initializedFromUrlRef = useRef(false);
 
@@ -1454,32 +1469,45 @@ function EventsListPageInner() {
                                 </div>
                             )}
 
-                            {/* Main action (collapsed): Tickets for paid, How to attend (map) for free */}
+                            {/* Main action (collapsed): same as expanded (Tickets if paid with URL, else Más info) */}
                             {(!isCardExpanded(event.id)) && (() => {
-                                // Build venue Google Maps URL (same logic as venue link above)
-                                const venue = event.venue;
-                                const mapUrl = venue ? (() => {
-                                    const name = venue.name ? `${venue.name}, Buenos Aires` : 'Buenos Aires';
-                                    if (venue.googlePlaceId) {
-                                        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(venue.googlePlaceId)}`;
-                                    }
-                                    if (venue.latitude != null && venue.longitude != null) {
-                                        return `https://www.google.com/maps/@?api=1&map_action=map&center=${venue.latitude},${venue.longitude}&zoom=16`;
-                                    }
-                                    return `https://www.google.com/maps/search/?api=1&map_action=map&query=${encodeURIComponent(name)}`;
-                                })() : '';
+                                const firstPaymentUrl = getFirstPaymentUrl(event);
+                                if (hasTicketsButton(event)) {
+                                    return (
+                                        <div className="event-main-action">
+                                            <a
+                                                className="event-main-action-btn"
+                                                href={firstPaymentUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                {t('events.mainAction.tickets', 'Entradas')}
+                                            </a>
+                                        </div>
+                                    );
+                                }
 
-                                if (!mapUrl) return null;
+                                // Otherwise: show "Más info". Prefer Instagram original source; if not available, link to event details.
+                                const igUrl = event.instagramId ? `https://www.instagram.com/p/${event.instagramId}` : '';
+                                if (igUrl) {
+                                    return (
+                                        <div className="event-main-action">
+                                            <a
+                                                className="event-main-action-btn"
+                                                href={igUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                {t('events.mainAction.moreInfo', 'Sitio oficial')}
+                                            </a>
+                                        </div>
+                                    );
+                                }
                                 return (
                                     <div className="event-main-action">
-                                        <a
-                                            className="event-main-action-btn"
-                                            href={mapUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {t('events.mainAction.howToAttend', 'Cómo asistir')}
-                                        </a>
+                                        <Link href={`/events/${event.id}`} className="event-main-action-btn">
+                                            {t('events.mainAction.moreInfo', 'Sitio oficial')}
+                                        </Link>
                                     </div>
                                 );
                             })()}
@@ -1538,61 +1566,73 @@ function EventsListPageInner() {
 
 
                                     {/* Tickets */}
-                                    {event.paymentChannels && event.paymentChannels.length > 0 && (
-                                        <>
-                                            <div className="event-divider" aria-hidden="true" />
-                                            <div className="tickets-row flex flex-wrap items-center gap-x-2 gap-y-1">
-                                                <p>
-                                                <strong>{t('events.tickets')}</strong>{' '}
-                                                {event.paymentChannels.map((ch, idx) => {
-                                                    const displayName = ch?.name || ch?.url || '';
-                                                    const hasUrl = !!ch?.url;
-                                                    const normalizedUrl = hasUrl
-                                                        ? (ch!.url!.startsWith('http') ? ch!.url! : `https://${ch!.url!}`)
-                                                        : '';
-                                                    const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
-                                                    const spanClasses = "max-w-full break-words";
-                                                    const content = hasUrl ? (
-                                                        <a
-                                                            key={`ch-${idx}`}
-                                                            href={normalizedUrl}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className={linkClasses}
-                                                            title={displayName}
-                                                        >
-                                                            {displayName}
-                                                        </a>
-                                                    ) : (
-                                                        <span key={`ch-${idx}`} className={spanClasses}>{displayName}</span>
-                                                    );
+                                    {(() => {
+                                        const chs = event.paymentChannels || [];
+                                        if (chs.length === 0) return null;
+                                        const isPaid = event.isFree === false;
+                                        const urlCount = chs.reduce((acc, ch) => acc + ((ch?.url || '').trim() ? 1 : 0), 0);
+                                        // Hide the Tickets row if it's a paid event and there's exactly one URL, since the main button already uses it
+                                        if (isPaid && urlCount === 1) return null;
+                                        return (
+                                            <>
+                                                <div className="event-divider" aria-hidden="true" />
+                                                <div className="tickets-row flex flex-wrap items-center gap-x-2 gap-y-1">
+                                                    <p>
+                                                    <strong>{t('events.tickets')}</strong>{' '}
+                                                    {chs.map((ch, idx) => {
+                                                        const displayName = ch?.name || ch?.url || '';
+                                                        const hasUrl = !!ch?.url;
+                                                        const normalizedUrl = hasUrl
+                                                            ? (ch!.url!.startsWith('http') ? ch!.url! : `https://${ch!.url!}`)
+                                                            : '';
+                                                        const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
+                                                        const spanClasses = "max-w-full break-words";
+                                                        const content = hasUrl ? (
+                                                            <a
+                                                                key={`ch-${idx}`}
+                                                                href={normalizedUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className={linkClasses}
+                                                                title={displayName}
+                                                            >
+                                                                {displayName}
+                                                            </a>
+                                                        ) : (
+                                                            <span key={`ch-${idx}`} className={spanClasses}>{displayName}</span>
+                                                        );
 
-                                                    return (
-                                                        <React.Fragment key={`frag-${idx}`}>
-                                                            {content}
-                                                            {idx < event.paymentChannels!.length - 1 && <span className="hidden sm:inline"> · </span>}
-                                                        </React.Fragment>
-                                                    );
-                                                })}
-                                                </p>
-                                            </div>
-                                        </>
-                                    )}
+                                                        return (
+                                                            <React.Fragment key={`frag-${idx}`}>
+                                                                {content}
+                                                                {idx < chs.length - 1 && <span className="hidden sm:inline"> · </span>}
+                                                            </React.Fragment>
+                                                        );
+                                                    })}
+                                                    </p>
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
 
                                     <div className="event-divider" aria-hidden="true" />
                                     <div className="event-actions relative">
-                                        {event.instagramId ? (
-                                            <a
-                                                href={`https://www.instagram.com/p/${event.instagramId}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="event-link"
-                                            >
-                                                {t('event.originalSource')}
-                                            </a>
-                                        ) : (
-                                            <span />
-                                        )}
+                                        {(() => {
+                                            // Show the small "Original source" link only if the main action button is Tickets.
+                                            if (hasTicketsButton(event) && event.instagramId) {
+                                                return (
+                                                    <a
+                                                        href={`https://www.instagram.com/p/${event.instagramId}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="event-link"
+                                                    >
+                                                        {t('event.originalSource')}
+                                                    </a>
+                                                );
+                                            }
+                                            return <span />;
+                                        })()}
                                         {SHOW_EVENT_DETAILS_LINK ? (
                                             <Link href={`/events/${event.id}`} className="event-link">
                                                 {t('events.viewDetails')}
@@ -1600,32 +1640,45 @@ function EventsListPageInner() {
                                         ) : <span />}
                                     </div>
 
-                                    {/* Main action (expanded, positioned above bottom chevron): How to attend (map) */}
+                                    {/* Main action (expanded, positioned above bottom chevron): Tickets for paid events, default to Original source */}
                                     {(() => {
-                                        // Build venue Google Maps URL (same logic as venue link above)
-                                        const venue = event.venue;
-                                        const mapUrl = venue ? (() => {
-                                            const name = venue.name ? `${venue.name}, Buenos Aires` : 'Buenos Aires';
-                                            if (venue.googlePlaceId) {
-                                                return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${encodeURIComponent(venue.googlePlaceId)}`;
-                                            }
-                                            if (venue.latitude != null && venue.longitude != null) {
-                                                return `https://www.google.com/maps/@?api=1&map_action=map&center=${venue.latitude},${venue.longitude}&zoom=16`;
-                                            }
-                                            return `https://www.google.com/maps/search/?api=1&map_action=map&query=${encodeURIComponent(name)}`;
-                                        })() : '';
+                                        const firstPaymentUrl = getFirstPaymentUrl(event);
+                                        if (hasTicketsButton(event)) {
+                                            return (
+                                                <div className="event-main-action">
+                                                    <a
+                                                        className="event-main-action-btn"
+                                                        href={firstPaymentUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {t('events.mainAction.tickets', 'Entradas')}
+                                                    </a>
+                                                </div>
+                                            );
+                                        }
 
-                                        if (!mapUrl) return null;
+                                        // Otherwise: show "Fuente original/Original source". Prefer Instagram; if not available, link to event details.
+                                        const igUrl = event.instagramId ? `https://www.instagram.com/p/${event.instagramId}` : '';
+                                        if (igUrl) {
+                                            return (
+                                                <div className="event-main-action">
+                                                    <a
+                                                        className="event-main-action-btn"
+                                                        href={igUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {t('events.mainAction.moreInfo', 'Sitio oficial')}
+                                                    </a>
+                                                </div>
+                                            );
+                                        }
                                         return (
                                             <div className="event-main-action">
-                                                <a
-                                                    className="event-main-action-btn"
-                                                    href={mapUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    {t('events.mainAction.howToAttend', 'Cómo asistir')}
-                                                </a>
+                                                <Link href={`/events/${event.id}`} className="event-main-action-btn">
+                                                    {t('events.mainAction.moreInfo', 'Sitio oficial')}
+                                                </Link>
                                             </div>
                                         );
                                     })()}

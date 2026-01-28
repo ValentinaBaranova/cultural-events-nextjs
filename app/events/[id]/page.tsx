@@ -75,7 +75,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                     {event.startTime && <p><strong><ClientT k="event.startTime" /></strong> {event.startTime}</p>}
                     {event.endDate && <p><strong><ClientT k="event.endDate" /></strong> {formatDateDDMMYY(event.endDate)}</p>}
                     <p><strong><ClientT k="event.type" /></strong> {event.type}</p>
-                    {event.instagramId && (
+                    {event.instagramId && event.isFree !== true && (
                         <p className="mt-4">
                             <a
                                 href={`https://www.instagram.com/p/${event.instagramId}`}
