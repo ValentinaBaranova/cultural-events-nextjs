@@ -4,7 +4,7 @@ const es = {
   "auth.logout": "Cerrar sesión",
 
   "menu.events": "Eventos",
-  "menu.about": "Qué es",
+  "menu.about": "Sobre nosotros",
   "menu.contact": "Contacto",
   "menu.privacy": "Privacidad",
 
@@ -113,7 +113,7 @@ const es = {
   "event.edit.nameEn": "Nombre del evento (EN)",
   "event.edit.descriptionEn": "Descripción (EN)",
 
-  "about.title": "Qué es",
+  "about.title": "Sobre nosotros",
   "about.p1": "Esta es una agenda independiente de eventos culturales en Buenos Aires.",
   "about.p2": "Reúne información de espacios culturales, centros culturales, teatros, museos y proyectos independientes para facilitar la búsqueda de actividades como exposiciones, cine, música, charlas y visitas guiadas.",
   "about.p3": "La información se obtiene a partir de fuentes públicas (principalmente publicaciones de Instagram) y se organiza de forma clara y simple.",

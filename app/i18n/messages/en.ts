@@ -4,7 +4,7 @@ const en = {
   "auth.logout": "Log out",
 
   "menu.events": "Events",
-  "menu.about": "What it is",
+  "menu.about": "About",
   "menu.contact": "Contact",
   "menu.privacy": "Privacy",
 
@@ -114,7 +114,7 @@ const en = {
   "event.edit.nameEn": "Title (EN)",
   "event.edit.descriptionEn": "Description (EN)",
   
-  "about.title": "What it is",
+  "about.title": "About",
   "about.p1": "This is an independent calendar of cultural events in Buenos Aires.",
   "about.p2": "It gathers information from cultural venues, cultural centers, theaters, museums, and independent projects to make it easier to find activities such as exhibitions, film, music, talks, and guided tours.",
   "about.p3": "The information is obtained from public sources (mainly Instagram posts) and organized in a clear and simple way.",
