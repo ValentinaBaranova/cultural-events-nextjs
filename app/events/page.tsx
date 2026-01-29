@@ -11,7 +11,7 @@ import Skeleton from "@/ui/skeleton";
 import {API_URL, SHOW_EVENT_DETAILS_LINK} from "@/lib/config";
 import { useSession } from 'next-auth/react';
 import { useI18n } from '@/i18n/I18nProvider';
-import { DatePicker, Select, Checkbox, Alert, message } from 'antd';
+import { Alert, message } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 
 type EventTypeOption = { slug: string; name: string };
@@ -28,6 +28,9 @@ import { formatEventCardDate } from './utils/formatEventCardDate';
 
 import { ReportProblemModal, type ReportModalHandle } from './components/ReportProblemModal';
 import { ConfirmHideModal, type HideModalHandle } from './components/ConfirmHideModal';
+import PrimaryFilters from './components/PrimaryFilters';
+import DateRangeFilter from './components/DateRangeFilter';
+import AdvancedFiltersRest from './components/AdvancedFiltersRest';
 
 function EventsListPageInner() {
     const { data: session } = useSession();
@@ -310,7 +313,7 @@ function EventsListPageInner() {
                 // ignore network errors
             }
         })();
-    }, [selectedVenues.join(','), venueOptions]);
+    }, [selectedVenues, venueOptions]);
 
     // Hydrate barrio labels similarly
     useEffect(() => {
@@ -336,7 +339,7 @@ function EventsListPageInner() {
                 // ignore network errors
             }
         })();
-    }, [selectedBarrios.join(','), barrioOptions]);
+    }, [selectedBarrios, barrioOptions]);
 
     // Keep selectedTags in sync if URL changes externally (e.g., via Search suggestions)
     useEffect(() => {
@@ -374,7 +377,7 @@ function EventsListPageInner() {
                 // ignore network errors
             }
         })();
-    }, [selectedTags.join(','), tagOptions, locale]);
+    }, [selectedTags, tagOptions, locale]);
 
     // Push active filters into the URL whenever they change
     useEffect(() => {
@@ -725,208 +728,57 @@ function EventsListPageInner() {
     // Primary filters: types + only free
     const renderPrimaryFilters = () => (
         <>
-            <div className="mb-1 sm:mt-4">
-                <div className="flex flex-wrap gap-2">
-                    {types.map((type) => {
-                        const active = selectedTypes.includes(type.slug);
-                        return (
-                            <button
-                                key={type.slug}
-                                type="button"
-                                onClick={() => {
-                                    setSelectedTypes((prev) =>
-                                        prev.includes(type.slug)
-                                            ? prev.filter((t) => t !== type.slug)
-                                            : [...prev, type.slug]
-                                    );
-                                }}
-                                className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                                    active
-                                        ? 'bg-[#ddd6fe] text-[#111827] border-[#8b5cf6]'
-                                        : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
-                                }`}
-                            >
-                                {type.name}
-                            </button>
-                        );
-                    })}
-                </div>
-                <div className="mt-4 sm:hidden">
-                    <Checkbox className="only-free-checkbox" checked={onlyFree} onChange={(e) => setOnlyFree(e.target.checked)}>
-                        {t('filters.onlyFree')}
-                    </Checkbox>
-                </div>
-            </div>
+            <PrimaryFilters
+                types={types}
+                selectedTypes={selectedTypes}
+                setSelectedTypes={setSelectedTypes}
+                onlyFree={onlyFree}
+                setOnlyFree={(v: boolean) => setOnlyFree(v)}
+                t={t}
+            />
         </>
     );
 
     // Advanced filters: date range, venues, barrios, tags
     // Split into helpers so we can order differently on mobile
     const renderDateRangeFilter = () => (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 sm:mt-4">
-            <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1 sm:mb-0">{t('filters.dateRange')}</span>
-            <div className="flex items-center w-full sm:w-auto sm:flex-1">
-                <DatePicker.RangePicker
-                    value={dateRange ?? undefined}
-                    onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
-                    allowClear
-                    format="DD/MM/YYYY"
-                    inputReadOnly
-                    placement="bottomLeft"
-                    getPopupContainer={(trigger) => trigger?.parentElement || document.body}
-                    className="w-full sm:w-80"
-                    size="large"
-                    classNames={{ popup: { root: 'mobile-range-picker' } }}
-                    open={pickerOpen}
-                    onOpenChange={setPickerOpen}
-                    disabledDate={(current) => !!current && current.isBefore(dayjs().startOf('day'))}
-                    panelRender={(panelNode) => (
-                        <div>
-                            <div className="flex flex-wrap gap-2 px-3 pt-3 pb-2 border-b border-gray-200">
-                                {presets.map((p) => (
-                                    <button
-                                        key={p.label}
-                                        type="button"
-                                        onClick={() => applyPreset(p.value)}
-                                        className="px-2.5 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
-                                    >
-                                        {p.label}
-                                    </button>
-                                ))}
-                            </div>
-                            {panelNode}
-                        </div>
-                    )}
-                />
-                <div className="hidden sm:block ml-10">
-                    <Checkbox className="only-free-checkbox" checked={onlyFree} onChange={(e) => setOnlyFree(e.target.checked)}>
-                        {t('filters.onlyFree')}
-                    </Checkbox>
-                </div>
-            </div>
-        </div>
+        <DateRangeFilter
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            onlyFree={onlyFree}
+            setOnlyFree={(v: boolean) => setOnlyFree(v)}
+            t={t}
+            pickerOpen={pickerOpen}
+            setPickerOpen={setPickerOpen}
+            presets={presets}
+            applyPreset={applyPreset}
+        />
     );
 
     const renderAdvancedFiltersRest = () => (
-        <>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
-            <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1 sm:mb-0 sm:w-32">{t('filters.places')}</span>
-            {/* Desktop >= sm: keep Select. Mobile: show trigger that opens full-screen picker */}
-            <div className="hidden sm:block">
-                    <Select
-                        mode="multiple"
-                        allowClear
-                        showSearch
-                        placeholder={t('filters.places')}
-                        notFoundContent={t('filters.placesPrompt')}
-                        filterOption={false}
-                        onSearch={searchVenues}
-                        onOpenChange={(open) => { if (open) searchVenues(''); }}
-                        options={venueOptions}
-                        loading={venueLoading}
-                        value={selectedVenues}
-                        onChange={(values) => setSelectedVenues(values as string[])}
-                        style={{ minWidth: 240 }}
-                    />
-                </div>
-                <div className="sm:hidden">
-                    <button type="button" className="filter-trigger w-full" onClick={() => openMobilePicker('venues')}>
-                        <span>{t('filters.places')}</span>
-                        {selectedVenues.length > 0 && <span className="count">{selectedVenues.length}</span>}
-                    </button>
-                    {selectedVenues.length > 0 && (
-                        <div className="chips-row mt-2">
-                            {selectedVenues.slice(0, 2).map(v => (
-                                <span key={v} className="chip">
-                                    {getVenueLabel(v)}
-                                    <button aria-label={`Remove venue ${getVenueLabel(v)}`} className="chip-x" onClick={() => setSelectedVenues(prev => prev.filter(x => x !== v))}>×</button>
-                                </span>
-                            ))}
-                            {selectedVenues.length > 2 && (
-                                <span className="text-sm text-gray-600">+{selectedVenues.length - 2} {t('filters.moreCountSuffix')}</span>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
-                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1 sm:mb-0 sm:w-32">{t('filters.barrios')}</span>
-                <div className="hidden sm:block">
-                    <Select
-                        mode="multiple"
-                        allowClear
-                        showSearch
-                        placeholder={t('filters.barrios')}
-                        notFoundContent={t('filters.barriosPrompt')}
-                        filterOption={false}
-                        onSearch={searchBarrios}
-                        onOpenChange={(open) => { if (open) searchBarrios(''); }}
-                        options={barrioOptions}
-                        loading={barrioLoading}
-                        value={selectedBarrios}
-                        onChange={(values) => setSelectedBarrios(values as string[])}
-                        style={{ minWidth: 240 }}
-                    />
-                </div>
-                <div className="sm:hidden">
-                    <button type="button" className="filter-trigger w-full" onClick={() => openMobilePicker('barrios')}>
-                        <span>{t('filters.barrios')}</span>
-                        {selectedBarrios.length > 0 && <span className="count">{selectedBarrios.length}</span>}
-                    </button>
-                    {selectedBarrios.length > 0 && (
-                        <div className="chips-row mt-2">
-                            {selectedBarrios.slice(0, 2).map(b => (
-                                <span key={b} className="chip">
-                                    {barrioNameBySlug[b] ?? b}
-                                    <button aria-label={`Remove barrio ${barrioNameBySlug[b] ?? b}`} className="chip-x" onClick={() => setSelectedBarrios(prev => prev.filter(x => x !== b))}>×</button>
-                                </span>
-                            ))}
-                            {selectedBarrios.length > 2 && (
-                                <span className="text-sm text-gray-600">+{selectedBarrios.length - 2} {t('filters.moreCountSuffix')}</span>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
-                <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1 sm:mb-0 sm:w-32">{t('filters.tags')}</span>
-                <div className="hidden sm:block">
-                    <Select
-                        aria-label="Event tags filter"
-                        mode="multiple"
-                        allowClear
-                        showSearch
-                        placeholder={t('filters.tags')}
-                        value={selectedTags}
-                        onChange={(values) => setSelectedTags(values as string[])}
-                        options={tagOptions}
-                        optionFilterProp="label"
-                        style={{ minWidth: 240 }}
-                    />
-                </div>
-                <div className="sm:hidden">
-                    <button type="button" className="filter-trigger w-full" onClick={() => openMobilePicker('tags')}>
-                        <span>{t('filters.tags')}</span>
-                        {selectedTags.length > 0 && <span className="count">{selectedTags.length}</span>}
-                    </button>
-                    {selectedTags.length > 0 && (
-                        <div className="chips-row mt-2">
-                            {selectedTags.slice(0, 2).map(tag => (
-                                <span key={tag} className="chip">
-                                    {getTagLabel(tag)}
-                                    <button aria-label={`Remove tag ${getTagLabel(tag)}`} className="chip-x" onClick={() => setSelectedTags(prev => prev.filter(x => x !== tag))}>×</button>
-                                </span>
-                            ))}
-                            {selectedTags.length > 2 && (
-                                <span className="chip">+{selectedTags.length - 2}</span>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </>
+        <AdvancedFiltersRest
+            t={t}
+            // Venues
+            venueOptions={venueOptions}
+            venueLoading={venueLoading}
+            selectedVenues={selectedVenues}
+            setSelectedVenues={setSelectedVenues}
+            searchVenues={searchVenues}
+            openMobilePicker={openMobilePicker}
+            getVenueLabel={getVenueLabel}
+            // Barrios
+            barrioOptions={barrioOptions}
+            barrioLoading={barrioLoading}
+            selectedBarrios={selectedBarrios}
+            setSelectedBarrios={setSelectedBarrios}
+            searchBarrios={searchBarrios}
+            barrioNameBySlug={barrioNameBySlug}
+            // Tags
+            tagOptions={tagOptions}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+            getTagLabel={getTagLabel}
+        />
     );
 
 
