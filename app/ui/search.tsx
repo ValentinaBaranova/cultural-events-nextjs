@@ -149,7 +149,10 @@ export default function Search({ placeholder }: { placeholder?: string }) {
 
     // Update suggestions when value changes
     React.useEffect(() => {
-        setOpen(!!value.trim());
+        const hasQuery = !!value.trim();
+        setOpen(hasQuery);
+        // Set loading immediately for non-empty queries to avoid brief "no results" flash
+        setLoading(hasQuery);
         loadSuggestions(value);
         return () => loadSuggestions.cancel();
     }, [value, loadSuggestions]);
@@ -261,41 +264,118 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                 {open && (
                     <div className="absolute z-20 mt-2 w-full rounded-md border border-border bg-card shadow-lg">
                         <div className="max-h-80 overflow-auto py-2">
-                            {/* Types group */}
-                            <SuggestionGroup
-                                title={t('search.group.types')}
-                                items={typeItems.map(it => ({ key: it.slug, label: it.name }))}
-                                onClick={(k) => onPickType(k)}
-                            />
-                            {/* Venues group */}
-                            <SuggestionGroup
-                                title={t('search.group.venues')}
-                                items={venueItems.map(it => ({ key: it.slug, label: it.name }))}
-                                onClick={(k) => onPickVenue(k)}
-                            />
-                            {/* Barrios group */}
-                            <SuggestionGroup
-                                title={t('search.group.barrios')}
-                                items={barrioItems.map(it => ({ key: it.slug, label: it.name }))}
-                                onClick={(k) => onPickBarrio(k)}
-                            />
-                            {/* Tags group */}
-                            <SuggestionGroup
-                                title={t('search.group.tags')}
-                                items={tagItems.map(it => ({ key: it.slug, label: it.name }))}
-                                onClick={(k) => onPickTag(k)}
-                            />
-                            {/* Events group */}
-                            <SuggestionGroup
-                                title={t('search.group.events')}
-                                items={eventItems.map(it => ({ key: it.id, label: it.name }))}
-                                onClick={(_, label) => onPickEvent(label)}
-                            />
+                            {/* Free text search action */}
+                            {value.trim().length >= 2 && (
+                                <div className="py-1">
+                                    <ul className="divide-y divide-border">
+                                        <li>
+                                            <button
+                                                type="button"
+                                                className="w-full text-left px-4 py-2 hover:bg-muted rounded-sm text-sm"
+                                                onMouseDown={(e) => e.preventDefault()}
+                                                onClick={() => {
+                                                    const term = value.trim();
+                                                    const params = new URLSearchParams(searchParams);
+                                                    if (term) {
+                                                        params.set('query', term);
+                                                    } else {
+                                                        params.delete('query');
+                                                    }
+                                                    lastSentRef.current = term;
+                                                    setOpen(false);
+                                                    setValue(term);
+                                                    replace(`${pathname}?${params.toString()}`);
+                                                }}
+                                            >
+                                                {t('filters.search')} “{value.trim()}...”
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            )}
+                            {/* Grouped suggestions with one separator between groups */}
+                            {(() => {
+                                const groups = [
+                                    {
+                                        key: 'types',
+                                        node: (
+                                            <SuggestionGroup
+                                                key="types"
+                                                title={t('search.group.types')}
+                                                items={typeItems.map(it => ({ key: it.slug, label: it.name }))}
+                                                onClick={(k) => onPickType(k)}
+                                                isFilterGroup
+                                            />
+                                        ),
+                                        hasItems: typeItems.length > 0,
+                                    },
+                                    {
+                                        key: 'venues',
+                                        node: (
+                                            <SuggestionGroup
+                                                key="venues"
+                                                title={t('search.group.venues')}
+                                                items={venueItems.map(it => ({ key: it.slug, label: it.name }))}
+                                                onClick={(k) => onPickVenue(k)}
+                                                isFilterGroup
+                                            />
+                                        ),
+                                        hasItems: venueItems.length > 0,
+                                    },
+                                    {
+                                        key: 'barrios',
+                                        node: (
+                                            <SuggestionGroup
+                                                key="barrios"
+                                                title={t('search.group.barrios')}
+                                                items={barrioItems.map(it => ({ key: it.slug, label: it.name }))}
+                                                onClick={(k) => onPickBarrio(k)}
+                                                isFilterGroup
+                                            />
+                                        ),
+                                        hasItems: barrioItems.length > 0,
+                                    },
+                                    {
+                                        key: 'tags',
+                                        node: (
+                                            <SuggestionGroup
+                                                key="tags"
+                                                title={t('search.group.tags')}
+                                                items={tagItems.map(it => ({ key: it.slug, label: it.name }))}
+                                                onClick={(k) => onPickTag(k)}
+                                                isFilterGroup
+                                            />
+                                        ),
+                                        hasItems: tagItems.length > 0,
+                                    },
+                                    {
+                                        key: 'events',
+                                        node: (
+                                            <SuggestionGroup
+                                                key="events"
+                                                title={t('search.group.events')}
+                                                items={eventItems.map(it => ({ key: it.id, label: it.name }))}
+                                                onClick={(_, label) => onPickEvent(label)}
+                                            />
+                                        ),
+                                        hasItems: eventItems.length > 0,
+                                    },
+                                ];
+                                const nonEmpty = groups.filter(g => g.hasItems);
+                                if (!nonEmpty.length) return null;
+                                return (
+                                    <div>
+                                        {nonEmpty.map((g, idx) => (
+                                            <React.Fragment key={g.key}>
+                                                {idx > 0 && <div className="my-2 border-t border-border" />}
+                                                {g.node}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                );
+                            })()}
                             {!loading && !typeItems.length && !venueItems.length && !barrioItems.length && !tagItems.length && !eventItems.length && (
                                 <div className="px-4 py-2 text-sm text-muted-foreground">{t('search.suggestions.noResults')}</div>
-                            )}
-                            {loading && (
-                                <div className="px-4 py-2 text-sm text-muted-foreground">…</div>
                             )}
                         </div>
                     </div>
@@ -305,17 +385,17 @@ export default function Search({ placeholder }: { placeholder?: string }) {
     );
 }
 
-function SuggestionGroup({ title, items, onClick }: { title: string; items: { key: string; label: string }[]; onClick: (key: string, label: string) => void }) {
+function SuggestionGroup({ title, items, onClick, isFilterGroup = false }: { title: string; items: { key: string; label: string }[]; onClick: (key: string, label: string) => void; isFilterGroup?: boolean }) {
     if (!items.length) return null;
     return (
         <div className="py-1">
             <div className="px-4 pb-1 text-[11px] uppercase tracking-wide text-muted-foreground">{title}</div>
-            <ul className="divide-y divide-border">
+            <ul>
                 {items.map((it) => (
-                    <li key={it.key}>
+                    <li key={it.key} className="px-2">
                         <button
                             type="button"
-                            className="w-full text-left px-4 py-2 hover:bg-accent text-sm"
+                            className={`w-full text-left px-2 py-2 text-sm transition-colors ${isFilterGroup ? 'hover:bg-muted rounded-sm cursor-pointer' : 'hover:bg-muted'}` }
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => onClick(it.key, it.label)}
                         >
