@@ -70,13 +70,7 @@ export default function ConsentBanner() {
             setStoredConsent("denied");
             setDecision("denied");
           }}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 6,
-            border: "1px solid #bbb",
-            background: "#fff",
-            cursor: "pointer",
-          }}
+          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
         >
           Rechazar
         </button>
@@ -85,14 +79,7 @@ export default function ConsentBanner() {
             setStoredConsent("granted");
             setDecision("granted");
           }}
-          style={{
-            padding: "6px 12px",
-            borderRadius: 6,
-            border: "1px solid #1677ff",
-            background: "#1677ff",
-            color: "#fff",
-            cursor: "pointer",
-          }}
+          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors btn-entradas-theme"
         >
           Aceptar
         </button>

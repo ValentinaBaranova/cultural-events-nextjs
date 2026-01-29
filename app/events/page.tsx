@@ -930,7 +930,7 @@ function EventsListPageInner() {
                         <button className="chip-clear-all" onClick={clearAll}>{t('filters.clearAll')}</button>
                     </div>
                 )}
-                <button type="button" className="filters-btn" onClick={() => setSheetOpen(true)}>
+                <button type="button" className="filters-btn btn-entradas-theme" onClick={() => setSheetOpen(true)}>
                     <svg className="filters-icon" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M3 4h18l-7 8v6l-4 2v-8L3 4z" />
                     </svg>
