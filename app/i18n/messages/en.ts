@@ -10,6 +10,12 @@ const en = {
 
   "search.label": "Search",
   "search.placeholder": "Search events...",
+  "search.group.types": "Type",
+  "search.group.venues": "Venue",
+  "search.group.barrios": "Neighborhood",
+  "search.group.events": "Event",
+  "search.group.tags": "Tag",
+  "search.suggestions.noResults": "No matches",
   "hero.title": "Discover Events in Baires",
   "hero.subtitle": "The best concerts, exhibitions, and cultural experiences in the city",
   

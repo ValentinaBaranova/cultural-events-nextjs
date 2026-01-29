@@ -249,6 +249,133 @@ function EventsListPageInner() {
         initializedFromUrlRef.current = true;
     }, [searchParams, locale]);
 
+    // Keep selectedTypes in sync if URL changes externally (e.g., via Search suggestions)
+    useEffect(() => {
+        // Read array from URL (support legacy singular name)
+        const raw = searchParams.get('types') ?? searchParams.get('type');
+        const nextTypes = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const nextKey = nextTypes.join(',');
+        const currKey = selectedTypes.join(',');
+        if (nextKey !== currKey) {
+            setSelectedTypes(nextTypes);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, selectedTypes.join(',')]);
+
+    // Keep selectedVenues in sync if URL changes externally (e.g., via Search suggestions)
+    useEffect(() => {
+        const raw = searchParams.get('venues') ?? searchParams.get('venue');
+        const nextVenues = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const nextKey = nextVenues.join(',');
+        const currKey = selectedVenues.join(',');
+        if (nextKey !== currKey) {
+            setSelectedVenues(nextVenues);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, selectedVenues.join(',')]);
+
+    // Keep selectedBarrios in sync if URL changes externally (e.g., via Search suggestions)
+    useEffect(() => {
+        const raw = searchParams.get('barrios') ?? searchParams.get('barrio');
+        const nextBarrios = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const nextKey = nextBarrios.join(',');
+        const currKey = selectedBarrios.join(',');
+        if (nextKey !== currKey) {
+            setSelectedBarrios(nextBarrios);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, selectedBarrios.join(',')]);
+
+    // Hydrate venue labels when selection comes from external changes (e.g., Search suggestions)
+    useEffect(() => {
+        const missing = selectedVenues.filter(slug => !venueOptions.some(o => o.value === slug));
+        if (!missing.length) return;
+        (async () => {
+            try {
+                const url = `${API_URL}/places/by-slugs?slugs=${encodeURIComponent(missing.join(','))}`;
+                const resp = await fetch(url);
+                if (resp.ok) {
+                    const data: { slug: string; name: string }[] = await resp.json();
+                    if (Array.isArray(data) && data.length) {
+                        setVenueOptions(prev => {
+                            const existing = new Set(prev.map(o => o.value));
+                            const additions: Option[] = data
+                                .filter(v => !existing.has(v.slug))
+                                .map(v => ({ label: v.name, value: v.slug }));
+                            return additions.length ? [...prev, ...additions] : prev;
+                        });
+                    }
+                }
+            } catch {
+                // ignore network errors
+            }
+        })();
+    }, [selectedVenues.join(','), venueOptions]);
+
+    // Hydrate barrio labels similarly
+    useEffect(() => {
+        const missing = selectedBarrios.filter(slug => !barrioOptions.some(o => o.value === slug));
+        if (!missing.length) return;
+        (async () => {
+            try {
+                const url = `${API_URL}/barrios/by-slugs?slugs=${encodeURIComponent(missing.join(','))}`;
+                const resp = await fetch(url);
+                if (resp.ok) {
+                    const data: { slug: string; name: string }[] = await resp.json();
+                    if (Array.isArray(data) && data.length) {
+                        setBarrioOptions(prev => {
+                            const existing = new Set(prev.map(o => o.value));
+                            const additions: Option[] = data
+                                .filter(b => !existing.has(b.slug))
+                                .map(b => ({ label: b.name, value: b.slug }));
+                            return additions.length ? [...prev, ...additions] : prev;
+                        });
+                    }
+                }
+            } catch {
+                // ignore network errors
+            }
+        })();
+    }, [selectedBarrios.join(','), barrioOptions]);
+
+    // Keep selectedTags in sync if URL changes externally (e.g., via Search suggestions)
+    useEffect(() => {
+        const raw = searchParams.get('tags') ?? searchParams.get('tag');
+        const nextTags = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const nextKey = nextTags.join(',');
+        const currKey = selectedTags.join(',');
+        if (nextKey !== currKey) {
+            setSelectedTags(nextTags);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, selectedTags.join(',')]);
+
+    // Hydrate tag labels when selection comes from external changes (e.g., Search suggestions)
+    useEffect(() => {
+        const missing = selectedTags.filter(slug => !tagOptions.some(o => o.value === slug));
+        if (!missing.length) return;
+        (async () => {
+            try {
+                const url = `${API_URL}/tags/by-slugs?slugs=${encodeURIComponent(missing.join(','))}&locale=${encodeURIComponent(locale)}`;
+                const resp = await fetch(url);
+                if (resp.ok) {
+                    const data: { slug: string; name: string }[] = await resp.json();
+                    if (Array.isArray(data) && data.length) {
+                        setTagOptions(prev => {
+                            const existing = new Set(prev.map(o => o.value));
+                            const additions: Option[] = data
+                                .filter(tg => !existing.has(tg.slug))
+                                .map(tg => ({ label: tg.name, value: tg.slug }));
+                            return additions.length ? [...prev, ...additions] : prev;
+                        });
+                    }
+                }
+            } catch {
+                // ignore network errors
+            }
+        })();
+    }, [selectedTags.join(','), tagOptions, locale]);
+
     // Push active filters into the URL whenever they change
     useEffect(() => {
         if (!initializedFromUrlRef.current) return; // wait until initial read

@@ -4,15 +4,36 @@ import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import { useI18n } from '@/i18n/I18nProvider';
 import React from 'react';
+import { API_URL } from '@/lib/config';
+
+// Simple types
+type TypeItem = { slug: string; name: string };
+type SimpleItem = { slug: string; name: string };
+
+type EventItem = { id: string; name: string };
 
 export default function Search({ placeholder }: { placeholder?: string }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
 
     // Local state mirrors the input, but stays in sync with URL changes too
     const [value, setValue] = React.useState<string>(searchParams.get('query')?.toString() ?? '');
+
+    // Suggestions state
+    const [open, setOpen] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+    const [typeItems, setTypeItems] = React.useState<TypeItem[]>([]);
+    const [venueItems, setVenueItems] = React.useState<SimpleItem[]>([]);
+    const [barrioItems, setBarrioItems] = React.useState<SimpleItem[]>([]);
+    const [eventItems, setEventItems] = React.useState<EventItem[]>([]);
+    const [tagItems, setTagItems] = React.useState<SimpleItem[]>([]);
+
+    // Cache all types once (localized)
+    const allTypesRef = React.useRef<TypeItem[] | null>(null);
+    // Cache all tags once (localized)
+    const allTagsRef = React.useRef<SimpleItem[] | null>(null);
 
     // Track the last term we intentionally pushed to the URL from this component
     const lastSentRef = React.useRef<string | null>(null);
@@ -30,6 +51,91 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         }
     }, [searchParams]);
 
+    // Load types once per locale
+    React.useEffect(() => {
+        allTypesRef.current = null;
+        allTagsRef.current = null;
+        (async () => {
+            try {
+                const [typesRes, tagsRes] = await Promise.all([
+                    fetch(`${API_URL}/event-types?locale=${encodeURIComponent(locale)}`),
+                    fetch(`${API_URL}/tags?locale=${encodeURIComponent(locale)}`),
+                ]);
+                if (typesRes.ok) {
+                    const data: TypeItem[] = await typesRes.json();
+                    allTypesRef.current = data || [];
+                }
+                if (tagsRes.ok) {
+                    const data: { slug: string; name: string }[] = await tagsRes.json();
+                    allTagsRef.current = Array.isArray(data) ? data : [];
+                }
+            } catch {
+                // ignore
+            }
+        })();
+    }, [locale]);
+
+    // Debounced suggestions loader
+    const loadSuggestions = useDebouncedCallback(async (term: string) => {
+        const q = term.trim();
+        if (!q) {
+            setTypeItems([]);
+            setVenueItems([]);
+            setBarrioItems([]);
+            setEventItems([]);
+            setTagItems([]);
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        try {
+            // Filter types locally
+            const types = (allTypesRef.current || []).filter(ti =>
+                ti.name.toLowerCase().includes(q.toLowerCase())
+            ).slice(0, 6);
+            setTypeItems(types);
+
+            // Filter tags locally
+            const tagsLocal = (allTagsRef.current || []).filter(tg =>
+                tg.name.toLowerCase().includes(q.toLowerCase())
+            ).slice(0, 6);
+            setTagItems(tagsLocal);
+
+            // Parallel fetch venues, barrios, events
+            const [venuesRes, barriosRes, eventsRes] = await Promise.all([
+                fetch(`${API_URL}/places/suggest?q=${encodeURIComponent(q)}&limit=6`),
+                fetch(`${API_URL}/barrios/suggest?q=${encodeURIComponent(q)}&limit=6`),
+                fetch(`${API_URL}/events?page=1&limit=6&title=${encodeURIComponent(q)}`),
+            ]);
+
+            if (venuesRes.ok) {
+                const data: { slug: string; name: string }[] = await venuesRes.json();
+                setVenueItems(Array.isArray(data) ? data : []);
+            } else {
+                setVenueItems([]);
+            }
+            if (barriosRes.ok) {
+                const data: { slug: string; name: string }[] = await barriosRes.json();
+                setBarrioItems(Array.isArray(data) ? data : []);
+            } else {
+                setBarrioItems([]);
+            }
+            if (eventsRes.ok) {
+                const data: { id: string; name: string }[] = await eventsRes.json();
+                setEventItems(Array.isArray(data) ? data : []);
+            } else {
+                setEventItems([]);
+            }
+        } catch {
+            setVenueItems([]);
+            setBarrioItems([]);
+            setEventItems([]);
+        } finally {
+            setLoading(false);
+        }
+    }, 250);
+
+    // Update URL query as user types (existing behavior)
     const handleSearch = useDebouncedCallback((term: string) => {
         const params = new URLSearchParams(searchParams);
         if (term) {
@@ -40,6 +146,53 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         lastSentRef.current = term;
         replace(`${pathname}?${params.toString()}`);
     }, 300);
+
+    // Update suggestions when value changes
+    React.useEffect(() => {
+        setOpen(!!value.trim());
+        loadSuggestions(value);
+        return () => loadSuggestions.cancel();
+    }, [value, loadSuggestions]);
+
+    const applyParamAndGo = (updater: (p: URLSearchParams) => void) => {
+        const params = new URLSearchParams(searchParams);
+        updater(params);
+        // Close panel and clear input when applying a filter
+        setOpen(false);
+        setValue('');
+        params.delete('query');
+        replace(`${pathname}?${params.toString()}`);
+    };
+
+    const onPickType = (slug: string) => {
+        applyParamAndGo((params) => {
+            params.set('types', slug);
+        });
+    };
+    const onPickVenue = (slug: string) => {
+        applyParamAndGo((params) => {
+            params.set('venues', slug);
+        });
+    };
+    const onPickBarrio = (slug: string) => {
+        applyParamAndGo((params) => {
+            params.set('barrios', slug);
+        });
+    };
+    const onPickTag = (slug: string) => {
+        applyParamAndGo((params) => {
+            params.set('tags', slug);
+        });
+    };
+    const onPickEvent = (title: string) => {
+        // For events, we keep query to search by title
+        const params = new URLSearchParams(searchParams);
+        params.set('query', title);
+        setOpen(false);
+        setValue(title);
+        lastSentRef.current = title;
+        replace(`${pathname}?${params.toString()}`);
+    };
 
     return (
         <div className="mb-4">
@@ -69,6 +222,8 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                         setValue(term);
                         handleSearch(term);
                     }}
+                    onFocus={() => setOpen(!!value.trim())}
+                    onBlur={() => setTimeout(() => setOpen(false), 150)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             const params = new URLSearchParams(searchParams);
@@ -101,7 +256,74 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                 >
                     {t('filters.search')}
                 </button>
+
+                {/* Suggestions dropdown */}
+                {open && (
+                    <div className="absolute z-20 mt-2 w-full rounded-md border border-border bg-card shadow-lg">
+                        <div className="max-h-80 overflow-auto py-2">
+                            {/* Types group */}
+                            <SuggestionGroup
+                                title={t('search.group.types')}
+                                items={typeItems.map(it => ({ key: it.slug, label: it.name }))}
+                                onClick={(k) => onPickType(k)}
+                            />
+                            {/* Venues group */}
+                            <SuggestionGroup
+                                title={t('search.group.venues')}
+                                items={venueItems.map(it => ({ key: it.slug, label: it.name }))}
+                                onClick={(k) => onPickVenue(k)}
+                            />
+                            {/* Barrios group */}
+                            <SuggestionGroup
+                                title={t('search.group.barrios')}
+                                items={barrioItems.map(it => ({ key: it.slug, label: it.name }))}
+                                onClick={(k) => onPickBarrio(k)}
+                            />
+                            {/* Tags group */}
+                            <SuggestionGroup
+                                title={t('search.group.tags')}
+                                items={tagItems.map(it => ({ key: it.slug, label: it.name }))}
+                                onClick={(k) => onPickTag(k)}
+                            />
+                            {/* Events group */}
+                            <SuggestionGroup
+                                title={t('search.group.events')}
+                                items={eventItems.map(it => ({ key: it.id, label: it.name }))}
+                                onClick={(_, label) => onPickEvent(label)}
+                            />
+                            {!loading && !typeItems.length && !venueItems.length && !barrioItems.length && !tagItems.length && !eventItems.length && (
+                                <div className="px-4 py-2 text-sm text-muted-foreground">{t('search.suggestions.noResults')}</div>
+                            )}
+                            {loading && (
+                                <div className="px-4 py-2 text-sm text-muted-foreground">…</div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
+        </div>
+    );
+}
+
+function SuggestionGroup({ title, items, onClick }: { title: string; items: { key: string; label: string }[]; onClick: (key: string, label: string) => void }) {
+    if (!items.length) return null;
+    return (
+        <div className="py-1">
+            <div className="px-4 pb-1 text-[11px] uppercase tracking-wide text-muted-foreground">{title}</div>
+            <ul className="divide-y divide-border">
+                {items.map((it) => (
+                    <li key={it.key}>
+                        <button
+                            type="button"
+                            className="w-full text-left px-4 py-2 hover:bg-accent text-sm"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => onClick(it.key, it.label)}
+                        >
+                            {it.label}
+                        </button>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
