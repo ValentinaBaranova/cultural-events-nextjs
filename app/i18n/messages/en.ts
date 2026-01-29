@@ -22,7 +22,7 @@ const en = {
   "filters.tags": "Tags",
   "filters.clearAll": "Clear all",
   "filters.moreFilters": "More filters",
-  "filters.fewerFilters": "Fewer filters",
+  "filters.fewerFilters": "Less filters",
   "filters.dateRange": "Date range",
   "filters.active.singular": "filter active",
   "filters.active.plural": "filters active",
@@ -34,7 +34,7 @@ const en = {
   "filters.date.tomorrow": "Tomorrow",
   "filters.date.thisWeekend": "This Weekend",
   "filters.date.next7Days": "Next 7 Days",
-  "filters.date.thisMonth": "This Month",
+  "filters.date.next30Days": "Next 30 Days",
   
   "events.error": "Error loading events",
   "events.backendDown.title": "The service is temporarily unavailable",

@@ -298,8 +298,7 @@ function EventsListPageInner() {
     const weekendStart = dow === 0 ? today : today.add(6 - dow, 'day');
     const weekendEnd = dow === 0 ? today : weekendStart.add(1, 'day');
 
-    const monthStart = today.startOf('month');
-    const monthEnd = today.endOf('month');
+    const next30End = today.add(29, 'day'); // inclusive 30-day window (today + 29)
 
     // Use i18n before creating presets to avoid "Cannot access 't' before initialization"
 
@@ -308,7 +307,7 @@ function EventsListPageInner() {
         { label: t('filters.date.tomorrow', 'Tomorrow'), value: [tomorrow, tomorrow] as [Dayjs, Dayjs] },
         { label: t('filters.date.thisWeekend', 'This Weekend'), value: [weekendStart, weekendEnd] as [Dayjs, Dayjs] },
         { label: t('filters.date.next7Days', 'Next 7 Days'), value: [today, next7End] as [Dayjs, Dayjs] },
-        { label: t('filters.date.thisMonth', 'This Month'), value: [monthStart, monthEnd] as [Dayjs, Dayjs] },
+        { label: t('filters.date.next30Days', 'Next 30 Days'), value: [today, next30End] as [Dayjs, Dayjs] },
     ];
 
     // Default: next 7 days interval on initial load (but don't override if URL has dates)

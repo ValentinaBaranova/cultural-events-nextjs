@@ -33,7 +33,7 @@ const es = {
   "filters.date.tomorrow": "Mañana",
   "filters.date.thisWeekend": "Este finde",
   "filters.date.next7Days": "Próximos 7 días",
-  "filters.date.thisMonth": "Este mes",
+  "filters.date.next30Days": "Próximos 30 días",
 
   "events.error": "Error al cargar eventos",
   "events.backendDown.title": "El servicio no está disponible temporalmente",
