@@ -7,6 +7,8 @@ export const authConfig: NextAuthConfig = {
         signIn: '/login',
     },
     debug: true,
+    // Trust the host header when behind a proxy/CDN (e.g., Render) to fix UntrustedHost
+    trustHost: true,
     providers: [
         CredentialsProvider({
             id: 'credentials',
