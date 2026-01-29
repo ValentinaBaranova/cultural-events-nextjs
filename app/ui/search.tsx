@@ -14,10 +14,20 @@ export default function Search({ placeholder }: { placeholder?: string }) {
     // Local state mirrors the input, but stays in sync with URL changes too
     const [value, setValue] = React.useState<string>(searchParams.get('query')?.toString() ?? '');
 
+    // Track the last term we intentionally pushed to the URL from this component
+    const lastSentRef = React.useRef<string | null>(null);
+
     // When URL search params change (e.g., via Clear All), sync input value
+    // but avoid overwriting the user's in-flight typing caused by our own debounced replace.
     React.useEffect(() => {
         const urlValue = searchParams.get('query')?.toString() ?? '';
-        setValue(urlValue);
+        if (lastSentRef.current !== urlValue) {
+            setValue(urlValue);
+        }
+        // If the URL reflects what we sent, we can clear the marker
+        if (lastSentRef.current === urlValue) {
+            lastSentRef.current = null;
+        }
     }, [searchParams]);
 
     const handleSearch = useDebouncedCallback((term: string) => {
@@ -27,6 +37,7 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         } else {
             params.delete('query');
         }
+        lastSentRef.current = term;
         replace(`${pathname}?${params.toString()}`);
     }, 300);
 
@@ -66,6 +77,7 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                             } else {
                                 params.delete('query');
                             }
+                            lastSentRef.current = value;
                             replace(`${pathname}?${params.toString()}`);
                         }
                     }}
@@ -83,6 +95,7 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                         } else {
                             params.delete('query');
                         }
+                        lastSentRef.current = value;
                         replace(`${pathname}?${params.toString()}`);
                     }}
                 >
