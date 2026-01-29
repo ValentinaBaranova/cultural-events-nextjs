@@ -153,7 +153,7 @@ function EventsListPageInner() {
         const typesFromUrl = getArrayParam('types', 'type');
         const venuesFromUrl = getArrayParam('venues', 'venue');
         const barriosFromUrl = getArrayParam('barrios', 'barrio');
-        const tagsFromUrl = getArrayParam('tags', 'tag');
+        const tagsFromUrl = getArrayParam('tags');
         const freeFromUrl = searchParams.get('free');
         const startFromUrl = searchParams.get('startDate');
         const endFromUrl = searchParams.get('endDate');
@@ -340,7 +340,7 @@ function EventsListPageInner() {
 
     // Keep selectedTags in sync if URL changes externally (e.g., via Search suggestions)
     useEffect(() => {
-        const raw = searchParams.get('tags') ?? searchParams.get('tag');
+        const raw = searchParams.get('tags');
         const nextTags = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
         const nextKey = nextTags.join(',');
         const currKey = selectedTags.join(',');
@@ -947,12 +947,13 @@ function EventsListPageInner() {
         setSelectedVenues([]);
         setSelectedBarrios([]);
         setSelectedTags([]);
-        // Also clear the search query and highlight from URL so the search field and card highlighting reset
+        // Also clear the search query, highlight and any tag params from URL so the search field and filters reset
         try {
             const params = new URLSearchParams(searchParams);
             let changed = false;
             if (params.has('query')) { params.delete('query'); changed = true; }
             if (params.has('highlight')) { params.delete('highlight'); changed = true; }
+            if (params.has('tags')) { params.delete('tags'); changed = true; }
             if (changed) {
                 const qs = params.toString();
                 router.replace(qs ? `${pathname}?${qs}` : pathname);
