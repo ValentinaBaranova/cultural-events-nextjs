@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useI18n } from '@/i18n/I18nProvider';
+import Link from 'next/link';
 
 export default function AboutPage() {
   const { t } = useI18n();
@@ -14,7 +15,11 @@ export default function AboutPage() {
       <p>{t('about.p3')}</p>
       <p>{t('about.p4')}</p>
       <p>{t('about.p5')}</p>
-      <p>{t('about.p6')}</p>
+      <p>
+        {t('about.p6.prefix')}
+        <Link href="/contact" className="inline-link">{t('about.here')}</Link>
+        {t('about.p6.suffix')}
+      </p>
     </main>
   );
 }
