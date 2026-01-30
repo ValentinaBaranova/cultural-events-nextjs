@@ -41,10 +41,11 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
           allowClear
           format="DD/MM/YYYY"
+          separator=" - "
           inputReadOnly
           placement="bottomLeft"
           getPopupContainer={(trigger) => trigger?.parentElement || document.body}
-          className="w-full sm:w-80"
+          className="w-full sm:w-72"
           size="large"
           open={pickerOpen}
           onOpenChange={setPickerOpen}

@@ -451,7 +451,7 @@ export default function EventCard(props: EventCardProps) {
               <path d="M20.59 13.41L12 21l-9-9V3h9l8.59 8.59z" />
               <path d="M7 7h.01" />
             </svg>
-            <span className="event-meta-text">
+            <span>
               {props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}
             </span>
           </div>
