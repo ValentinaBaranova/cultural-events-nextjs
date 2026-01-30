@@ -396,6 +396,7 @@ body {
     width: 100%;
     aspect-ratio: 4 / 5; /* Keep a fixed 16:9 ratio for all event images */
     overflow: hidden; /* Hide overflow when cropping to the aspect ratio */
+    border-bottom: 1px solid var(--border); /* tiny separator under the image */
 }
 
 .event-image {
