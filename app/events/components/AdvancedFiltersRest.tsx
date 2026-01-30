@@ -49,6 +49,8 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
   setSelectedTags,
   getTagLabel,
 }) => {
+  // Disable tags input when there are no tag options available
+  const isTagsDisabled = tagOptions.length === 0;
   return (
     <>
       <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
@@ -146,10 +148,18 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
             options={tagOptions}
             optionFilterProp="label"
             style={{ minWidth: 240 }}
+            disabled={isTagsDisabled}
           />
         </div>
         <div className="sm:hidden">
-          <button type="button" className="filter-trigger w-full" onClick={() => openMobilePicker('tags')}>
+          <button
+            type="button"
+            className={`filter-trigger w-full ${isTagsDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+            onClick={() => { if (!isTagsDisabled) openMobilePicker('tags'); }}
+            aria-disabled={isTagsDisabled}
+            disabled={isTagsDisabled}
+            title={isTagsDisabled ? t('filters.noTagsThisRange', 'No tags in selected dates') : undefined}
+          >
             <span>{t('filters.tags')}</span>
             {selectedTags.length > 0 && <span className="count">{selectedTags.length}</span>}
           </button>

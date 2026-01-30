@@ -121,8 +121,14 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                 setBarrioItems([]);
             }
             if (eventsRes.ok) {
-                const data: { id: string; name: string }[] = await eventsRes.json();
-                setEventItems(Array.isArray(data) ? data : []);
+                const raw = await eventsRes.json();
+                const items = Array.isArray(raw) ? raw : (Array.isArray(raw?.items) ? raw.items : []);
+                type EventApiItem = { id: string; name: string };
+                const safeItems: EventApiItem[] = Array.isArray(items)
+                    ? (items as EventApiItem[])
+                    : [];
+                const mapped = safeItems.map((e) => ({ id: e.id, name: e.name }));
+                setEventItems(mapped);
             } else {
                 setEventItems([]);
             }

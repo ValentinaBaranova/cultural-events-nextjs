@@ -69,8 +69,12 @@ function EventsListPageInner() {
     const [barrioLoading, setBarrioLoading] = useState(false);
     const [selectedBarrios, setSelectedBarrios] = useState<string[]>([]);
 
+    const [allTagOptions, setAllTagOptions] = useState<Option[]>([]);
     const [tagOptions, setTagOptions] = useState<Option[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+    // When a date range is applied, we compute which types have zero events for those dates
+    const [disabledTypeSlugs, setDisabledTypeSlugs] = useState<Set<string>>(new Set());
 
     // Kebab menu state
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -136,8 +140,8 @@ function EventsListPageInner() {
 
     // Map slug -> localized tag name for quick lookup
     const tagNameBySlug = useMemo(() => {
-        return Object.fromEntries(tagOptions.map(o => [o.value, o.label]));
-    }, [tagOptions]);
+        return Object.fromEntries(allTagOptions.map(o => [o.value, o.label]));
+    }, [allTagOptions]);
 
     const getTagLabel = (slug: string) => tagNameBySlug[slug] ?? slug;
     const getVenueLabel = (slug: string) => venueNameBySlug[slug] ?? slug;
@@ -220,7 +224,7 @@ function EventsListPageInner() {
                     if (resp.ok) {
                         const data: { slug: string; name: string }[] = await resp.json();
                         if (Array.isArray(data) && data.length) {
-                            setTagOptions(prev => {
+                            setAllTagOptions(prev => {
                                 const existing = new Set(prev.map(o => o.value));
                                 const additions: Option[] = data
                                     .filter(tg => !existing.has(tg.slug))
@@ -355,7 +359,7 @@ function EventsListPageInner() {
 
     // Hydrate tag labels when selection comes from external changes (e.g., Search suggestions)
     useEffect(() => {
-        const missing = selectedTags.filter(slug => !tagOptions.some(o => o.value === slug));
+        const missing = selectedTags.filter(slug => !allTagOptions.some(o => o.value === slug));
         if (!missing.length) return;
         (async () => {
             try {
@@ -364,7 +368,7 @@ function EventsListPageInner() {
                 if (resp.ok) {
                     const data: { slug: string; name: string }[] = await resp.json();
                     if (Array.isArray(data) && data.length) {
-                        setTagOptions(prev => {
+                        setAllTagOptions(prev => {
                             const existing = new Set(prev.map(o => o.value));
                             const additions: Option[] = data
                                 .filter(tg => !existing.has(tg.slug))
@@ -377,7 +381,7 @@ function EventsListPageInner() {
                 // ignore network errors
             }
         })();
-    }, [selectedTags, tagOptions, locale]);
+    }, [selectedTags, allTagOptions, locale]);
 
     // Push active filters into the URL whenever they change
     useEffect(() => {
@@ -458,7 +462,8 @@ function EventsListPageInner() {
     const startDate = dateRange?.[0]?.format('YYYY-MM-DD');
     const endDate = dateRange?.[1]?.format('YYYY-MM-DD');
 
-    const { events, isLoading, error, loadMore, isFetchingMore, hasMore, refresh } = useEvents(
+
+    const { events, isLoading, error, loadMore, isFetchingMore, hasMore, refresh, facets } = useEvents(
         searchQuery,
         selectedTypes,
         onlyFree,
@@ -468,6 +473,53 @@ function EventsListPageInner() {
         selectedBarrios,
         selectedTags,
     );
+
+    // Derive displayed tag options from facets (only tags present in results), while preserving selected tags
+    const selectedTagsKey = useMemo(() => (selectedTags && selectedTags.length ? selectedTags.join(',') : ''), [selectedTags]);
+    useEffect(() => {
+        const tagFacet = facets?.tag;
+        if (!tagFacet) {
+            // Legacy backend or facets not available: show all tags
+            setTagOptions(allTagOptions);
+            return;
+        }
+        const allowed = new Set(Object.entries(tagFacet)
+            .filter(([, cnt]) => (cnt ?? 0) > 0)
+            .map(([slug]) => slug));
+        // Base options from facets
+        const filtered = allTagOptions.filter(opt => allowed.has(opt.value));
+        // Ensure selected tags are visible even if their count is 0 (so user can remove/see them)
+        const missingSelected = selectedTags.filter(slug => !filtered.some(o => o.value === slug));
+        const additions: Option[] = missingSelected.map(slug => ({ value: slug, label: getTagLabel(slug) }));
+        const combined = [...filtered, ...additions];
+        // Sort by label for stable UX
+        combined.sort((a, b) => a.label.localeCompare(b.label));
+        setTagOptions(combined);
+    }, [facets, allTagOptions, selectedTagsKey]);
+
+    // Stable key for types to avoid complex expression in deps
+    const typesKey = useMemo(() => (types && types.length ? types.map(t => t.slug).join(',') : ''), [types]);
+
+    // Compute per-type disabled chips using facets from /events (no extra requests)
+    useEffect(() => {
+        // Only apply when a date range is set; otherwise keep all enabled per requirement
+        if (!startDate || !endDate || types.length === 0) {
+            setDisabledTypeSlugs(new Set());
+            return;
+        }
+        const typeFacet = facets?.type;
+        if (!typeFacet) {
+            // If facets are missing (e.g., legacy backend), do not disable anything
+            setDisabledTypeSlugs(new Set());
+            return;
+        }
+        const disabled = new Set<string>();
+        for (const tp of types) {
+            const cnt = typeFacet[tp.slug] ?? 0;
+            if (cnt === 0) disabled.add(tp.slug);
+        }
+        setDisabledTypeSlugs(disabled);
+    }, [startDate, endDate, onlyFree, typesKey, facets, types]);
 
     // Highlight & scroll into view if highlight param is present
     const highlightId = searchParams.get('highlight');
@@ -539,8 +591,8 @@ function EventsListPageInner() {
 
     const handleTagClick = (tag: string) => {
         setSelectedTags((prev) => (prev.includes(tag) ? prev : [...prev, tag]));
-        // Optionally ensure the tag exists in options so it shows up with label
-        setTagOptions((prev) => (prev.some(o => o.value === tag) ? prev : [...prev, { label: tag, value: tag }]));
+        // Ensure the tag exists in allTagOptions so it shows up with localized label when available
+        setAllTagOptions((prev) => (prev.some(o => o.value === tag) ? prev : [...prev, { label: tag, value: tag }]));
     };
 
     // Note: Previously, clicking event type or barrio on the card added filters.
@@ -622,12 +674,12 @@ function EventsListPageInner() {
         return () => controller.abort();
     }, [locale]);
 
-    // Fetch tags for multiselect
+    // Fetch all tags for multiselect (localized); displayed options will be filtered by facets
     useEffect(() => {
         const controller = new AbortController();
         fetch(`${API_URL}/tags?locale=${locale}`, { signal: controller.signal })
             .then(res => res.json())
-            .then((data: TagOption[]) => setTagOptions(data.map(t => ({ label: t.name, value: t.slug }))))
+            .then((data: TagOption[]) => setAllTagOptions(data.map(t => ({ label: t.name, value: t.slug }))))
             .catch(() => {});
         return () => controller.abort();
     }, [locale]);
@@ -735,6 +787,7 @@ function EventsListPageInner() {
                 onlyFree={onlyFree}
                 setOnlyFree={(v: boolean) => setOnlyFree(v)}
                 t={t}
+                disabledTypeSlugs={dateRange ? disabledTypeSlugs : undefined}
             />
         </>
     );
@@ -754,6 +807,7 @@ function EventsListPageInner() {
             applyPreset={applyPreset}
         />
     );
+
 
     const renderAdvancedFiltersRest = () => (
         <AdvancedFiltersRest

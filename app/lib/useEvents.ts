@@ -25,6 +25,19 @@ const fetcher = async (url: string) => {
 
 const PAGE_SIZE = 10;
 
+type EventsFacets = {
+  type?: Record<string, number>;
+  barrio?: Record<string, number>;
+  venue?: Record<string, number>;
+  tag?: Record<string, number>;
+};
+
+type EventsResponseDto = {
+  items: CulturalEvent[];
+  total: number;
+  facets?: EventsFacets;
+} | CulturalEvent[]; // Backward compatibility during rollout
+
 export function useEvents(
     searchQuery = '',
     types?: string[] | null,
@@ -35,9 +48,15 @@ export function useEvents(
     barrios?: string[],
     tags?: string[],
 ) {
-    // ✅ Keep track of whether there are more events
-    const getKey = (pageIndex: number, previousPageData: CulturalEvent[] | null) => {
-        if (previousPageData && previousPageData.length === 0) return null; // ✅ Stop fetching when no more data
+    // Build key per page
+    const getKey = (pageIndex: number, previousPageData: EventsResponseDto | null) => {
+        // Stop when previous page had no items
+        if (previousPageData) {
+            const prevItems = Array.isArray(previousPageData)
+                ? previousPageData
+                : (previousPageData?.items ?? []);
+            if (prevItems.length === 0) return null;
+        }
         const queryParam = searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : '';
         const typesParam = types && types.length ? `&type=${encodeURIComponent(types.join(','))}` : '';
         const freeParam = onlyFree ? `&isFree=true` : '';
@@ -49,41 +68,52 @@ export function useEvents(
         return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${venuesParam}${barriosParam}${tagsParam}`;
     };
 
-    const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite(getKey, fetcher);
+    const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite<EventsResponseDto>(getKey, fetcher);
 
-    // ✅ Stable keys for array dependencies
+    // Stable keys for array dependencies
     const venuesKey = useMemo(() => (venues && venues.length ? venues.join(',') : ''), [venues]);
     const barriosKey = useMemo(() => (barrios && barrios.length ? barrios.join(',') : ''), [barrios]);
     const typesKey = useMemo(() => (types && types.length ? types.join(',') : ''), [types]);
     const tagsKey = useMemo(() => (tags && tags.length ? tags.join(',') : ''), [tags]);
 
-    // ✅ Reset pagination when filters change
+    // Reset pagination when filters change
     useEffect(() => {
         setSize(1);
     }, [searchQuery, typesKey, onlyFree, startDate, endDate, venuesKey, barriosKey, tagsKey, setSize]);
 
-    const allEvents: CulturalEvent[] = data ? data.flat() : [];
+    // Flatten items across pages regardless of response shape
+    const allEvents: CulturalEvent[] = data
+        ? data.flatMap((page) => (Array.isArray(page) ? page : (page?.items ?? [])))
+        : [];
 
-    // ✅ No client-side date filtering; backend handles date filters now
+    // No client-side date filtering; backend handles date filters now
     const events = allEvents;
 
-    // Decide if there are more pages based on the size of the last page
-    const lastPageSize = data ? (data[data.length - 1]?.length ?? 0) : 0;
-    const hasMore = data ? lastPageSize === PAGE_SIZE : true;
+    // Determine hasMore using last page items length and optional total
+    const lastPage = data ? data[data.length - 1] : null;
+    const lastItems = lastPage ? (Array.isArray(lastPage) ? lastPage : (lastPage.items ?? [])) : [];
+    const hasMoreBySize = lastItems.length === PAGE_SIZE;
+    // If total is present, prefer it for accuracy
+    const total = !lastPage || Array.isArray(lastPage) ? undefined : lastPage.total;
+    const fetchedCount = data ? data.reduce((acc, p) => acc + (Array.isArray(p) ? p.length : (p.items?.length ?? 0)), 0) : 0;
+    const hasMore = typeof total === 'number' ? fetchedCount < total : hasMoreBySize;
+
+    // Extract facets from the first page when available
+    const firstPage = data && data.length > 0 ? data[0] : undefined;
+    const facets: EventsFacets | undefined = firstPage && !Array.isArray(firstPage) ? firstPage.facets : undefined;
 
     return {
         events,
         isLoading: !data && !error,
         error,
         loadMore: () => {
-            // Prevent spamming requests while a fetch is in progress
             if (!isValidating && hasMore) {
                 setSize(size + 1);
             }
         },
-        // Helpful if parent wants to force refresh when filters change
         refresh: () => mutate(),
         isFetchingMore: isValidating,
-        hasMore, // ✅ Expose hasMore to UI
+        hasMore,
+        facets,
     };
 }
