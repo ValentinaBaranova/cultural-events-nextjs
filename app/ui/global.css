@@ -482,6 +482,12 @@ body {
 .event-meta-icon {
     width: 18px;
     height: 18px;
+    min-width: 18px; /* prevent flexbox from shrinking the icon when text wraps */
+    min-height: 18px;
+    flex: 0 0 auto; /* do not grow or shrink in flex rows */
+    flex-shrink: 0; /* extra safety for older browsers */
+    line-height: 1; /* keep intrinsic size unaffected by line height */
+    align-self: flex-start; /* align with top when the text spans 2 lines */
     color: #8b5cf6; /* violet-500 for icons */
 }
 
