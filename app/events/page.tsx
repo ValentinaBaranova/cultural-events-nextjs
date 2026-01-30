@@ -660,7 +660,7 @@ function EventsListPageInner() {
 
     const chipCandidates: { key: string; label: string; onClear: () => void }[] = [];
     if (dateRange) chipCandidates.push({ key: 'date', label: formatDateChip(), onClear: () => setDateRange(null) });
-    if (onlyFree) chipCandidates.push({ key: 'free', label: 'Gratis', onClear: () => setOnlyFree(false) });
+    if (onlyFree) chipCandidates.push({ key: 'free', label: t('events.free'), onClear: () => setOnlyFree(false) });
     // One chip per selected type (no grouping)
     if (selectedTypes.length) {
         selectedTypes.forEach((slug) => {
