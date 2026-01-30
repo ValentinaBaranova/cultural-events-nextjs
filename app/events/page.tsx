@@ -20,12 +20,12 @@ type EventTypeOption = { slug: string; name: string };
 type Option = { label: string; value: string };
 
 import { formatEventCardDate } from './utils/formatEventCardDate';
+import FilterRow from './components/FilterRow';
 
 import { ReportProblemModal, type ReportModalHandle } from './components/ReportProblemModal';
 import { ConfirmHideModal, type HideModalHandle } from './components/ConfirmHideModal';
 import PrimaryFilters from './components/PrimaryFilters';
 import DateRangeFilter from './components/DateRangeFilter';
-import AdvancedFiltersRest from './components/AdvancedFiltersRest';
 
 function EventsListPageInner() {
     const { data: session } = useSession();
@@ -477,9 +477,21 @@ function EventsListPageInner() {
         query: string;
     }>({ kind: null, temp: [], query: '' });
 
+    // Unified config for mobile pickers to avoid duplication
+    const pickerData: Record<'venues' | 'barrios' | 'tags', {
+        getValues: () => string[];
+        setValues: (vals: string[]) => void;
+        options: Option[];
+        title: string;
+    }> = {
+        venues: { getValues: () => selectedVenues, setValues: setSelectedVenues, options: venueOptions, title: t('filters.places') },
+        barrios: { getValues: () => selectedBarrios, setValues: setSelectedBarrios, options: barrioOptions, title: t('filters.barrios') },
+        tags: { getValues: () => selectedTags, setValues: setSelectedTags, options: tagOptions, title: t('filters.tags') },
+    };
+
     const openMobilePicker = (kind: Exclude<PickerKind, null>) => {
         // Seed temp with current selection
-        const seed = kind === 'venues' ? selectedVenues : kind === 'barrios' ? selectedBarrios : selectedTags;
+        const seed = pickerData[kind].getValues();
         setMobilePicker({ kind, temp: [...seed], query: '' });
     };
 
@@ -492,9 +504,9 @@ function EventsListPageInner() {
     };
 
     const applyMobilePicker = () => {
-        if (mobilePicker.kind === 'venues') setSelectedVenues(mobilePicker.temp);
-        if (mobilePicker.kind === 'barrios') setSelectedBarrios(mobilePicker.temp);
-        if (mobilePicker.kind === 'tags') setSelectedTags(mobilePicker.temp);
+        if (mobilePicker.kind) {
+            pickerData[mobilePicker.kind].setValues(mobilePicker.temp);
+        }
         setMobilePicker({ kind: null, temp: [], query: '' });
     };
 
@@ -652,26 +664,62 @@ function EventsListPageInner() {
     );
 
 
+    // AntD filter: search by label only (aligns with mobile picker behavior)
+    const antdFilterOption = (input: string, option?: { label?: string; value?: string }) => {
+        const text = `${option?.label ?? ''}`.toLowerCase();
+        return text.includes(input.toLowerCase());
+    };
+    // Disable tags input when there are no tag options available
+    const isTagsDisabled = tagOptions.length === 0;
+
     const renderAdvancedFiltersRest = () => (
-        <AdvancedFiltersRest
-            t={t}
-            // Venues
-            venueOptions={venueOptions}
-            selectedVenues={selectedVenues}
-            setSelectedVenues={setSelectedVenues}
-            openMobilePicker={openMobilePicker}
-            getVenueLabel={getVenueLabel}
-            // Barrios
-            barrioOptions={barrioOptions}
-            selectedBarrios={selectedBarrios}
-            setSelectedBarrios={setSelectedBarrios}
-            getBarrioLabel={getBarrioLabel}
-            // Tags
-            tagOptions={tagOptions}
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-            getTagLabel={getTagLabel}
-        />
+        <>
+            <FilterRow
+                label={t('filters.places')}
+                placeholder={t('filters.places')}
+                prompt={t('filters.placesPrompt')}
+                options={venueOptions}
+                values={selectedVenues}
+                setValues={setSelectedVenues}
+                getLabel={getVenueLabel}
+                open={openMobilePicker}
+                kind="venues"
+                t={t}
+                filterOption={antdFilterOption}
+                ariaLabel={t('filters.places')}
+            />
+
+            <FilterRow
+                label={t('filters.barrios')}
+                placeholder={t('filters.barrios')}
+                prompt={t('filters.barriosPrompt')}
+                options={barrioOptions}
+                values={selectedBarrios}
+                setValues={setSelectedBarrios}
+                getLabel={getBarrioLabel}
+                open={openMobilePicker}
+                kind="barrios"
+                t={t}
+                filterOption={antdFilterOption}
+                ariaLabel={t('filters.barrios')}
+            />
+
+            <FilterRow
+                label={t('filters.tags')}
+                placeholder={t('filters.tags')}
+                prompt={t('filters.tagsPrompt')}
+                options={tagOptions}
+                values={selectedTags}
+                setValues={setSelectedTags}
+                getLabel={getTagLabel}
+                open={openMobilePicker}
+                kind="tags"
+                t={t}
+                filterOption={antdFilterOption}
+                disabled={isTagsDisabled}
+                ariaLabel={t('filters.tags')}
+            />
+        </>
     );
 
 
@@ -891,7 +939,7 @@ function EventsListPageInner() {
                     <div className="mobile-picker-header">
                         <div className="mobile-picker-titlebar">
                             <div className="font-semibold">
-                                {mobilePicker.kind === 'venues' ? t('filters.places') : mobilePicker.kind === 'barrios' ? t('filters.barrios') : t('filters.tags')}
+                                {mobilePicker.kind ? pickerData[mobilePicker.kind].title : ''}
                             </div>
                             <button
                                 type="button"
@@ -916,7 +964,7 @@ function EventsListPageInner() {
                     </div>
                     <div className="mobile-picker-content">
                         <ul className="mobile-picker-list">
-                            {(mobilePicker.kind === 'venues' ? venueOptions : mobilePicker.kind === 'barrios' ? barrioOptions : tagOptions)
+                            {(mobilePicker.kind ? pickerData[mobilePicker.kind].options : [])
                                 .filter(opt => opt.label.toLowerCase().includes(mobilePicker.query.toLowerCase()))
                                 .map(opt => (
                                 <li
