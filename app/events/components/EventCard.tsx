@@ -166,12 +166,9 @@ export default function EventCard(props: EventCardProps) {
             strokeLinejoin="round"
             aria-hidden="true"
           >
-            {/* Icon: Share-2 from Lucide */}
-            <circle cx="18" cy="5" r="3"></circle>
-            <circle cx="6" cy="12" r="3"></circle>
-            <circle cx="18" cy="19" r="3"></circle>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            {/* Icon: Paper Plane (Send) */}
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
           </svg>
         </button>
         <Image
