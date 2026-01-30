@@ -472,11 +472,16 @@ body {
 
 .event-meta {
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* top-align rows so icons and first line start together */
     gap: 10px;
     color: var(--muted-foreground);
     font-size: 0.95rem;
     margin: 4px 0; /* tightened spacing between metadata rows */
+}
+
+/* Ensure multi-line text aligns nicely with the icon */
+.event-meta-text {
+    line-height: 1.35;
 }
 
 .event-meta-icon {
@@ -488,6 +493,7 @@ body {
     flex-shrink: 0; /* extra safety for older browsers */
     line-height: 1; /* keep intrinsic size unaffected by line height */
     align-self: flex-start; /* align with top when the text spans 2 lines */
+    margin-top: 1px; /* tiny visual nudge to align with first text line */
     color: #8b5cf6; /* violet-500 for icons */
 }
 
