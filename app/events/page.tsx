@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEvents } from '@/lib/useEvents';
+import { loadDictionaries } from '@/lib/dictionaries';
 import React, {useEffect, useRef, useState, Suspense, useMemo} from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { CulturalEvent } from '@/lib/definitions';
@@ -16,13 +17,7 @@ import dayjs, { Dayjs } from 'dayjs';
 
 type EventTypeOption = { slug: string; name: string };
 
-type VenueSuggest = { id: string; name: string; slug: string };
-
-type BarrioSuggest = { id: string; name: string; slug: string };
-
 type Option = { label: string; value: string };
-
-type TagOption = { slug: string; name: string };
 
 import { formatEventCardDate } from './utils/formatEventCardDate';
 
@@ -63,10 +58,10 @@ function EventsListPageInner() {
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [venueOptions, setVenueOptions] = useState<Option[]>([]);
-    const [venueLoading, setVenueLoading] = useState(false);
+    const [allVenueOptions, setAllVenueOptions] = useState<Option[]>([]); // full dictionary for labels
     const [selectedVenues, setSelectedVenues] = useState<string[]>([]);
     const [barrioOptions, setBarrioOptions] = useState<Option[]>([]);
-    const [barrioLoading, setBarrioLoading] = useState(false);
+    const [allBarrioOptions, setAllBarrioOptions] = useState<Option[]>([]); // full dictionary for labels
     const [selectedBarrios, setSelectedBarrios] = useState<string[]>([]);
 
     const [allTagOptions, setAllTagOptions] = useState<Option[]>([]);
@@ -135,8 +130,8 @@ function EventsListPageInner() {
 
     // Maps for quick label lookup (must be declared before any early returns)
     const typeNameBySlug = useMemo(() => Object.fromEntries(types.map(t => [t.slug, t.name])), [types]);
-    const barrioNameBySlug = useMemo(() => Object.fromEntries(barrioOptions.map(b => [b.value, b.label])), [barrioOptions]);
-    const venueNameBySlug = useMemo(() => Object.fromEntries(venueOptions.map(v => [v.value, v.label])), [venueOptions]);
+    const barrioNameBySlug = useMemo(() => Object.fromEntries(allBarrioOptions.map(b => [b.value, b.label])), [allBarrioOptions]);
+    const venueNameBySlug = useMemo(() => Object.fromEntries(allVenueOptions.map(v => [v.value, v.label])), [allVenueOptions]);
 
     // Map slug -> localized tag name for quick lookup
     const tagNameBySlug = useMemo(() => {
@@ -145,6 +140,7 @@ function EventsListPageInner() {
 
     const getTagLabel = (slug: string) => tagNameBySlug[slug] ?? slug;
     const getVenueLabel = (slug: string) => venueNameBySlug[slug] ?? slug;
+    const getBarrioLabel = (slug: string) => barrioNameBySlug[slug] ?? slug;
 
     const { t, locale } = useI18n();
 
@@ -168,75 +164,12 @@ function EventsListPageInner() {
         if (typesFromUrl.length) setSelectedTypes(typesFromUrl);
         if (venuesFromUrl.length) {
             setSelectedVenues(venuesFromUrl);
-            // Preload labels for selected venue slugs so chips show names after refresh
-            (async () => {
-                try {
-                    const url = `${API_URL}/places/by-slugs?slugs=${encodeURIComponent(venuesFromUrl.join(','))}`;
-                    const resp = await fetch(url);
-                    if (resp.ok) {
-                        const data: VenueSuggest[] = await resp.json();
-                        if (Array.isArray(data) && data.length) {
-                            setVenueOptions(prev => {
-                                const existing = new Set(prev.map(o => o.value));
-                                const additions: Option[] = data
-                                    .filter(v => !existing.has(v.slug))
-                                    .map(v => ({ label: v.name, value: v.slug }));
-                                return additions.length ? [...prev, ...additions] : prev;
-                            });
-                        }
-                    }
-                } catch {
-                    // ignore network errors; fallback labels will be slugs via getVenueLabel
-                }
-            })();
         }
         if (barriosFromUrl.length) {
             setSelectedBarrios(barriosFromUrl);
-            // Preload labels for selected barrio slugs so chips show names after refresh
-            (async () => {
-                try {
-                    const url = `${API_URL}/barrios/by-slugs?slugs=${encodeURIComponent(barriosFromUrl.join(','))}`;
-                    const resp = await fetch(url);
-                    if (resp.ok) {
-                        const data: BarrioSuggest[] = await resp.json();
-                        if (Array.isArray(data) && data.length) {
-                            setBarrioOptions(prev => {
-                                const existing = new Set(prev.map(o => o.value));
-                                const additions: Option[] = data
-                                    .filter(b => !existing.has(b.slug))
-                                    .map(b => ({ label: b.name, value: b.slug }));
-                                return additions.length ? [...prev, ...additions] : prev;
-                            });
-                        }
-                    }
-                } catch {
-                    // ignore network errors; fallback labels will be slugs
-                }
-            })();
         }
         if (tagsFromUrl.length) {
             setSelectedTags(tagsFromUrl);
-            // Preload labels for selected tag slugs so chips show localized names after refresh
-            (async () => {
-                try {
-                    const url = `${API_URL}/tags/by-slugs?slugs=${encodeURIComponent(tagsFromUrl.join(','))}&locale=${encodeURIComponent(locale)}`;
-                    const resp = await fetch(url);
-                    if (resp.ok) {
-                        const data: { slug: string; name: string }[] = await resp.json();
-                        if (Array.isArray(data) && data.length) {
-                            setAllTagOptions(prev => {
-                                const existing = new Set(prev.map(o => o.value));
-                                const additions: Option[] = data
-                                    .filter(tg => !existing.has(tg.slug))
-                                    .map(tg => ({ label: tg.name, value: tg.slug }));
-                                return additions.length ? [...prev, ...additions] : prev;
-                            });
-                        }
-                    }
-                } catch {
-                    // ignore network errors; fallback labels will be slugs
-                }
-            })();
         }
         if (freeFromUrl) {
             const normalized = freeFromUrl.toLowerCase();
@@ -293,57 +226,16 @@ function EventsListPageInner() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, selectedBarrios.join(',')]);
 
-    // Hydrate venue labels when selection comes from external changes (e.g., Search suggestions)
+    // Labels for venues are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
-        const missing = selectedVenues.filter(slug => !venueOptions.some(o => o.value === slug));
-        if (!missing.length) return;
-        (async () => {
-            try {
-                const url = `${API_URL}/places/by-slugs?slugs=${encodeURIComponent(missing.join(','))}`;
-                const resp = await fetch(url);
-                if (resp.ok) {
-                    const data: { slug: string; name: string }[] = await resp.json();
-                    if (Array.isArray(data) && data.length) {
-                        setVenueOptions(prev => {
-                            const existing = new Set(prev.map(o => o.value));
-                            const additions: Option[] = data
-                                .filter(v => !existing.has(v.slug))
-                                .map(v => ({ label: v.name, value: v.slug }));
-                            return additions.length ? [...prev, ...additions] : prev;
-                        });
-                    }
-                }
-            } catch {
-                // ignore network errors
-            }
-        })();
-    }, [selectedVenues, venueOptions]);
+        // No-op: keep for dependency structure in case of future changes
+        return;
+    }, [selectedVenues]);
 
-    // Hydrate barrio labels similarly
+    // Labels for barrios are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
-        const missing = selectedBarrios.filter(slug => !barrioOptions.some(o => o.value === slug));
-        if (!missing.length) return;
-        (async () => {
-            try {
-                const url = `${API_URL}/barrios/by-slugs?slugs=${encodeURIComponent(missing.join(','))}`;
-                const resp = await fetch(url);
-                if (resp.ok) {
-                    const data: { slug: string; name: string }[] = await resp.json();
-                    if (Array.isArray(data) && data.length) {
-                        setBarrioOptions(prev => {
-                            const existing = new Set(prev.map(o => o.value));
-                            const additions: Option[] = data
-                                .filter(b => !existing.has(b.slug))
-                                .map(b => ({ label: b.name, value: b.slug }));
-                            return additions.length ? [...prev, ...additions] : prev;
-                        });
-                    }
-                }
-            } catch {
-                // ignore network errors
-            }
-        })();
-    }, [selectedBarrios, barrioOptions]);
+        return;
+    }, [selectedBarrios]);
 
     // Keep selectedTags in sync if URL changes externally (e.g., via Search suggestions)
     useEffect(() => {
@@ -357,31 +249,10 @@ function EventsListPageInner() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, selectedTags.join(',')]);
 
-    // Hydrate tag labels when selection comes from external changes (e.g., Search suggestions)
+    // Tag labels are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
-        const missing = selectedTags.filter(slug => !allTagOptions.some(o => o.value === slug));
-        if (!missing.length) return;
-        (async () => {
-            try {
-                const url = `${API_URL}/tags/by-slugs?slugs=${encodeURIComponent(missing.join(','))}&locale=${encodeURIComponent(locale)}`;
-                const resp = await fetch(url);
-                if (resp.ok) {
-                    const data: { slug: string; name: string }[] = await resp.json();
-                    if (Array.isArray(data) && data.length) {
-                        setAllTagOptions(prev => {
-                            const existing = new Set(prev.map(o => o.value));
-                            const additions: Option[] = data
-                                .filter(tg => !existing.has(tg.slug))
-                                .map(tg => ({ label: tg.name, value: tg.slug }));
-                            return additions.length ? [...prev, ...additions] : prev;
-                        });
-                    }
-                }
-            } catch {
-                // ignore network errors
-            }
-        })();
-    }, [selectedTags, allTagOptions, locale]);
+        return;
+    }, [selectedTags]);
 
     // Push active filters into the URL whenever they change
     useEffect(() => {
@@ -490,12 +361,12 @@ function EventsListPageInner() {
         const filtered = allTagOptions.filter(opt => allowed.has(opt.value));
         // Ensure selected tags are visible even if their count is 0 (so user can remove/see them)
         const missingSelected = selectedTags.filter(slug => !filtered.some(o => o.value === slug));
-        const additions: Option[] = missingSelected.map(slug => ({ value: slug, label: getTagLabel(slug) }));
+        const additions: Option[] = missingSelected.map(slug => ({ value: slug, label: tagNameBySlug[slug] ?? slug }));
         const combined = [...filtered, ...additions];
         // Sort by label for stable UX
         combined.sort((a, b) => a.label.localeCompare(b.label));
         setTagOptions(combined);
-    }, [facets, allTagOptions, selectedTagsKey]);
+    }, [facets, allTagOptions, selectedTagsKey, tagNameBySlug]);
 
     // Stable key for types to avoid complex expression in deps
     const typesKey = useMemo(() => (types && types.length ? types.map(t => t.slug).join(',') : ''), [types]);
@@ -610,9 +481,6 @@ function EventsListPageInner() {
         // Seed temp with current selection
         const seed = kind === 'venues' ? selectedVenues : kind === 'barrios' ? selectedBarrios : selectedTags;
         setMobilePicker({ kind, temp: [...seed], query: '' });
-        // Prime suggestions when opening
-        if (kind === 'venues') searchVenues('');
-        if (kind === 'barrios') searchBarrios('');
     };
 
     const toggleTemp = (value: string) => {
@@ -665,98 +533,73 @@ function EventsListPageInner() {
         return () => observer.disconnect();
     }, [hasMore, isFetchingMore, loadMore, events?.length]);
 
+    // Load event types via shared dictionaries loader (same as venues/barrios)
+    // Types are now cached per-locale together with other dictionaries
+    // and converted to the {slug,name} shape expected by PrimaryFilters
+    // to keep component props unchanged.
+    // Handled in the dictionaries effect below.
+
+    // Load dictionaries (venues, barrios, tags, event types) once per locale
     useEffect(() => {
-        const controller = new AbortController();
-        fetch(`${API_URL}/event-types?locale=${locale}`, { signal: controller.signal })
-            .then(res => res.json())
-            .then((data: { slug: string; name: string }[]) => setTypes(data))
-            .catch(() => {});
-        return () => controller.abort();
+        let cancelled = false;
+        loadDictionaries(locale).then(dict => {
+            if (cancelled) return;
+            setAllVenueOptions(dict.venues);
+            setAllBarrioOptions(dict.barrios);
+            setAllTagOptions(dict.tags);
+            // Convert eventTypes DictOption[] to PrimaryFilters shape
+            const mappedTypes = (dict.eventTypes || []).map(o => ({ slug: o.value, name: o.label }));
+            setTypes(mappedTypes);
+        }).catch(() => {});
+        return () => { cancelled = true; };
     }, [locale]);
 
-    // Fetch all tags for multiselect (localized); displayed options will be filtered by facets
+    // Venues & Barrios options are derived from /events facets using preloaded dictionaries (no network calls).
+    // Search is label-only and handled inline in the mobile picker, and by AntD's filterOption on desktop.
+
+    // Build venue options from facets using preloaded dictionaries (no network calls)
+    const selectedVenuesKey = useMemo(() => (selectedVenues && selectedVenues.length ? selectedVenues.join(',') : ''), [selectedVenues]);
     useEffect(() => {
-        const controller = new AbortController();
-        fetch(`${API_URL}/tags?locale=${locale}`, { signal: controller.signal })
-            .then(res => res.json())
-            .then((data: TagOption[]) => setAllTagOptions(data.map(t => ({ label: t.name, value: t.slug }))))
-            .catch(() => {});
-        return () => controller.abort();
-    }, [locale]);
+        const venueFacet = facets?.venue;
+        if (!venueFacet) {
+            setVenueOptions([]);
+            return;
+        }
+        const allowed = new Set<string>(
+            Object.entries(venueFacet)
+                .filter(([, cnt]) => (cnt ?? 0) > 0)
+                .map(([slug]) => slug)
+        );
+        // Ensure selected venues are included even if count is 0
+        selectedVenues.forEach(slug => allowed.add(slug));
+        // Filter from dictionary-loaded options
+        const base = allVenueOptions.filter(o => allowed.has(o.value));
+        const sorted = [...base].sort((a, b) => a.label.localeCompare(b.label));
+        setVenueOptions(sorted);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [facets, selectedVenuesKey, allVenueOptions]);
 
-    // Venues autocomplete: debounced fetch
-    const searchTimer = useRef<NodeJS.Timeout | null>(null);
-    const abortRef = useRef<AbortController | null>(null);
+    // Build barrio options from facets using preloaded dictionaries (no network calls)
+    const selectedBarriosKey = useMemo(() => (selectedBarrios && selectedBarrios.length ? selectedBarrios.join(',') : ''), [selectedBarrios]);
+    useEffect(() => {
+        const barrioFacet = facets?.barrio;
+        if (!barrioFacet) {
+            setBarrioOptions([]);
+            return;
+        }
+        const allowed = new Set<string>(
+            Object.entries(barrioFacet)
+                .filter(([, cnt]) => (cnt ?? 0) > 0)
+                .map(([slug]) => slug)
+        );
+        // Ensure selected barrios are included even if count is 0
+        selectedBarrios.forEach(slug => allowed.add(slug));
+        const base = allBarrioOptions.filter(o => allowed.has(o.value));
+        const sorted = [...base].sort((a, b) => a.label.localeCompare(b.label));
+        setBarrioOptions(sorted);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [facets, selectedBarriosKey, allBarrioOptions]);
 
-    // Barrios autocomplete timers
-    const barrioSearchTimer = useRef<NodeJS.Timeout | null>(null);
-    const barrioAbortRef = useRef<AbortController | null>(null);
-
-    const searchVenues = (q: string) => {
-        if (searchTimer.current) clearTimeout(searchTimer.current);
-        searchTimer.current = setTimeout(async () => {
-            const query = q.trim();
-            if (abortRef.current) abortRef.current.abort();
-            const ctrl = new AbortController();
-            abortRef.current = ctrl;
-            setVenueLoading(true);
-            try {
-                let url: string;
-                if (!query) {
-                    const start = dateRange?.[0]?.format('YYYY-MM-DD');
-                    const end = dateRange?.[1]?.format('YYYY-MM-DD');
-                    const params: string[] = [];
-                    if (start) params.push(`startDate=${encodeURIComponent(start)}`);
-                    if (end) params.push(`endDate=${encodeURIComponent(end)}`);
-                    const suffix = params.length ? `?${params.join('&')}` : '';
-                    url = `${API_URL}/places/with-events${suffix}`;
-                } else {
-                    url = `${API_URL}/places/suggest?q=${encodeURIComponent(query)}`;
-                }
-                const resp = await fetch(url, { signal: ctrl.signal });
-                const data: VenueSuggest[] = await resp.json();
-                const opts: Option[] = data.map(p => ({ label: p.name, value: p.slug }));
-                setVenueOptions(opts);
-            } catch {
-                // ignore abort or network errors for suggestions
-            } finally {
-                setVenueLoading(false);
-            }
-        }, 250);
-    };
-
-    const searchBarrios = (q: string) => {
-        if (barrioSearchTimer.current) clearTimeout(barrioSearchTimer.current);
-        barrioSearchTimer.current = setTimeout(async () => {
-            const query = q.trim();
-            if (barrioAbortRef.current) barrioAbortRef.current.abort();
-            const ctrl = new AbortController();
-            barrioAbortRef.current = ctrl;
-            setBarrioLoading(true);
-            try {
-                let url: string;
-                if (!query) {
-                    const start = dateRange?.[0]?.format('YYYY-MM-DD');
-                    const end = dateRange?.[1]?.format('YYYY-MM-DD');
-                    const params: string[] = [];
-                    if (start) params.push(`startDate=${encodeURIComponent(start)}`);
-                    if (end) params.push(`endDate=${encodeURIComponent(end)}`);
-                    const suffix = params.length ? `?${params.join('&')}` : '';
-                    url = `${API_URL}/barrios/with-events${suffix}`;
-                } else {
-                    url = `${API_URL}/barrios/suggest?q=${encodeURIComponent(query)}`;
-                }
-                const resp = await fetch(url, { signal: ctrl.signal });
-                const data: BarrioSuggest[] = await resp.json();
-                const opts: Option[] = data.map(b => ({ label: b.name, value: b.slug }));
-                setBarrioOptions(opts);
-            } catch {
-                // ignore abort or network errors for suggestions
-            } finally {
-                setBarrioLoading(false);
-            }
-        }, 250);
-    };
 
     if (error) {
         return (
@@ -814,19 +657,15 @@ function EventsListPageInner() {
             t={t}
             // Venues
             venueOptions={venueOptions}
-            venueLoading={venueLoading}
             selectedVenues={selectedVenues}
             setSelectedVenues={setSelectedVenues}
-            searchVenues={searchVenues}
             openMobilePicker={openMobilePicker}
             getVenueLabel={getVenueLabel}
             // Barrios
             barrioOptions={barrioOptions}
-            barrioLoading={barrioLoading}
             selectedBarrios={selectedBarrios}
             setSelectedBarrios={setSelectedBarrios}
-            searchBarrios={searchBarrios}
-            barrioNameBySlug={barrioNameBySlug}
+            getBarrioLabel={getBarrioLabel}
             // Tags
             tagOptions={tagOptions}
             selectedTags={selectedTags}
@@ -853,13 +692,20 @@ function EventsListPageInner() {
         setSelectedVenues([]);
         setSelectedBarrios([]);
         setSelectedTags([]);
-        // Also clear the search query, highlight and any tag params from URL so the search field and filters reset
+        // If a mobile picker is open with temporary selections, reset it to avoid re-applying cleared values
+        setMobilePicker({ kind: null, temp: [], query: '' });
+        // Also clear all filter-related query params from URL so UI and state stay in sync
         try {
             const params = new URLSearchParams(searchParams);
             let changed = false;
-            if (params.has('query')) { params.delete('query'); changed = true; }
-            if (params.has('highlight')) { params.delete('highlight'); changed = true; }
-            if (params.has('tags')) { params.delete('tags'); changed = true; }
+            const keys = [
+                'query', 'highlight',
+                // filters
+                'tags', 'venues', 'venue', 'barrios', 'barrio', 'types', 'type', 'free', 'startDate', 'endDate',
+            ];
+            for (const k of keys) {
+                if (params.has(k)) { params.delete(k); changed = true; }
+            }
             if (changed) {
                 const qs = params.toString();
                 router.replace(qs ? `${pathname}?${qs}` : pathname);
@@ -897,7 +743,7 @@ function EventsListPageInner() {
     // One chip per selected barrio (no grouping)
     if (selectedBarrios.length) {
         selectedBarrios.forEach((slug) => {
-            const name = barrioNameBySlug[slug] ?? slug;
+            const name = getBarrioLabel(slug);
             chipCandidates.push({ key: `barrio-${slug}`, label: name, onClear: () => setSelectedBarrios(prev => prev.filter(b => b !== slug)) });
         });
     }
@@ -1061,18 +907,17 @@ function EventsListPageInner() {
                             type="search"
                             value={mobilePicker.query}
                             placeholder={`${t('filters.search')}...`}
+                            // Search by label only for all kinds; we filter the rendered list below.
                             onChange={(e) => {
                                 const q = e.target.value;
                                 setMobilePicker(prev => ({ ...prev, query: q }));
-                                if (mobilePicker.kind === 'venues') searchVenues(q);
-                                if (mobilePicker.kind === 'barrios') searchBarrios(q);
                             }}
                         />
                     </div>
                     <div className="mobile-picker-content">
                         <ul className="mobile-picker-list">
                             {(mobilePicker.kind === 'venues' ? venueOptions : mobilePicker.kind === 'barrios' ? barrioOptions : tagOptions)
-                                .filter(opt => mobilePicker.kind !== 'tags' || opt.label.toLowerCase().includes(mobilePicker.query.toLowerCase()))
+                                .filter(opt => opt.label.toLowerCase().includes(mobilePicker.query.toLowerCase()))
                                 .map(opt => (
                                 <li
                                     key={opt.value}

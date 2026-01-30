@@ -9,19 +9,15 @@ interface AdvancedFiltersRestProps {
   t: TFunc;
   // Venues
   venueOptions: Option[];
-  venueLoading: boolean;
   selectedVenues: string[];
   setSelectedVenues: (values: string[]) => void;
-  searchVenues: (q: string) => void;
   openMobilePicker: (kind: 'venues' | 'barrios' | 'tags') => void;
   getVenueLabel: (slug: string) => string;
   // Barrios
   barrioOptions: Option[];
-  barrioLoading: boolean;
   selectedBarrios: string[];
   setSelectedBarrios: (values: string[]) => void;
-  searchBarrios: (q: string) => void;
-  barrioNameBySlug: Record<string, string>;
+  getBarrioLabel: (slug: string) => string;
   // Tags
   tagOptions: Option[];
   selectedTags: string[];
@@ -32,18 +28,14 @@ interface AdvancedFiltersRestProps {
 const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
   t,
   venueOptions,
-  venueLoading,
   selectedVenues,
   setSelectedVenues,
-  searchVenues,
   openMobilePicker,
   getVenueLabel,
   barrioOptions,
-  barrioLoading,
   selectedBarrios,
   setSelectedBarrios,
-  searchBarrios,
-  barrioNameBySlug,
+  getBarrioLabel,
   tagOptions,
   selectedTags,
   setSelectedTags,
@@ -51,6 +43,11 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
 }) => {
   // Disable tags input when there are no tag options available
   const isTagsDisabled = tagOptions.length === 0;
+  // AntD filter: search by label only (align with mobile picker behavior)
+  const antdFilterOption = (input: string, option?: { label?: string; value?: string }) => {
+    const text = `${option?.label ?? ''}`.toLowerCase();
+    return text.includes(input.toLowerCase());
+  };
   return (
     <>
       <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
@@ -63,11 +60,8 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
             showSearch
             placeholder={t('filters.places')}
             notFoundContent={t('filters.placesPrompt')}
-            filterOption={false}
-            onSearch={searchVenues}
-            onOpenChange={(open) => { if (open) searchVenues(''); }}
+            filterOption={antdFilterOption}
             options={venueOptions}
-            loading={venueLoading}
             value={selectedVenues}
             onChange={(values) => setSelectedVenues(values as string[])}
             style={{ minWidth: 240 }}
@@ -103,11 +97,8 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
             showSearch
             placeholder={t('filters.barrios')}
             notFoundContent={t('filters.barriosPrompt')}
-            filterOption={false}
-            onSearch={searchBarrios}
-            onOpenChange={(open) => { if (open) searchBarrios(''); }}
+            filterOption={antdFilterOption}
             options={barrioOptions}
-            loading={barrioLoading}
             value={selectedBarrios}
             onChange={(values) => setSelectedBarrios(values as string[])}
             style={{ minWidth: 240 }}
@@ -122,8 +113,8 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
             <div className="chips-row mt-2">
               {selectedBarrios.slice(0, 2).map(b => (
                 <span key={b} className="chip">
-                  {barrioNameBySlug[b] ?? b}
-                  <button aria-label={`Remove barrio ${barrioNameBySlug[b] ?? b}`} className="chip-x" onClick={() => setSelectedBarrios(selectedBarrios.filter(x => x !== b))}>×</button>
+                  {getBarrioLabel(b)}
+                  <button aria-label={`Remove barrio ${getBarrioLabel(b)}`} className="chip-x" onClick={() => setSelectedBarrios(selectedBarrios.filter(x => x !== b))}>×</button>
                 </span>
               ))}
               {selectedBarrios.length > 2 && (
@@ -136,6 +127,7 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
         <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1 sm:mb-0 sm:w-32">{t('filters.tags')}</span>
+        {/* Tags are preloaded and filtered on the client; no remote search or loading state needed */}
         <div className="hidden sm:block">
           <Select
             aria-label="Event tags filter"
@@ -143,10 +135,11 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
             allowClear
             showSearch
             placeholder={t('filters.tags')}
+            notFoundContent={t('filters.tagsPrompt')}
             value={selectedTags}
             onChange={(values) => setSelectedTags(values as string[])}
             options={tagOptions}
-            optionFilterProp="label"
+            filterOption={antdFilterOption}
             style={{ minWidth: 240 }}
             disabled={isTagsDisabled}
           />
@@ -172,7 +165,7 @@ const AdvancedFiltersRest: React.FC<AdvancedFiltersRestProps> = ({
                 </span>
               ))}
               {selectedTags.length > 2 && (
-                <span className="chip">+{selectedTags.length - 2}</span>
+                <span className="text-sm text-gray-600">+{selectedTags.length - 2} {t('filters.moreCountSuffix')}</span>
               )}
             </div>
           )}

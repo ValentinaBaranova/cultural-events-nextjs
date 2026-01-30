@@ -34,6 +34,10 @@ export default function Search({ placeholder }: { placeholder?: string }) {
     const allTypesRef = React.useRef<TypeItem[] | null>(null);
     // Cache all tags once (localized)
     const allTagsRef = React.useRef<SimpleItem[] | null>(null);
+    // Cache all venues once (localized)
+    const allVenuesRef = React.useRef<SimpleItem[] | null>(null);
+    // Cache all barrios once (localized)
+    const allBarriosRef = React.useRef<SimpleItem[] | null>(null);
 
     // Track the last term we intentionally pushed to the URL from this component
     const lastSentRef = React.useRef<string | null>(null);
@@ -51,26 +55,49 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         }
     }, [searchParams]);
 
-    // Load types once per locale
+    // Load types, tags, venues, barrios once per locale
     React.useEffect(() => {
         allTypesRef.current = null;
         allTagsRef.current = null;
+        allVenuesRef.current = null;
+        allBarriosRef.current = null;
         (async () => {
             try {
-                const [typesRes, tagsRes] = await Promise.all([
+                const [typesRes, tagsRes, venuesRes, barriosRes] = await Promise.all([
                     fetch(`${API_URL}/event-types?locale=${encodeURIComponent(locale)}`),
                     fetch(`${API_URL}/tags?locale=${encodeURIComponent(locale)}`),
+                    fetch(`${API_URL}/places?locale=${encodeURIComponent(locale)}`),
+                    fetch(`${API_URL}/barrios?locale=${encodeURIComponent(locale)}`),
                 ]);
                 if (typesRes.ok) {
                     const data: TypeItem[] = await typesRes.json();
-                    allTypesRef.current = data || [];
+                    allTypesRef.current = Array.isArray(data) ? data : [];
+                } else {
+                    allTypesRef.current = [];
                 }
                 if (tagsRes.ok) {
                     const data: { slug: string; name: string }[] = await tagsRes.json();
                     allTagsRef.current = Array.isArray(data) ? data : [];
+                } else {
+                    allTagsRef.current = [];
+                }
+                if (venuesRes.ok) {
+                    const data: { slug: string; name: string }[] = await venuesRes.json();
+                    allVenuesRef.current = Array.isArray(data) ? data : [];
+                } else {
+                    allVenuesRef.current = [];
+                }
+                if (barriosRes.ok) {
+                    const data: { slug: string; name: string }[] = await barriosRes.json();
+                    allBarriosRef.current = Array.isArray(data) ? data : [];
+                } else {
+                    allBarriosRef.current = [];
                 }
             } catch {
-                // ignore
+                allTypesRef.current = [];
+                allTagsRef.current = [];
+                allVenuesRef.current = [];
+                allBarriosRef.current = [];
             }
         })();
     }, [locale]);
@@ -101,25 +128,20 @@ export default function Search({ placeholder }: { placeholder?: string }) {
             ).slice(0, 6);
             setTagItems(tagsLocal);
 
-            // Parallel fetch venues, barrios, events
-            const [venuesRes, barriosRes, eventsRes] = await Promise.all([
-                fetch(`${API_URL}/places/suggest?q=${encodeURIComponent(q)}&limit=6`),
-                fetch(`${API_URL}/barrios/suggest?q=${encodeURIComponent(q)}&limit=6`),
-                fetch(`${API_URL}/events?page=1&limit=6&title=${encodeURIComponent(q)}`),
-            ]);
+            // Filter venues locally
+            const venuesLocal = (allVenuesRef.current || []).filter(v =>
+                v.name.toLowerCase().includes(q.toLowerCase())
+            ).slice(0, 6);
+            setVenueItems(venuesLocal);
 
-            if (venuesRes.ok) {
-                const data: { slug: string; name: string }[] = await venuesRes.json();
-                setVenueItems(Array.isArray(data) ? data : []);
-            } else {
-                setVenueItems([]);
-            }
-            if (barriosRes.ok) {
-                const data: { slug: string; name: string }[] = await barriosRes.json();
-                setBarrioItems(Array.isArray(data) ? data : []);
-            } else {
-                setBarrioItems([]);
-            }
+            // Filter barrios locally
+            const barriosLocal = (allBarriosRef.current || []).filter(b =>
+                b.name.toLowerCase().includes(q.toLowerCase())
+            ).slice(0, 6);
+            setBarrioItems(barriosLocal);
+
+            // Fetch events only
+            const eventsRes = await fetch(`${API_URL}/events?page=1&limit=6&title=${encodeURIComponent(q)}`);
             if (eventsRes.ok) {
                 const raw = await eventsRes.json();
                 const items = Array.isArray(raw) ? raw : (Array.isArray(raw?.items) ? raw.items : []);
