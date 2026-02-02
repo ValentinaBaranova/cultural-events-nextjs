@@ -239,14 +239,11 @@ export default function Search({ placeholder, inputId, onlySuggestWhenFocusedOnM
         replace(`${pathname}?${params.toString()}`);
     }, 300);
 
-    // Update suggestions when value changes (with optional mobile focus gating for hero search)
+    // Update suggestions when value changes; require input focus to show suggestions in all viewports
     React.useEffect(() => {
         const hasQuery = !!value.trim();
-        const isMobile = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 639px)').matches;
-        const gatedOnMobile = !!onlySuggestWhenFocusedOnMobile && isMobile;
-
-        // Only open and load suggestions if query present AND (not gated OR focused)
-        const shouldSuggest = hasQuery && (!gatedOnMobile || isFocused);
+        // Suggestions should only open when there is a query AND the input is focused
+        const shouldSuggest = hasQuery && isFocused;
         setOpen(shouldSuggest);
 
         if (!shouldSuggest) {
@@ -264,7 +261,7 @@ export default function Search({ placeholder, inputId, onlySuggestWhenFocusedOnM
         setLoading(true);
         loadSuggestions(value);
         return () => loadSuggestions.cancel();
-    }, [value, loadSuggestions, isFocused, onlySuggestWhenFocusedOnMobile]);
+    }, [value, loadSuggestions, isFocused]);
 
     const applyParamAndGo = (updater: (p: URLSearchParams) => void) => {
         const params = new URLSearchParams(searchParams);
