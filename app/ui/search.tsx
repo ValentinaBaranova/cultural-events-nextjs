@@ -12,7 +12,7 @@ type SimpleItem = { slug: string; name: string };
 
 type EventItem = { id: string; name: string };
 
-export default function Search({ placeholder, inputId, onlySuggestWhenFocusedOnMobile }: { placeholder?: string; inputId?: string; onlySuggestWhenFocusedOnMobile?: boolean }) {
+export default function Search({ placeholder, inputId }: { placeholder?: string; inputId?: string }) {
     const effectiveId = inputId ?? 'search';
     const searchParams = useSearchParams();
     const pathname = usePathname();
