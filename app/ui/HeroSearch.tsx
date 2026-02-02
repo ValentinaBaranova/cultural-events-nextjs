@@ -43,7 +43,7 @@ export default function HeroSearch() {
       </div>
 
       <div className="mt-4 sm:mt-5 w-full">
-        <Search />
+        <Search onlySuggestWhenFocusedOnMobile />
       </div>
     </section>
   );

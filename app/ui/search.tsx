@@ -12,7 +12,8 @@ type SimpleItem = { slug: string; name: string };
 
 type EventItem = { id: string; name: string };
 
-export default function Search({ placeholder }: { placeholder?: string }) {
+export default function Search({ placeholder, inputId, onlySuggestWhenFocusedOnMobile }: { placeholder?: string; inputId?: string; onlySuggestWhenFocusedOnMobile?: boolean }) {
+    const effectiveId = inputId ?? 'search';
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -29,6 +30,8 @@ export default function Search({ placeholder }: { placeholder?: string }) {
     const [barrioItems, setBarrioItems] = React.useState<SimpleItem[]>([]);
     const [eventItems, setEventItems] = React.useState<EventItem[]>([]);
     const [tagItems, setTagItems] = React.useState<SimpleItem[]>([]);
+    // Track focus for gating suggestions on mobile when requested
+    const [isFocused, setIsFocused] = React.useState(false);
 
     // Cache all types once (localized)
     const allTypesRef = React.useRef<TypeItem[] | null>(null);
@@ -41,6 +44,32 @@ export default function Search({ placeholder }: { placeholder?: string }) {
 
     // Track the last term we intentionally pushed to the URL from this component
     const lastSentRef = React.useRef<string | null>(null);
+    const inputElRef = React.useRef<HTMLInputElement | null>(null);
+    const prevValueRef = React.useRef<string>('');
+
+    // Helper: clear suggestions/loading and close panel
+    const resetSuggestions = () => {
+        setOpen(false);
+        setLoading(false);
+        setTypeItems([]);
+        setVenueItems([]);
+        setBarrioItems([]);
+        setEventItems([]);
+        setTagItems([]);
+    };
+
+    const exitSearchMode = () => {
+        try {
+            // Blur input to exit IME/keyboard and close any focus-dependent UI
+            inputElRef.current?.blur();
+        } catch {}
+        // Ensure suggestions panel is closed and loading stops
+        resetSuggestions();
+        // Notify any listeners (e.g., StickySearchBar) to hide
+        try {
+            window.dispatchEvent(new CustomEvent('app:search-navigate'));
+        } catch {}
+    };
 
     // When URL search params change (e.g., via Clear All), sync input value
     // but avoid overwriting the user's in-flight typing caused by our own debounced replace.
@@ -48,6 +77,7 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         const urlValue = searchParams.get('query')?.toString() ?? '';
         if (lastSentRef.current !== urlValue) {
             setValue(urlValue);
+            prevValueRef.current = urlValue;
         }
         // If the URL reflects what we sent, we can clear the marker
         if (lastSentRef.current === urlValue) {
@@ -102,16 +132,39 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         })();
     }, [locale]);
 
+    // Close suggestions when sticky bar hides (only for the sticky instance)
+    React.useEffect(() => {
+        if (inputId !== 'mobile-sticky-search') return;
+        const onStickyHide = () => {
+            // Ensure suggestions are closed
+            resetSuggestions();
+            try { inputElRef.current?.blur(); } catch {}
+        };
+        window.addEventListener('app:sticky-hide', onStickyHide as EventListener);
+        return () => window.removeEventListener('app:sticky-hide', onStickyHide as EventListener);
+    }, [inputId]);
+
+    // Sync clearing across hero and sticky: when one clears, clear the other too
+    React.useEffect(() => {
+        type SearchClearedDetail = { sourceId: string };
+        const onCleared = (ev: Event) => {
+            const src = (ev as CustomEvent<SearchClearedDetail>).detail?.sourceId;
+            if (!src) return;
+            if (src === effectiveId) return; // ignore own event
+            // Clear local state without causing URL changes or refocus
+            setValue('');
+            prevValueRef.current = '';
+            resetSuggestions();
+        };
+        window.addEventListener('app:search-cleared', onCleared as EventListener);
+        return () => window.removeEventListener('app:search-cleared', onCleared as EventListener);
+    }, [effectiveId]);
+
     // Debounced suggestions loader
     const loadSuggestions = useDebouncedCallback(async (term: string) => {
         const q = term.trim();
         if (!q) {
-            setTypeItems([]);
-            setVenueItems([]);
-            setBarrioItems([]);
-            setEventItems([]);
-            setTagItems([]);
-            setLoading(false);
+            resetSuggestions();
             return;
         }
         setLoading(true);
@@ -140,18 +193,25 @@ export default function Search({ placeholder }: { placeholder?: string }) {
             ).slice(0, 6);
             setBarrioItems(barriosLocal);
 
-            // Fetch events only
-            const eventsRes = await fetch(`${API_URL}/events?page=1&limit=6&title=${encodeURIComponent(q)}`);
-            if (eventsRes.ok) {
-                const raw = await eventsRes.json();
-                const items = Array.isArray(raw) ? raw : (Array.isArray(raw?.items) ? raw.items : []);
-                type EventApiItem = { id: string; name: string };
-                const safeItems: EventApiItem[] = Array.isArray(items)
-                    ? (items as EventApiItem[])
-                    : [];
-                const mapped = safeItems.map((e) => ({ id: e.id, name: e.name }));
-                setEventItems(mapped);
+            // Fetch events only on non-mobile to avoid backend calls during typing on mobile
+            const isMobileViewport = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 639px)').matches;
+            if (!isMobileViewport) {
+                const eventsRes = await fetch(`${API_URL}/events?page=1&limit=6&title=${encodeURIComponent(q)}`);
+                if (eventsRes.ok) {
+                    const raw = await eventsRes.json();
+                    type EventApiItem = { id: string; name: string };
+                    type EventApiResponse = EventApiItem[] | { items: EventApiItem[] };
+                    const itemsRaw: EventApiResponse = raw as EventApiResponse;
+                    const items: EventApiItem[] = Array.isArray(itemsRaw)
+                        ? itemsRaw
+                        : (Array.isArray(itemsRaw.items) ? itemsRaw.items : []);
+                    const mapped = items.map((e) => ({ id: e.id, name: e.name }));
+                    setEventItems(mapped);
+                } else {
+                    setEventItems([]);
+                }
             } else {
+                // On mobile, do not fetch events during typing; leave list empty for submit-only behavior
                 setEventItems([]);
             }
         } catch {
@@ -163,8 +223,12 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         }
     }, 250);
 
-    // Update URL query as user types (existing behavior)
+    // Update URL query as user types on desktop/tablet only; on mobile we keep submit-only behavior.
     const handleSearch = useDebouncedCallback((term: string) => {
+        // Mobile submit-only: typing should not trigger backend search (URL change)
+        if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 639px)').matches) {
+            return;
+        }
         const params = new URLSearchParams(searchParams);
         if (term) {
             params.set('query', term);
@@ -175,21 +239,39 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         replace(`${pathname}?${params.toString()}`);
     }, 300);
 
-    // Update suggestions when value changes
+    // Update suggestions when value changes (with optional mobile focus gating for hero search)
     React.useEffect(() => {
         const hasQuery = !!value.trim();
-        setOpen(hasQuery);
+        const isMobile = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 639px)').matches;
+        const gatedOnMobile = !!onlySuggestWhenFocusedOnMobile && isMobile;
+
+        // Only open and load suggestions if query present AND (not gated OR focused)
+        const shouldSuggest = hasQuery && (!gatedOnMobile || isFocused);
+        setOpen(shouldSuggest);
+
+        if (!shouldSuggest) {
+            // If we shouldn't suggest now, clear loading and optionally clear lists to avoid stale UI
+            setLoading(false);
+            setTypeItems([]);
+            setVenueItems([]);
+            setBarrioItems([]);
+            setEventItems([]);
+            setTagItems([]);
+            return; // Do not call loader
+        }
+
         // Set loading immediately for non-empty queries to avoid brief "no results" flash
-        setLoading(hasQuery);
+        setLoading(true);
         loadSuggestions(value);
         return () => loadSuggestions.cancel();
-    }, [value, loadSuggestions]);
+    }, [value, loadSuggestions, isFocused, onlySuggestWhenFocusedOnMobile]);
 
     const applyParamAndGo = (updater: (p: URLSearchParams) => void) => {
         const params = new URLSearchParams(searchParams);
         updater(params);
-        // Close panel and clear input when applying a filter
-        setOpen(false);
+        // Exit search mode UI
+        exitSearchMode();
+        // Clear input when applying a filter from suggestions
         setValue('');
         params.delete('query');
         replace(`${pathname}?${params.toString()}`);
@@ -219,15 +301,36 @@ export default function Search({ placeholder }: { placeholder?: string }) {
         // For events, we keep query to search by title
         const params = new URLSearchParams(searchParams);
         params.set('query', title);
-        setOpen(false);
+        // Exit UI and update value prior to navigation
+        exitSearchMode();
         setValue(title);
         lastSentRef.current = title;
         replace(`${pathname}?${params.toString()}`);
     };
 
+    // Shared clear handler to sync and refresh results
+    const clearAndNavigate = () => {
+        // Clear locally and suggestions
+        setValue('');
+        prevValueRef.current = '';
+        resetSuggestions();
+        // Broadcast to clear the other instance
+        try {
+            const detail: { sourceId: string } = { sourceId: effectiveId };
+            window.dispatchEvent(new CustomEvent('app:search-cleared', { detail }));
+        } catch {}
+        // Update URL to remove query and trigger backend refresh
+        const params = new URLSearchParams(searchParams);
+        params.delete('query');
+        lastSentRef.current = '';
+        // Exit search mode UI (blur input, close suggestions, hide sticky)
+        exitSearchMode();
+        replace(`${pathname}?${params.toString()}`);
+    };
+
     return (
         <div className="mb-4">
-            <label htmlFor="search" className="sr-only">
+            <label htmlFor={effectiveId} className="sr-only">
                 {t('search.label')}
             </label>
             <div className="relative">
@@ -245,16 +348,36 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                 </svg>
                 <input
-                    id="search"
-                    className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-28 text-base outline-none focus:ring-2 focus:ring-violet-500 shadow-sm"
+                    id={effectiveId}
+                    ref={inputElRef}
+                    className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-10 sm:pr-36 text-base outline-none focus:ring-2 focus:ring-violet-500 shadow-sm text-muted-foreground placeholder:text-muted-foreground"
                     placeholder={placeholder ?? t('search.placeholder')}
                     onChange={(e) => {
                         const term = e.target.value;
+                        // Detect transition from non-empty to empty to broadcast clear
+                        const was = prevValueRef.current;
+                        prevValueRef.current = term;
                         setValue(term);
+                        if (was && !term) {
+                            try {
+                                window.dispatchEvent(
+                                    new CustomEvent<{ sourceId: string }>(
+                                        'app:search-cleared',
+                                        { detail: { sourceId: effectiveId } } as CustomEventInit<{ sourceId: string }>
+                                    )
+                                );
+                            } catch {}
+                        }
                         handleSearch(term);
                     }}
-                    onFocus={() => setOpen(!!value.trim())}
-                    onBlur={() => setTimeout(() => setOpen(false), 150)}
+                    onFocus={() => {
+                        setIsFocused(true);
+                        setOpen(!!value.trim());
+                    }}
+                    onBlur={() => {
+                        setIsFocused(false);
+                        setTimeout(() => setOpen(false), 150);
+                    }}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             const params = new URLSearchParams(searchParams);
@@ -264,16 +387,47 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                                 params.delete('query');
                             }
                             lastSentRef.current = value;
+                            exitSearchMode();
                             replace(`${pathname}?${params.toString()}`);
                         }
                     }}
                     value={value}
                 />
-                {/* Right aligned Search button on the same line */}
+                {/* Mobile clear icon for both hero and sticky search */}
+                {value && (
+                    <button
+                        type="button"
+                        aria-label={t('common.clear', 'Limpiar')}
+                        className="sm:hidden absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-8 w-8 items-center justify-center rounded-full focus:outline-none text-muted-foreground hover:text-foreground"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={clearAndNavigate}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+                            <path d="M15 9 9 15" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="m9 9 6 6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </button>
+                )}
+                {/* Desktop clear icon (shown on sm+), positioned left to the Search button */}
+                {value && (
+                    <button
+                        type="button"
+                        aria-label={t('common.clear', 'Limpiar')}
+                        className="hidden sm:inline-flex absolute right-24 top-1/2 -translate-y-1/2 h-8 w-8 items-center justify-center rounded-full focus:outline-none text-muted-foreground hover:text-foreground"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={clearAndNavigate}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+                            <path d="M15 9 9 15" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="m9 9 6 6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </button>
+                )}
+                {/* Right aligned Search button on the same line (hidden on mobile) */}
                 <button
                     type="button"
                     aria-label={t('filters.search')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors btn-entradas-theme"
+                    className="hidden sm:inline-flex absolute right-2 top-1/2 -translate-y-1/2 items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors btn-entradas-theme"
                     onClick={() => {
                         const params = new URLSearchParams(searchParams);
                         if (value) {
@@ -282,6 +436,7 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                             params.delete('query');
                         }
                         lastSentRef.current = value;
+                        exitSearchMode();
                         replace(`${pathname}?${params.toString()}`);
                     }}
                 >
@@ -290,7 +445,7 @@ export default function Search({ placeholder }: { placeholder?: string }) {
 
                 {/* Suggestions dropdown */}
                 {open && (
-                    <div className="absolute z-20 mt-2 w-full rounded-md border border-border bg-card shadow-lg">
+                    <div className="absolute z-20 mt-2 w-full border border-border bg-card shadow-lg">
                         <div className="max-h-80 overflow-auto py-2">
                             {/* Free text search action */}
                             {value.trim().length >= 2 && (
@@ -299,7 +454,7 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                                         <li>
                                             <button
                                                 type="button"
-                                                className="w-full text-left px-4 py-2 hover:bg-muted rounded-sm text-sm"
+                                                className="w-full text-left px-4 py-2 hover:bg-muted text-sm"
                                                 onMouseDown={(e) => e.preventDefault()}
                                                 onClick={() => {
                                                     const term = value.trim();
@@ -310,7 +465,8 @@ export default function Search({ placeholder }: { placeholder?: string }) {
                                                         params.delete('query');
                                                     }
                                                     lastSentRef.current = term;
-                                                    setOpen(false);
+                                                    // Exit search UI (blur, close suggestions, hide sticky)
+                                                    exitSearchMode();
                                                     setValue(term);
                                                     replace(`${pathname}?${params.toString()}`);
                                                 }}
@@ -423,7 +579,7 @@ function SuggestionGroup({ title, items, onClick, isFilterGroup = false }: { tit
                     <li key={it.key} className="px-2">
                         <button
                             type="button"
-                            className={`w-full text-left px-2 py-2 text-sm transition-colors ${isFilterGroup ? 'hover:bg-muted rounded-sm cursor-pointer' : 'hover:bg-muted'}` }
+                            className={`w-full text-left px-2 py-2 text-sm transition-colors ${isFilterGroup ? 'hover:bg-muted cursor-pointer' : 'hover:bg-muted'}` }
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => onClick(it.key, it.label)}
                         >

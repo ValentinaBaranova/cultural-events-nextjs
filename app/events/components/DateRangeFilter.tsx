@@ -39,7 +39,16 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         <DatePicker.RangePicker
           value={dateRange ?? undefined}
           onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
-          allowClear
+          allowClear={{
+            clearIcon: (
+              <span className="text-muted-foreground hover:text-foreground" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                  <path d="M15 9 9 15" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="m9 9 6 6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            ),
+          }}
           format="DD/MM/YYYY"
           separator=" - "
           inputReadOnly

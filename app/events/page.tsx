@@ -21,6 +21,7 @@ import FilterRow from './components/FilterRow';
 
 import PrimaryFilters from './components/PrimaryFilters';
 import DateRangeFilter from './components/DateRangeFilter';
+import StickySearchBar from './components/StickySearchBar';
 
 function EventsListPageInner() {
     // Set CSS --vh variable to handle 100vh issues on iOS Safari when the URL bar collapses/expands
@@ -493,6 +494,8 @@ function EventsListPageInner() {
     }, [facets, selectedBarriosKey, allBarrioOptions]);
 
 
+    const heroRef = React.useRef<HTMLDivElement>(null);
+
     if (error) {
         return (
             <div className="max-w-3xl mx-auto p-4">
@@ -707,7 +710,10 @@ function EventsListPageInner() {
 
     return (
         <div className="events-list-container">
-            <HeroSearch />
+            <StickySearchBar heroRef={heroRef} />
+            <div ref={heroRef}>
+                <HeroSearch />
+            </div>
 
             {/* Mobile: Unified chips + Filters button block */}
             <div className="sm:hidden mb-4 filters-block">
