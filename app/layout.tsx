@@ -9,6 +9,7 @@ import GATracker from '@/consent/GATracker';
 import Container from '@/ui/Container';
 import { Montserrat } from "next/font/google";
 import { Suspense } from 'react';
+import Script from 'next/script';
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function RootLayout({
         <head>
           {/* Ensure proper mobile scaling and disable user scaling to reduce accidental zoom */}
           <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+          <Script src="https://t.contentsquare.net/uxa/cebced7ebacd2.js" strategy="afterInteractive" />
         </head>
         <body className={`${montserrat.className} bg-background text-foreground min-h-screen`}>
         {/* Cookie/Consent banner and conditional GA loading */}
