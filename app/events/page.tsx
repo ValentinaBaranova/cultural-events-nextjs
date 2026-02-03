@@ -141,7 +141,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedTypes(nextTypes);
         }
-    }, [searchParams]);
+    }, [searchParams, selectedTypes]);
 
     // Keep selectedVenues in sync if URL changes externally (e.g., via Search suggestions)
     useEffect(() => {
@@ -152,7 +152,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedVenues(nextVenues);
         }
-    }, [searchParams]);
+    }, [searchParams, selectedVenues]);
 
     // Keep selectedBarrios in sync if URL changes externally (e.g., via Search suggestions)
     useEffect(() => {
@@ -163,7 +163,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedBarrios(nextBarrios);
         }
-    }, [searchParams]);
+    }, [searchParams, selectedBarrios]);
 
     // Labels for venues are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
@@ -185,7 +185,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedTags(nextTags);
         }
-    }, [searchParams]);
+    }, [searchParams, selectedTags]);
 
     // Tag labels are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {

@@ -7,6 +7,7 @@ const en = {
   "menu.about": "About",
   "menu.contact": "Contact",
   "menu.privacy": "Privacy",
+  "menu.instagramUsers": "Sources",
 
   "search.label": "Search",
   "search.placeholder": "Search events...",
@@ -150,7 +151,24 @@ const en = {
   "privacy.p5.prefix": "Contact and rights: If you want to request deletion or correction of data, you can ",
   "privacy.p5.link": "write to us",
   "privacy.p5.suffix": "",
-  "privacy.updated": "Last updated: 2025-12-19"
+  "privacy.updated": "Last updated: 2025-12-19",
+
+  "admin.instagramUsers.title": "Add source",
+  "admin.instagramUsers.subtitle": "Add a new Instagram user and optionally link a venue.",
+  "admin.instagramUsers.username": "Instagram username",
+  "admin.instagramUsers.username.required": "Username is required",
+  "admin.instagramUsers.username.placeholder": "e.g. museum_ba",
+  "admin.instagramUsers.venueName": "Venue name",
+  "admin.instagramUsers.venueName.required": "Venue name is required",
+  "admin.instagramUsers.venueName.placeholder": "Enter the venue name",
+  "admin.instagramUsers.barrio": "Neighborhood",
+  "admin.instagramUsers.barrio.placeholder": "Select a neighborhood",
+  "admin.instagramUsers.barrio.required": "Neighborhood is required",
+  "admin.instagramUsers.enableOCR": "Analyze images from instagram posts to extract information",
+  "admin.instagramUsers.add.button": "Add user",
+  "admin.instagramUsers.add.success": "User added. Parsing will run soon.",
+  "admin.instagramUsers.add.alreadyExists": "This Instagram user already exists. Updated settings if needed.",
+  "admin.instagramUsers.add.error": "Could not add user."
 };
 
 export default en;

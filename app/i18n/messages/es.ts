@@ -7,6 +7,7 @@ const es = {
   "menu.about": "Sobre nosotros",
   "menu.contact": "Contacto",
   "menu.privacy": "Privacidad",
+  "menu.instagramUsers": "Fuentes",
 
   "search.label": "Buscar",
   "search.placeholder": "Buscar eventos...",
@@ -151,7 +152,24 @@ const es = {
   "privacy.p5.prefix": "Contacto y derechos: Si querés solicitar la eliminación o corrección de datos, podés ",
   "privacy.p5.link": "escribirnos",
   "privacy.p5.suffix": "",
-  "privacy.updated": "Última actualización: 2025-12-19"
+  "privacy.updated": "Última actualización: 2025-12-19",
+
+  "admin.instagramUsers.title": "Agregar Fuente",
+  "admin.instagramUsers.subtitle": "Agregá un usuario de Instagram y vinculalo a un espacio.",
+  "admin.instagramUsers.username": "Usuario de Instagram",
+  "admin.instagramUsers.username.required": "El usuario es obligatorio",
+  "admin.instagramUsers.username.placeholder": "ej. museo_ba",
+  "admin.instagramUsers.venueName": "Nombre del lugar",
+  "admin.instagramUsers.venueName.required": "El nombre del lugar es obligatorio",
+  "admin.instagramUsers.venueName.placeholder": "Ingresá el nombre del lugar",
+  "admin.instagramUsers.barrio": "Zona",
+  "admin.instagramUsers.barrio.placeholder": "Seleccioná una zona",
+  "admin.instagramUsers.barrio.required": "La zona es obligatoria",
+  "admin.instagramUsers.enableOCR": "Habilitar análisis de imágenes de publicaciones para extraer información",
+  "admin.instagramUsers.add.button": "Agregar usuario",
+  "admin.instagramUsers.add.success": "Usuario agregado. El análisis se ejecutará en breve.",
+  "admin.instagramUsers.add.alreadyExists": "Este usuario de Instagram ya existe. Se actualizaron los ajustes si era necesario.",
+  "admin.instagramUsers.add.error": "No pudimos agregar el usuario."
 };
 
 export default es;

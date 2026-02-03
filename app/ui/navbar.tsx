@@ -43,6 +43,11 @@ const NavBar = () => {
                         <Link href="/privacy" className={linkClass('/privacy')}>
                             {t('menu.privacy')}
                         </Link>
+                        {session?.user && (
+                          <Link href="/admin/instagram/users" className={linkClass('/admin/instagram/users')}>
+                            {t('menu.instagramUsers')}
+                          </Link>
+                        )}
                     </nav>
 
                     <LanguageSwitcher />
@@ -97,6 +102,11 @@ const NavBar = () => {
                         <Link href="/privacy" className={linkClass('/privacy')} onClick={() => setIsOpen(false)}>
                             {t('menu.privacy')}
                         </Link>
+                        {session?.user && (
+                            <Link href="/admin/instagram/users" className={linkClass('/admin/instagram/users')} onClick={() => setIsOpen(false)}>
+                                {t('menu.instagramUsers')}
+                            </Link>
+                        )}
 
                         {SHOW_AUTH_BUTTONS && (
                             <div className="pt-2 flex items-center gap-3">
