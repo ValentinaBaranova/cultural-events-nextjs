@@ -102,6 +102,11 @@ export function useEvents(
     const firstPage = data && data.length > 0 ? data[0] : undefined;
     const facets: EventsFacets | undefined = firstPage && !Array.isArray(firstPage) ? firstPage.facets : undefined;
 
+    // Total from the first page if present; fallback to fetched count so far
+    const first = data && data.length > 0 ? data[0] : undefined;
+    const totalFromApi = first && !Array.isArray(first) ? first.total : undefined;
+    const totalCount = typeof totalFromApi === 'number' ? totalFromApi : fetchedCount;
+
     return {
         events,
         isLoading: !data && !error,
@@ -115,5 +120,6 @@ export function useEvents(
         isFetchingMore: isValidating,
         hasMore,
         facets,
+        total: totalCount,
     };
 }

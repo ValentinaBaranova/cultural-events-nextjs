@@ -95,6 +95,9 @@ const en = {
   "events.empty.subtitle": "Try adjusting the dates or filters, or clear them to see all upcoming events.",
   "events.empty.clearFilters": "Clear filters",
   
+  "events.count.singular": "1 event found",
+  "events.count.plural": "{n} events found",
+  
   "event.missingId": "Event ID is missing",
   "event.notFound": "Event not found",
   "event.description": "Description:",

@@ -272,7 +272,7 @@ function EventsListPageInner() {
     const endDate = dateRange?.[1]?.format('YYYY-MM-DD');
 
 
-    const { events, isLoading, error, loadMore, isFetchingMore, hasMore, facets } = useEvents(
+    const { events, isLoading, error, loadMore, isFetchingMore, hasMore, facets, total } = useEvents(
         searchQuery,
         selectedTypes,
         onlyFree,
@@ -712,7 +712,7 @@ function EventsListPageInner() {
             </div>
 
             {/* Mobile: Unified chips + Filters button block */}
-            <div className="sm:hidden mb-4 filters-block">
+            <div className="sm:hidden mb-6 filters-block">
                 {prioritizedChips.length > 0 && (
                     <div className="mb-4 flex flex-wrap items-center gap-2">
                         {prioritizedChips.map(chip => (
@@ -748,7 +748,7 @@ function EventsListPageInner() {
             </div>
 
             {/* Desktop filters container with expand/collapse */}
-            <div className="hidden sm:block mb-4 filters-block">
+            <div className="hidden sm:block mb-6 filters-block">
                 {/* Primary always visible */}
                 {renderPrimaryFilters()}
 
@@ -879,6 +879,12 @@ function EventsListPageInner() {
                 </div>
             )}
 
+
+                {typeof total === 'number' && (
+                    <div className="mb-4 text-sm text-gray-700" role="status" aria-live="polite">
+                        {total === 1 ? t('events.count.singular') : t('events.count.plural').replace('{n}', String(total))}
+                    </div>
+                )}
 
                 <div className="events-grid">
                 {/* ✅ Show skeleton while first request is loading */}
