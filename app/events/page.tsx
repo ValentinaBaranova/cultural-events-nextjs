@@ -141,8 +141,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedTypes(nextTypes);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, selectedTypes.join(',')]);
+    }, [searchParams]);
 
     // Keep selectedVenues in sync if URL changes externally (e.g., via Search suggestions)
     useEffect(() => {
@@ -153,8 +152,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedVenues(nextVenues);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, selectedVenues.join(',')]);
+    }, [searchParams]);
 
     // Keep selectedBarrios in sync if URL changes externally (e.g., via Search suggestions)
     useEffect(() => {
@@ -165,8 +163,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedBarrios(nextBarrios);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, selectedBarrios.join(',')]);
+    }, [searchParams]);
 
     // Labels for venues are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
@@ -188,8 +185,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedTags(nextTags);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, selectedTags.join(',')]);
+    }, [searchParams]);
 
     // Tag labels are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
@@ -317,13 +313,13 @@ function EventsListPageInner() {
     useEffect(() => {
         // Only apply when a date range is set; otherwise keep all enabled per requirement
         if (!startDate || !endDate || types.length === 0) {
+            // Clear disabled state only when date range is not applied or no types available
             setDisabledTypeSlugs(new Set());
             return;
         }
         const typeFacet = facets?.type;
         if (!typeFacet) {
-            // If facets are missing (e.g., legacy backend), do not disable anything
-            setDisabledTypeSlugs(new Set());
+            // Keep previous disabled set while facets are loading to avoid flicker
             return;
         }
         const disabled = new Set<string>();
