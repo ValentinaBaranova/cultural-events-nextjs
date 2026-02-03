@@ -68,7 +68,18 @@ export function useEvents(
         return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${venuesParam}${barriosParam}${tagsParam}`;
     };
 
-    const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite<EventsResponseDto>(getKey, fetcher);
+    const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite<EventsResponseDto>(getKey, fetcher, {
+        // Avoid repeated page=1 refetches caused by focus/reconnect/stale revalidation
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        revalidateIfStale: false,
+        // With SWR Infinite, this prevents automatic revalidation of the first page
+        revalidateFirstPage: false,
+        // Keep previous pages while paginating and reduce flicker
+        keepPreviousData: true,
+        // Dedup concurrent/rapid calls within this window
+        dedupingInterval: 5000,
+    });
 
     // Stable keys for array dependencies
     const venuesKey = useMemo(() => (venues && venues.length ? venues.join(',') : ''), [venues]);
