@@ -37,6 +37,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
       <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1 sm:mb-0">{t('filters.dateRange')}</span>
       <div className="flex items-center w-full sm:w-auto sm:flex-1">
         <DatePicker.RangePicker
+          classNames={{ popup: { root: "mobile-range-picker" } }}
           value={dateRange ?? undefined}
           onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
           allowClear={{
@@ -57,7 +58,17 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           className="w-full sm:w-72"
           size="large"
           open={pickerOpen}
-          onOpenChange={setPickerOpen}
+          onOpenChange={(nextOpen) => {
+            const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches;
+            if (isMobile) {
+              // Ignore unintended close events on mobile; keep it open until user completes a range or picks a preset
+              if (nextOpen) {
+                setPickerOpen(true);
+              }
+              return;
+            }
+            setPickerOpen(nextOpen);
+          }}
           disabledDate={(current) => !!current && current.isBefore(dayjs().startOf('day'))}
           panelRender={(panelNode) => (
             <div>
@@ -74,6 +85,15 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                 ))}
               </div>
               {panelNode}
+              <div className="px-3 pb-3 pt-2 border-t border-gray-200 sm:hidden flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(false)}
+                  className="px-3 py-1.5 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700"
+                >
+                  {t('filters.done', 'Done')}
+                </button>
+              </div>
             </div>
           )}
         />

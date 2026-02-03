@@ -695,19 +695,21 @@ body {
         right: 0 !important;
         padding: 20px;
     }
-  /* Show only one calendar month on mobile */
+  /* Show only one calendar month on mobile by clipping the second panel instead of removing it */
   .mobile-range-picker .ant-picker-panels {
     display: flex;
-    gap: 8px;
+    gap: 0; /* avoid showing any gap when clipping */
+    overflow: hidden; /* hide the second panel while keeping it in DOM for navigation logic */
   }
-  /* Hide the second month panel for range picker */
-  .mobile-range-picker .ant-picker-panels > *:nth-child(2) {
-    display: none !important;
+  /* Do NOT display:none the second panel — keep both panels for AntD internals */
+  /* Ensure each panel takes full width so container shows only one at a time */
+  .mobile-range-picker .ant-picker-panel,
+  .mobile-range-picker .ant-picker-panel-layout > .ant-picker-panel:first-child {
+    width: 100% !important;
+    flex: 0 0 100% !important; /* fixed width equal to container */
   }
-  .mobile-range-picker .ant-picker-panel {
-    width: 100%;
-  }
-  .mobile-range-picker .ant-picker-presets {
+  .mobile-range-picker .ant-picker-presets,
+  .mobile-range-picker .ant-picker-presets .ant-space {
     white-space: normal; /* allow wrap */
   }
   .mobile-range-picker .ant-picker-footer {
