@@ -119,12 +119,6 @@ export default function InstagramUsersAdminPage() {
             loading={loadingBarrios}
             placeholder={t("admin.instagramUsers.barrio.placeholder", "Select a neighborhood") as string}
             optionFilterProp="search"
-            filterOption={(input, option) => {
-              const label = (option?.label ?? "").toString().toLowerCase();
-              const slug = (option && (option as { slug?: unknown }).slug && String((option as { slug?: unknown }).slug))?.toLowerCase?.() ?? "";
-              const haystack = `${label} ${slug}`.trim();
-              return haystack.includes(input.toLowerCase());
-            }}
             notFoundContent={t("common.noResults", "No results")}
             options={barrios.map((b) => ({ label: b.name, value: b.id, slug: b.slug, search: `${b.name} ${b.slug}` }))}
           />
