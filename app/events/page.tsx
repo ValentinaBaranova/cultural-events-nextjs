@@ -63,6 +63,31 @@ function EventsListPageInner() {
     const [tagOptions, setTagOptions] = useState<Option[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+    // Desktop detection for behavior differences (e.g., expand-all on desktop)
+    const [isDesktop, setIsDesktop] = useState<boolean>(false);
+    useEffect(() => {
+        if (typeof window === 'undefined' || !window.matchMedia) return;
+        const mq = window.matchMedia('(min-width: 1024px)');
+        const update = () => setIsDesktop(mq.matches);
+        update();
+        if (mq.addEventListener) {
+            mq.addEventListener('change', update);
+        } else {
+            mq.addListener(update);
+        }
+        return () => {
+            if (mq.removeEventListener) {
+                mq.removeEventListener('change', update);
+            } else {
+                mq.removeListener(update);
+            }
+        };
+    }, []);
+
+    // Expand-all state used only on desktop
+    const [expandAllActive, setExpandAllActive] = useState<boolean>(false);
+    const [expandAllSignal, setExpandAllSignal] = useState<number>(0);
+
     // When a date range is applied, we compute which types have zero events for those dates
     const [disabledTypeSlugs, setDisabledTypeSlugs] = useState<Set<string>>(new Set());
     
@@ -907,7 +932,25 @@ function EventsListPageInner() {
                 )}
 
                 {events?.map((event: CulturalEvent) => (
-                    <EventCard key={event.id} event={event} dictionaries={{ eventTypeMap: eventTypeMap, tagMap: tagNameBySlug }} />
+                    <EventCard
+                        key={event.id}
+                        event={event}
+                        dictionaries={{ eventTypeMap: eventTypeMap, tagMap: tagNameBySlug }}
+                        onRequestExpandAll={() => {
+                            if (isDesktop) {
+                                setExpandAllActive(true);
+                                setExpandAllSignal((v) => v + 1);
+                            }
+                        }}
+                        onRequestCollapseAll={() => {
+                            if (isDesktop) {
+                                setExpandAllActive(false);
+                                setExpandAllSignal((v) => v + 1);
+                            }
+                        }}
+                        expandAllActive={isDesktop ? expandAllActive : false}
+                        expandAllSignal={expandAllSignal}
+                    />
                 ))}
                 <div ref={lastEventRef} />
 

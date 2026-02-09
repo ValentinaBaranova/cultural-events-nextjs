@@ -20,6 +20,13 @@ export type EventCardProps = {
     eventTypeMap?: Record<string, string>;
     tagMap?: Record<string, string>;
   };
+  // When provided, requesting an expand on desktop should expand all cards
+  onRequestExpandAll?: () => void;
+  // When provided, requesting a collapse on desktop should collapse all cards
+  onRequestCollapseAll?: () => void;
+  // Parent-managed expand-all flags
+  expandAllActive?: boolean;
+  expandAllSignal?: number;
 };
 
 function hasTicketsButton(ev: CulturalEvent): boolean {
@@ -37,7 +44,7 @@ function getFirstPaymentUrl(ev: CulturalEvent): string {
 }
 
 export default function EventCard(props: EventCardProps) {
-  const { event } = props;
+  const { event, expandAllActive, expandAllSignal, onRequestExpandAll, onRequestCollapseAll } = props;
 
   // i18n and next/navigation hooks
   const { t, locale } = useI18n();
@@ -52,6 +59,37 @@ export default function EventCard(props: EventCardProps) {
   // Local UI state
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+
+  // React to parent-managed expand/collapse-all triggers
+  const lastParentSignalRef = React.useRef<boolean>(false);
+  React.useEffect(() => {
+    // Mark that the next state change originates from parent to avoid feedback loops
+    lastParentSignalRef.current = true;
+    // Parent dictates the target state for desktop when signal bumps
+    // On mobile, parent passes expandAllActive=false always, so this won't force open.
+    setIsExpanded(!!expandAllActive);
+    // Only re-run when a new signal/version comes from parent
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandAllSignal]);
+
+  // After commit: signal parent for desktop-wide coordination
+  const prevExpandedRef = React.useRef<boolean>(false);
+  React.useEffect(() => {
+    const prev = prevExpandedRef.current;
+    // If the latest state change comes from parent, swallow signals to avoid feedback loops
+    if (lastParentSignalRef.current) {
+      lastParentSignalRef.current = false;
+    } else {
+      if (!prev && isExpanded) {
+        // Expanded now (user interaction)
+        onRequestExpandAll?.();
+      } else if (prev && !isExpanded) {
+        // Collapsed now (user interaction)
+        onRequestCollapseAll?.();
+      }
+    }
+    prevExpandedRef.current = isExpanded;
+  }, [isExpanded, onRequestExpandAll, onRequestCollapseAll]);
 
   // Compute highlight locally from URL
   const isHighlighted = searchParams.get('highlight') === event.id;
@@ -81,6 +119,7 @@ export default function EventCard(props: EventCardProps) {
   }, [menuOpen, event.id]);
 
   const toggleSelf = React.useCallback(() => {
+    // Just toggle local state; request to expand-all will be handled in an effect
     setIsExpanded(prev => !prev);
   }, []);
 
@@ -182,7 +221,16 @@ export default function EventCard(props: EventCardProps) {
         />
       </div>
       <div className="event-details">
-        <h2 className="event-title">{locale === 'en' ? (event.nameEn || event.name) : event.name}</h2>
+        <h2
+          className={"event-title" + (isExpanded ? " is-expanded" : "")}
+          onClick={() => {
+            if (!isExpanded) {
+              setIsExpanded(true);
+            }
+          }}
+        >
+          {locale === 'en' ? (event.nameEn || event.name) : event.name}
+        </h2>
         <div className="event-divider" aria-hidden="true" />
 
         <div className="event-meta justify-between">

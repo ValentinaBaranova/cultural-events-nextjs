@@ -463,6 +463,20 @@ body {
     font-weight: 700;
     margin: 0 0 12px;
     color: var(--foreground);
+    cursor: pointer; /* clickable heading expands card */
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.event-title:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
+}
+/* When card is expanded, disable hover affordance on the title */
+.event-title.is-expanded {
+    cursor: default;
+}
+.event-title.is-expanded:hover {
+    text-decoration: none;
 }
 
 .event-divider {
