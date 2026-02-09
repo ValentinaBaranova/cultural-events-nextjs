@@ -144,21 +144,6 @@ export default function Search({ placeholder, inputId }: { placeholder?: string;
         return () => window.removeEventListener('app:sticky-hide', onStickyHide as EventListener);
     }, [inputId]);
 
-    // Sync clearing across hero and sticky: when one clears, clear the other too
-    React.useEffect(() => {
-        type SearchClearedDetail = { sourceId: string };
-        const onCleared = (ev: Event) => {
-            const src = (ev as CustomEvent<SearchClearedDetail>).detail?.sourceId;
-            if (!src) return;
-            if (src === effectiveId) return; // ignore own event
-            // Clear local state without causing URL changes or refocus
-            setValue('');
-            prevValueRef.current = '';
-            resetSuggestions();
-        };
-        window.addEventListener('app:search-cleared', onCleared as EventListener);
-        return () => window.removeEventListener('app:search-cleared', onCleared as EventListener);
-    }, [effectiveId]);
 
     // Debounced suggestions loader
     const loadSuggestions = useDebouncedCallback(async (term: string) => {
@@ -239,6 +224,25 @@ export default function Search({ placeholder, inputId }: { placeholder?: string;
         replace(`${pathname}?${params.toString()}`);
     }, 300);
 
+    // Sync clearing across hero and sticky: when one clears, clear the other too
+    React.useEffect(() => {
+        type SearchClearedDetail = { sourceId: string };
+        const onCleared = (ev: Event) => {
+            const src = (ev as CustomEvent<SearchClearedDetail>).detail?.sourceId;
+            if (!src) return;
+            if (src === effectiveId) return; // ignore own event
+            // Clear local state without causing URL changes or refocus
+            setValue('');
+            prevValueRef.current = '';
+            resetSuggestions();
+            // Cancel any pending debounced URL or suggestions updates in this instance to avoid re-applying cleared filters
+            try { handleSearch.cancel(); } catch {}
+            try { loadSuggestions.cancel(); } catch {}
+        };
+        window.addEventListener('app:search-cleared', onCleared as EventListener);
+        return () => window.removeEventListener('app:search-cleared', onCleared as EventListener);
+    }, [effectiveId, handleSearch, loadSuggestions]);
+
     // Update suggestions when value changes; require input focus to show suggestions in all viewports
     React.useEffect(() => {
         const hasQuery = !!value.trim();
@@ -311,6 +315,9 @@ export default function Search({ placeholder, inputId }: { placeholder?: string;
         setValue('');
         prevValueRef.current = '';
         resetSuggestions();
+        // Cancel pending debounced effects that might re-apply an old term
+        try { handleSearch.cancel(); } catch {}
+        try { loadSuggestions.cancel(); } catch {}
         // Broadcast to clear the other instance
         try {
             const detail: { sourceId: string } = { sourceId: effectiveId };
