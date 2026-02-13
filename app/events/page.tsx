@@ -94,6 +94,11 @@ function EventsListPageInner() {
     
     // URL sync helpers
     const initializedFromUrlRef = useRef(false);
+    // Guard to prevent race conditions during a Clear All cycle.
+    // Why needed: when Clear All resets state and also edits the URL, the state→URL sync effect below
+    // can momentarily re-push stale params due to React batching/timing. We flip this flag to
+    // temporarily suppress that effect until the URL is definitively cleaned.
+    const isClearingRef = useRef(false);
 
     // Maps for quick label lookup (must be declared before any early returns)
     const [eventTypeMap, setEventTypeMap] = useState<Record<string, string>>({});
@@ -157,6 +162,10 @@ function EventsListPageInner() {
     }, [searchParams, locale]);
 
     // Keep selectedTypes in sync if URL changes externally (e.g., via Search suggestions)
+    // Important: depend ONLY on searchParams to avoid racing with local state updates
+    // When the user toggles a type locally, we first update state and then push to the URL.
+    // If this effect also depended on selectedTypes, it could run before the URL updates and
+    // wrongly re-apply the stale types from the old URL, making removals "not stick".
     useEffect(() => {
         // Read array from URL (support legacy singular name)
         const raw = searchParams.get('types') ?? searchParams.get('type');
@@ -166,9 +175,11 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedTypes(nextTypes);
         }
-    }, [searchParams, selectedTypes]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     // Keep selectedVenues in sync if URL changes externally (e.g., via Search suggestions)
+    // Depend ONLY on searchParams to avoid re-applying stale URL values during local updates
     useEffect(() => {
         const raw = searchParams.get('venues') ?? searchParams.get('venue');
         const nextVenues = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -177,9 +188,11 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedVenues(nextVenues);
         }
-    }, [searchParams, selectedVenues]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     // Keep selectedBarrios in sync if URL changes externally (e.g., via Search suggestions)
+    // Depend ONLY on searchParams to avoid re-applying stale URL values during local updates
     useEffect(() => {
         const raw = searchParams.get('barrios') ?? searchParams.get('barrio');
         const nextBarrios = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -188,7 +201,8 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedBarrios(nextBarrios);
         }
-    }, [searchParams, selectedBarrios]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     // Labels for venues are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
@@ -202,6 +216,7 @@ function EventsListPageInner() {
     }, [selectedBarrios]);
 
     // Keep selectedTags in sync if URL changes externally (e.g., via Search suggestions)
+    // Depend ONLY on searchParams to avoid re-applying stale URL values during local updates
     useEffect(() => {
         const raw = searchParams.get('tags');
         const nextTags = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -210,7 +225,8 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedTags(nextTags);
         }
-    }, [searchParams, selectedTags]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
 
     // Tag labels are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
@@ -220,6 +236,7 @@ function EventsListPageInner() {
     // Push active filters into the URL whenever they change
     useEffect(() => {
         if (!initializedFromUrlRef.current) return; // wait until initial read
+        if (isClearingRef.current) return; // suppress URL churn during Clear All
         const params = new URLSearchParams(searchParams.toString());
 
         const setOrDelete = (key: string, value?: string | null) => {
@@ -638,6 +655,10 @@ function EventsListPageInner() {
     );
 
     const clearAll = () => {
+        // Mark clearing to suppress URL sync churn until next tick
+        isClearingRef.current = true;
+
+        // Reset all local filter states
         setSelectedTypes([]);
         setOnlyFree(false);
         setDateRange(null);
@@ -646,7 +667,8 @@ function EventsListPageInner() {
         setSelectedTags([]);
         // If a mobile picker is open with temporary selections, reset it to avoid re-applying cleared values
         setMobilePicker({ kind: null, temp: [], query: '' });
-        // Also clear all filter-related query params from URL so UI and state stay in sync
+
+        // Clear all filter-related query params from URL so UI and state stay in sync
         try {
             const params = new URLSearchParams(searchParams);
             let changed = false;
@@ -658,13 +680,22 @@ function EventsListPageInner() {
             for (const k of keys) {
                 if (params.has(k)) { params.delete(k); changed = true; }
             }
+            const qs = params.toString();
             if (changed) {
-                const qs = params.toString();
-                router.replace(qs ? `${pathname}?${qs}` : pathname);
+                router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
             }
         } catch {
             // no-op
+        } finally {
+            // Release the clearing guard on the next tick to allow normal URL sync
+            setTimeout(() => { isClearingRef.current = false; }, 0);
         }
+
+        // Proactively notify search inputs (hero + sticky) to clear immediately and hide sticky
+        try {
+            window.dispatchEvent(new CustomEvent('app:search-cleared', { detail: { sourceId: 'clear-all' } }));
+            window.dispatchEvent(new CustomEvent('app:search-navigate'));
+        } catch {}
     };
 
     // Format date chip label according to priority rules (Hoy / Mañana / Este finde / numeric DD/MM/YYYY)

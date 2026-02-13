@@ -85,6 +85,25 @@ export default function Search({ placeholder, inputId }: { placeholder?: string;
         }
     }, [searchParams]);
 
+    // Also respond to a global "app:search-cleared" signal (e.g., when user taps "Limpiar todo").
+    // Why needed: when Clear All fires, URL params are scrubbed and we proactively clear UI state.
+    // Debounced handlers from in-flight typing could otherwise re-apply the old term to the URL/UI.
+    // We cancel those debounced callbacks, reset suggestions, and blur to fully exit search mode.
+    React.useEffect(() => {
+        const onCleared = () => {
+            // Cancel any pending debounced handlers that could re-apply a stale term
+            try { handleSearch.cancel(); } catch {}
+            try { loadSuggestions.cancel(); } catch {}
+            setValue('');
+            prevValueRef.current = '';
+            resetSuggestions();
+            try { inputElRef.current?.blur(); } catch {}
+        };
+        window.addEventListener('app:search-cleared', onCleared as EventListener);
+        return () => window.removeEventListener('app:search-cleared', onCleared as EventListener);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Load types, tags, venues, barrios once per locale
     React.useEffect(() => {
         allTypesRef.current = null;
