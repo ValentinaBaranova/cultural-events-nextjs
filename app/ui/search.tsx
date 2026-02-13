@@ -352,7 +352,7 @@ export default function Search({ placeholder, inputId }: { placeholder?: string;
     };
 
     return (
-        <div className="mb-4">
+        <div className="mb-2">
             <label htmlFor={effectiveId} className="sr-only">
                 {t('search.label')}
             </label>
@@ -373,7 +373,7 @@ export default function Search({ placeholder, inputId }: { placeholder?: string;
                 <input
                     id={effectiveId}
                     ref={inputElRef}
-                    className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-10 sm:pr-36 text-base outline-none focus:ring-2 focus:ring-violet-500 shadow-sm text-muted-foreground placeholder:text-muted-foreground"
+                    className="w-full rounded-lg border border-border bg-card py-2 pl-11 pr-10 sm:pr-36 text-base outline-none focus:ring-2 focus:ring-violet-500 shadow-sm text-muted-foreground placeholder:text-muted-foreground"
                     placeholder={placeholder ?? t('search.placeholder')}
                     onChange={(e) => {
                         const term = e.target.value;

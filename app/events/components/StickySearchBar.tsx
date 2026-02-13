@@ -144,7 +144,7 @@ export default function StickySearchBar({ heroRef }: { heroRef: React.RefObject<
       }`}
       style={{ paddingTop: "env(safe-area-inset-top)", pointerEvents: visible ? "auto" : "none" }}
     >
-      <div className="bg-card border-b border-border shadow-md px-3 py-2">
+      <div className="bg-card border-b border-border px-3 py-2">
         <Search inputId="mobile-sticky-search" />
       </div>
     </div>

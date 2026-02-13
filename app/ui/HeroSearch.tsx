@@ -10,20 +10,21 @@ export default function HeroSearch() {
   const rawTitle = t("hero.title", "Descubre Eventos en Buenos Aires");
   const heroTitle = rawTitle.replace(/Buenos Aires/g, "Buenos\u00A0Aires");
   return (
-    <section className="pt-3 pb-2 sm:pt-6 sm:pb-3">
-      <div className="text-center space-y-3">
-        <h1 className="text-hero font-normal tracking-[-0.01em]">
+    <section
+      className="relative pt-8 pb-4 sm:pt-6 sm:pb-3 bg-[url('/images/hero/buenos-aires.jpg')] bg-cover bg-center sm:bg-none"
+    >
+      {/* Mobile overlay for readability */}
+      <div className="absolute inset-0 bg-black/50 sm:hidden" aria-hidden />
+
+      <div className="relative z-10 text-center space-y-2 sm:space-y-3 text-white sm:text-foreground px-4 sm:px-0">
+        <h1 className="text-hero pt-3 font-normal tracking-[-0.01em]">
           {heroTitle}
         </h1>
-        {/* Mobile-only subtitle (grammar fix, shorter) */}
-        <p className="text-sm text-muted-foreground sm:hidden">
-          {t("hero.subtitleMobile", "Las mejores experiencias culturales de la ciudad")}
-        </p>
         {/* Desktop/tablet subtitle */}
-        <p className="hidden sm:block text-base text-muted-foreground">
+        <p className="hidden sm:block text-lg md:text-xl text-muted-foreground">
           {t(
             "hero.subtitle",
-            "Los mejores conciertos, exposiciones y experiencias culturales de la ciudad"
+            "Conciertos, exposiciones y experiencias culturales de la ciudad"
           )}
         </p>
       </div>
@@ -42,7 +43,7 @@ export default function HeroSearch() {
         </div>
       </div>
 
-      <div className="mt-4 sm:mt-5 w-full">
+      <div className="relative z-10 pb-5 sm:mt-5 w-full px-4 sm:px-0">
         <Search />
       </div>
     </section>

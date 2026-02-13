@@ -768,7 +768,7 @@ function EventsListPageInner() {
             </div>
 
             {/* Mobile: Unified chips + Filters button block */}
-            <div className="sm:hidden mb-6 filters-block">
+            <div className="sm:hidden mt-4 mb-6 filters-block">
                 {prioritizedChips.length > 0 && (
                     <div className="mb-4 flex flex-wrap items-center gap-2">
                         {prioritizedChips.map(chip => (

@@ -17,7 +17,7 @@ const es = {
   "search.group.events": "Evento",
   "search.group.tags": "Etiqueta",
   "search.suggestions.noResults": "Sin coincidencias",
-  "hero.title": "Descubre Eventos en Baires",
+  "hero.title": "Descubrí Eventos en Baires",
   
   "filters.allTypes": "Todos los tipos",
   "filters.onlyFree": "Solo gratuitos",
