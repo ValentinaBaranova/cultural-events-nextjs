@@ -63,7 +63,7 @@ const en = {
   "events.durationNotProvided": "Duration not provided",
   "events.mainAction.tickets": "Tickets",
   "events.mainAction.howToAttend": "How to attend",
-  "events.mainAction.moreInfo": "Original source",
+  "events.mainAction.moreInfo": "More info",
   
   "events.report.button": "Report issue",
   "events.report.title": "Report a problem with this event",

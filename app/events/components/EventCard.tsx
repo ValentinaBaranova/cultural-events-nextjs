@@ -182,34 +182,6 @@ export default function EventCard(props: EventCardProps) {
         className={`event-card ${isHighlighted ? 'event-card-highlight' : ''}`}
       >
       <div className="event-image-wrapper">
-        {event.isFree && (
-          <span className="badge-free" aria-label={t('events.free')}>
-            {t('events.free')}
-          </span>
-        )}
-        {/* Share button */}
-        <button
-          type="button"
-          className="event-share-btn"
-          aria-label={t('events.share', 'Share event')}
-          title={t('events.share', 'Share event')}
-          onClick={share}
-        >
-          <svg
-            className="event-share-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            {/* Icon: Paper Plane (Send) */}
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-        </button>
         <Image
           src={event.imageExists
             ? `/events/${event.id}/image`
@@ -219,6 +191,17 @@ export default function EventCard(props: EventCardProps) {
           className="event-image"
           alt={event.imageExists ? t('events.imageAlt') : t('events.imagePlaceholderAlt')}
         />
+        {/* Bottom gradient overlay with badges */}
+        <div className="event-image-bottom" aria-hidden="false">
+          <span className="badge-type" title={props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}>
+            {props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}
+          </span>
+          {event.isFree && (
+            <span className="badge-free-inline" aria-label={t('events.free')}>
+              {t('events.free')}
+            </span>
+          )}
+        </div>
       </div>
       <div className="event-details">
         <h2
@@ -233,7 +216,7 @@ export default function EventCard(props: EventCardProps) {
         </h2>
         <div className="event-divider" aria-hidden="true" />
 
-        <div className="event-meta justify-between">
+        <div className="event-meta event-meta-date justify-between">
           <div className="flex items-center gap-2">
             <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -252,20 +235,44 @@ export default function EventCard(props: EventCardProps) {
             </span>
           </div>
 
-          {/* Kebab menu aligned to the right of the date line */}
-          <div className="relative inline-block text-left">
+          {/* Right-side controls: Share (left) + Kebab (right) */}
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               type="button"
               className="event-kebab-btn"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
-              aria-controls={`actions-menu-${event.id}`}
-              onClick={() => setMenuOpen(prev => !prev)}
-              title={t ? t('filters.moreFilters') : 'More'}
+              onClick={share}
+              title={t ? t('events.share', 'Share') : 'Share'}
+              aria-label={t ? t('events.share', 'Share') : 'Share'}
             >
-              <span aria-hidden="true">⋮</span>
-              <span className="sr-only">More actions</span>
+              <svg
+                className="w-4 h-4 text-gray-700"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              <span className="sr-only">{t ? t('events.share', 'Share') : 'Share'}</span>
             </button>
+
+            <div className="relative inline-block text-left">
+              <button
+                type="button"
+                className="event-kebab-btn"
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                aria-controls={`actions-menu-${event.id}`}
+                onClick={() => setMenuOpen(prev => !prev)}
+                title={t ? t('filters.moreFilters') : 'More'}
+              >
+                <span aria-hidden="true">⋮</span>
+                <span className="sr-only">More actions</span>
+              </button>
             {menuOpen && (
               <div
                 id={`actions-menu-${event.id}`}
@@ -454,6 +461,7 @@ export default function EventCard(props: EventCardProps) {
             )}
           </div>
         </div>
+          </div>
 
         <div className="event-meta">
           <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -492,18 +500,7 @@ export default function EventCard(props: EventCardProps) {
           </span>
         </div>
 
-        {/* Event type: show only when collapsed */}
-        {!isExpanded && (
-          <div className="event-meta">
-            <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M20.59 13.41L12 21l-9-9V3h9l8.59 8.59z" />
-              <path d="M7 7h.01" />
-            </svg>
-            <span>
-              {props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}
-            </span>
-          </div>
-        )}
+        {/* Event type moved to image badge overlay */}
 
         {/* Main action (collapsed): same as expanded (Tickets if paid with URL, else Más info) */}
         {!isExpanded && (() => {
@@ -567,16 +564,7 @@ export default function EventCard(props: EventCardProps) {
         {/* Expanded content */}
         {isExpanded && (
           <div id={`event-content-${event.id}`} className="event-expanded">
-            {/* Type row (moved above description) */}
-            <div className="event-meta">
-              <svg className="event-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M20.59 13.41L12 21l-9-9V3h9l8.59 8.59z" />
-                <path d="M7 7h.01" />
-              </svg>
-              <span>
-                {props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}
-              </span>
-            </div>
+            {/* Type row moved to image badge overlay */}
             <p className="event-description">{locale === 'en' ? (event.descriptionEn || event.description) : event.description}</p>
 
             {/* Tags */}
@@ -641,7 +629,6 @@ export default function EventCard(props: EventCardProps) {
               );
             })()}
 
-            <div className="event-divider" aria-hidden="true" />
             <div className="event-actions relative">
               {(() => {
                 // Show the small "Original source" link only if the main action button is Tickets.

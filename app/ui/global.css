@@ -405,6 +405,54 @@ body {
     object-fit: cover; /* Fill the wrapper while preserving image proportions */
 }
 
+/* Bottom soft gradient overlay area for badges */
+.event-image-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* let content define height; keep compact */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* align badges to the right */
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.45);
+    z-index: 1; /* above image, below share button default(2) */
+    pointer-events: none; /* keep image/buttons clickable */
+}
+
+/* Badges inside overlay */
+.badge-type,
+.badge-free-inline {
+    pointer-events: auto; /* allow focusing if needed */
+    display: inline-flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+/* Long type names should not overlap the free badge; truncate with ellipsis */
+.badge-type {
+    background: rgba(17,24,39,0.8); /* gray-900 80% */
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    max-width: 72%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.badge-free-inline {
+    background-color: #10b981; /* emerald-500 */
+    color: #fff;
+    flex: 0 0 auto; /* keep natural size, don't shrink */
+}
+
+/* Legacy top-right free badge (kept for other components if any) */
 .badge-free {
     position: absolute;
     top: 12px;
@@ -493,6 +541,10 @@ body {
     font-size: 0.95rem;
     margin: 4px 0; /* tightened spacing between metadata rows */
 }
+/* Date row variant: center items vertically so right controls (share/kebab) align with the date */
+.event-meta.event-meta-date {
+    align-items: center;
+}
 
 /* Ensure multi-line text aligns nicely with the icon */
 .event-meta-text {
@@ -529,7 +581,7 @@ body {
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 12px 0; /* keep a comfortable hit area */
+    padding: 6px 0; /* keep a comfortable hit area */
     background: transparent;
     border: none;
     cursor: pointer;
@@ -602,7 +654,7 @@ body {
 }
 
 /* Expanded card styles */
-.event-description {
+p.event-description {
     margin: 12px 0 14px;
     color: var(--muted-foreground);
 }
