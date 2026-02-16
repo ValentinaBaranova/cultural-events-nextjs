@@ -3,7 +3,7 @@
 // Ignores locale param and returns a minimal set.
 const types = [
   { slug: 'teatro', name: 'teatro' },
-  { slug: 'concierto', name: 'concierto' },
+  { slug: 'musica', name: 'musica' },
 ];
 
 export async function GET() {

@@ -21,7 +21,7 @@ test('events list renders search, filter and cards', async ({ page }) => {
   const dropdown = page.locator('.ant-select-dropdown:visible');
   await expect(dropdown).toBeVisible();
   const optionItems = dropdown.getByRole('option');
-  await expect(optionItems).toContainText(['teatro', 'concierto']);
+  await expect(optionItems).toContainText(['teatro', 'musica']);
 
   // Cards render from mocked events endpoint
   const cards = page.locator('.event-card');
