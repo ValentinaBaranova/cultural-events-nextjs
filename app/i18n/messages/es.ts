@@ -187,6 +187,7 @@ const es = {
   "admin.venues.latitude": "Latitud",
   "admin.venues.longitude": "Longitud",
   "admin.venues.googlePlaceId": "Google Place ID",
+  "admin.venues.singleRoomVenue": "Lugar de una sola sala",
   "admin.venues.save": "Guardar cambios",
   "admin.venues.success": "Lugar actualizado correctamente.",
   "admin.venues.error": "Error al actualizar el lugar.",

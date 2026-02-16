@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Form, Input, Select, Button, App } from 'antd';
+import { Form, Input, Select, Button, App, Checkbox } from 'antd';
 import { useI18n } from '@/i18n/I18nProvider';
 import { Venue, Barrio } from '@/lib/definitions';
 import { updateVenue } from '@/lib/actions';
@@ -15,6 +15,7 @@ interface VenueEditFormProps {
 interface VenueFormValues {
     name: string;
     barrioId: string;
+    singleRoomVenue: boolean;
 }
 
 export default function VenueEditForm({ venue, barrios }: VenueEditFormProps) {
@@ -30,6 +31,7 @@ export default function VenueEditForm({ venue, barrios }: VenueEditFormProps) {
 
         const formData = new FormData();
         formData.append('name', values.name);
+        formData.append('singleRoomVenue', values.singleRoomVenue.toString());
         if (values.barrioId) {
             formData.append('barrioId', values.barrioId);
         }
@@ -55,6 +57,7 @@ export default function VenueEditForm({ venue, barrios }: VenueEditFormProps) {
                 initialValues={{
                     name: venue.name,
                     barrioId: venue.barrio?.id || '',
+                    singleRoomVenue: venue.singleRoomVenue || false,
                 }}
                 onFinish={onFinish}
             >
@@ -82,6 +85,13 @@ export default function VenueEditForm({ venue, barrios }: VenueEditFormProps) {
                             value: barrio.id,
                         }))}
                     />
+                </Form.Item>
+
+                <Form.Item
+                    name="singleRoomVenue"
+                    valuePropName="checked"
+                >
+                    <Checkbox>{t('admin.venues.singleRoomVenue')}</Checkbox>
                 </Form.Item>
 
                 <div className="flex items-center gap-4 pt-4 border-t border-border">

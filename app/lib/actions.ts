@@ -87,6 +87,7 @@ export async function updateVenue(id: string, formData: FormData) {
     const data = {
         name: formData.get('name'),
         barrioId: formData.get('barrioId') || null,
+        singleRoomVenue: formData.get('singleRoomVenue') === 'on' || formData.get('singleRoomVenue') === 'true',
     };
 
     try {

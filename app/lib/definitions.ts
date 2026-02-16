@@ -12,6 +12,7 @@ export type Venue = {
     latitude?: number | null;
     longitude?: number | null;
     googlePlaceId?: string | null;
+    singleRoomVenue?: boolean;
 };
 
 export type PaymentChannel = {
