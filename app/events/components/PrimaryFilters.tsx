@@ -43,7 +43,7 @@ const PrimaryFilters: React.FC<PrimaryFiltersProps> = ({
               aria-disabled={isDisabled}
               className={`px-3 py-1 sm:py-1 text-sm rounded-full border transition-colors ${
                 active
-                  ? 'bg-gray-200 text-[#111827] border-[#8b5cf6]'
+                  ? 'bg-[#ddd6fe] text-[#111827] border-[#8b5cf6]'
                   : isDisabled
                     ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
                     : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'

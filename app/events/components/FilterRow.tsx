@@ -72,13 +72,31 @@ export default function FilterRow({
         {values.length > 0 && (
           <div className="chips-row mt-2">
             {values.slice(0, 2).map(v => (
-              <span key={v} className="chip">
+              <span
+                key={v}
+                className="chip cursor-pointer"
+                onClick={() => open(kind)}
+              >
                 {getLabel(v)}
-                <button aria-label={`Remove ${label} ${getLabel(v)}`} className="chip-x" onClick={() => setValues(values.filter(x => x !== v))}>×</button>
+                <button
+                  aria-label={`Remove ${label} ${getLabel(v)}`}
+                  className="chip-x"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setValues(values.filter(x => x !== v));
+                  }}
+                >
+                  ×
+                </button>
               </span>
             ))}
             {values.length > 2 && (
-              <span className="text-sm text-gray-600">+{values.length - 2} {t('filters.moreCountSuffix')}</span>
+              <span
+                className="text-sm text-gray-600 cursor-pointer"
+                onClick={() => open(kind)}
+              >
+                +{values.length - 2} {t('filters.moreCountSuffix')}
+              </span>
             )}
           </div>
         )}

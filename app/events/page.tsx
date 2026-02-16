@@ -642,7 +642,7 @@ function EventsListPageInner() {
                                 type="button"
                                 onClick={() => setAudience(opt.value)}
                                 className={`px-3 py-1 text-sm rounded-full border transition-colors ${active
-                                        ? 'bg-gray-200 text-[#111827] border-[#8b5cf6]'
+                                        ? 'bg-[#ddd6fe] text-[#111827] border-[#8b5cf6]'
                                         : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
                                     }`}
                             >
@@ -867,9 +867,22 @@ function EventsListPageInner() {
                 {prioritizedChips.length > 0 && (
                     <div className="mb-4 flex flex-wrap items-center gap-2">
                         {prioritizedChips.map(chip => (
-                            <span key={chip.key} className="chip">
+                            <span
+                                key={chip.key}
+                                className="chip cursor-pointer"
+                                onClick={() => setSheetOpen(true)}
+                            >
                                 {chip.label}
-                                <button aria-label={`Clear ${chip.key}`} className="chip-x" onClick={chip.onClear}>×</button>
+                                <button
+                                    aria-label={`Clear ${chip.key}`}
+                                    className="chip-x"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        chip.onClear();
+                                    }}
+                                >
+                                    ×
+                                </button>
                             </span>
                         ))}
                         {/* Append +N más if more than 2 filters are active overall */}
@@ -885,7 +898,12 @@ function EventsListPageInner() {
                                 (searchQuery ? 1 : 0);
                             const extra = totalActive - prioritizedChips.length;
                             return totalActive > 2 ? (
-                                <span className="text-sm text-gray-600">+{extra} {t('filters.moreCountSuffix')}</span>
+                                <span
+                                    className="text-sm text-gray-600 cursor-pointer"
+                                    onClick={() => setSheetOpen(true)}
+                                >
+                                    +{extra} {t('filters.moreCountSuffix')}
+                                </span>
                             ) : null;
                         })()}
                         <button className="chip-clear-all" onClick={clearAll}>{t('filters.clearAll')}</button>
