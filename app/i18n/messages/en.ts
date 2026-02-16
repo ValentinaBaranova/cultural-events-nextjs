@@ -27,6 +27,9 @@ const en = {
   "filters.barrios": "Neighborhoods",
   "filters.barriosPrompt": "",
   "filters.tags": "Tags",
+  "filters.types": "Types",
+  "filters.price": "Price",
+  "filters.clear": "Clear",
   "filters.clearAll": "Clear all",
   "filters.moreFilters": "More filters",
   "filters.fewerFilters": "Less filters",
@@ -42,6 +45,7 @@ const en = {
   "filters.date.thisWeekend": "This Weekend",
   "filters.date.next7Days": "Next 7 Days",
   "filters.date.next30Days": "Next 30 Days",
+  "filters.date.custom": "Customize...",
   
   "events.error": "Error loading events",
   "events.backendDown.title": "The service is temporarily unavailable",

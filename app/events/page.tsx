@@ -10,7 +10,7 @@ import { CulturalEvent } from '@/lib/definitions';
 import HeroSearch from "@/ui/HeroSearch";
 import Skeleton from "@/ui/skeleton";
 import { useI18n } from '@/i18n/I18nProvider';
-import { Alert } from 'antd';
+import { Alert, Checkbox } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 
 type EventTypeOption = { slug: string; name: string };
@@ -52,6 +52,15 @@ function EventsListPageInner() {
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+    const [internalDateRange, setInternalDateRange] = useState<[Dayjs, Dayjs] | null>(null);
+
+    const [pickerOpen, setPickerOpen] = useState(false);
+    // Sync external dateRange to internal only when NOT actively picking
+    useEffect(() => {
+        if (!pickerOpen) {
+            setInternalDateRange(dateRange);
+        }
+    }, [dateRange, pickerOpen]);
     const [venueOptions, setVenueOptions] = useState<Option[]>([]);
     const [allVenueOptions, setAllVenueOptions] = useState<Option[]>([]); // full dictionary for labels
     const [selectedVenues, setSelectedVenues] = useState<string[]>([]);
@@ -269,7 +278,6 @@ function EventsListPageInner() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTypes.join(','), selectedVenues.join(','), selectedBarrios.join(','), selectedTags.join(','), onlyFree, dateRange?.[0]?.valueOf(), dateRange?.[1]?.valueOf(), pathname]);
 
-    const [pickerOpen, setPickerOpen] = useState(false);
     // Desktop filters expand/collapse
     const [desktopExpanded, setDesktopExpanded] = useState(false);
 
@@ -553,19 +561,33 @@ function EventsListPageInner() {
         );
     }
 
-    // Primary filters: types + only free
+    // Primary filters: types
     const renderPrimaryFilters = () => (
         <>
             <PrimaryFilters
                 types={types}
                 selectedTypes={selectedTypes}
                 setSelectedTypes={setSelectedTypes}
-                onlyFree={onlyFree}
-                setOnlyFree={(v: boolean) => setOnlyFree(v)}
                 t={t}
                 disabledTypeSlugs={dateRange ? disabledTypeSlugs : undefined}
             />
         </>
+    );
+
+    // Price filter: only free
+    const renderPriceFilter = () => (
+        <div className="mt-6 sm:mt-6">
+            <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3 block">
+                {t('filters.price')}
+            </span>
+            <Checkbox
+                className="only-free-checkbox"
+                checked={onlyFree}
+                onChange={(e) => setOnlyFree(e.target.checked)}
+            >
+                {t('filters.onlyFree')}
+            </Checkbox>
+        </div>
     );
 
     // Advanced filters: date range, venues, barrios, tags
@@ -574,8 +596,8 @@ function EventsListPageInner() {
         <DateRangeFilter
             dateRange={dateRange}
             setDateRange={setDateRange}
-            onlyFree={onlyFree}
-            setOnlyFree={(v: boolean) => setOnlyFree(v)}
+            internalDateRange={internalDateRange}
+            setInternalDateRange={setInternalDateRange}
             t={t}
             pickerOpen={pickerOpen}
             setPickerOpen={setPickerOpen}
@@ -650,6 +672,7 @@ function EventsListPageInner() {
         <>
             {renderDateRangeFilter()}
             {renderPrimaryFilters()}
+            {renderPriceFilter()}
             {renderAdvancedFiltersRest()}
         </>
     );
@@ -700,7 +723,7 @@ function EventsListPageInner() {
 
     // Format date chip label according to priority rules (Hoy / Mañana / Este finde / numeric DD/MM/YYYY)
     const formatDateChip = (): string => {
-        if (!dateRange) return '';
+        if (!dateRange || !dateRange[0] || !dateRange[1]) return '';
         const [s, e] = dateRange;
         const same = (a: Dayjs, b: Dayjs) => a.isSame(b, 'day');
         if (same(s, today) && same(e, today)) return t('filters.date.today', 'Today');
@@ -714,7 +737,7 @@ function EventsListPageInner() {
     // Build prioritized chips: Date, Gratis, then individual Type, Barrio (zona), Venue (lugar) and Tag (etiqueta) chips (no grouping). Show max 2, append +N if more.
 
     const chipCandidates: { key: string; label: string; onClear: () => void }[] = [];
-    if (dateRange) chipCandidates.push({ key: 'date', label: formatDateChip(), onClear: () => setDateRange(null) });
+    if (dateRange && dateRange[0] && dateRange[1]) chipCandidates.push({ key: 'date', label: formatDateChip(), onClear: () => setDateRange(null) });
     if (onlyFree) chipCandidates.push({ key: 'free', label: t('events.free'), onClear: () => setOnlyFree(false) });
     // One chip per selected type (no grouping)
     if (selectedTypes.length) {
@@ -749,7 +772,7 @@ function EventsListPageInner() {
 
     // Badge count should reflect all active groups
     const badgeCount = (
-        (dateRange ? 1 : 0) +
+        (dateRange && dateRange[0] && dateRange[1] ? 1 : 0) +
         (onlyFree ? 1 : 0) +
         (selectedTypes.length ? 1 : 0) +
         (selectedVenues.length ? 1 : 0) +
@@ -780,7 +803,7 @@ function EventsListPageInner() {
                         {/* Append +N más if more than 2 filters are active overall */}
                         {(() => {
                             const totalActive =
-                                (dateRange ? 1 : 0) +
+                                (dateRange && dateRange[0] && dateRange[1] ? 1 : 0) +
                                 (onlyFree ? 1 : 0) +
                                 selectedTypes.length +
                                 selectedBarrios.length +
@@ -809,6 +832,8 @@ function EventsListPageInner() {
                 {renderPrimaryFilters()}
 
                 {renderDateRangeFilter()}
+
+                {renderPriceFilter()}
 
                 {/* Summary row + separator: always render separator; show content only when filters are active */}
                 {badgeCount > 0 ? (
@@ -864,8 +889,8 @@ function EventsListPageInner() {
                             {renderFiltersContent()}
                         </div>
                         <div className="sheet-footer">
-                            <button className="sheet-apply" onClick={() => setSheetOpen(false)}>{t('filters.done')}</button>
                             <button className="sheet-reset" onClick={clearAll}>{t('filters.clearAll')}</button>
+                            <button className="sheet-apply" onClick={() => setSheetOpen(false)}>{t('filters.done')}</button>
                         </div>
                     </div>
                 </>

@@ -77,6 +77,14 @@
   padding: 4px 10px;
   font-size: 12px;
 }
+
+/* Reduce vertical padding for chips on mobile to save height */
+@media (max-width: 640px) {
+  .chip {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}
 .chip-x {
   display: inline-flex;
   align-items: center;
@@ -340,6 +348,7 @@
   padding: 12px 14px; /* match filters-btn padding */
 }
 .sheet-reset {
+  flex: 1;
   background: transparent; /* weaker style: no background */
   border: 1px solid var(--border); /* subtle border only */
   color: #111827; /* dark text */
@@ -785,6 +794,12 @@ p.event-description {
 
 
 /* Scoped AntD Checkbox color override for "Solo gratuitos" */
+/* Ensure label uses the same font family as the rest of the app */
+.only-free-checkbox,
+.only-free-checkbox.ant-checkbox-wrapper,
+.only-free-checkbox .ant-checkbox + span {
+  font-family: inherit !important;
+}
 .only-free-checkbox .ant-checkbox-checked .ant-checkbox-inner {
   background-color: #8b5cf6; /* violet-500 */
   border-color: #8b5cf6;

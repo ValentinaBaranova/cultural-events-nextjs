@@ -1,5 +1,5 @@
 import React from 'react';
-import { DatePicker, Checkbox } from 'antd';
+import { DatePicker } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 
 type TFunc = (key: string, defaultMessage?: string) => string;
@@ -12,8 +12,8 @@ interface Preset {
 interface DateRangeFilterProps {
   dateRange: [Dayjs, Dayjs] | null;
   setDateRange: (value: [Dayjs, Dayjs] | null) => void;
-  onlyFree: boolean;
-  setOnlyFree: (value: boolean) => void;
+  internalDateRange: [Dayjs, Dayjs] | null;
+  setInternalDateRange: (value: [Dayjs, Dayjs] | null) => void;
   t: TFunc;
   pickerOpen: boolean;
   setPickerOpen: (open: boolean) => void;
@@ -24,8 +24,8 @@ interface DateRangeFilterProps {
 const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   dateRange,
   setDateRange,
-  onlyFree,
-  setOnlyFree,
+  internalDateRange,
+  setInternalDateRange,
   t,
   pickerOpen,
   setPickerOpen,
@@ -33,74 +33,92 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   applyPreset,
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 sm:mt-4">
-      <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1 sm:mb-0">{t('filters.dateRange')}</span>
-      <div className="flex items-center w-full sm:w-auto sm:flex-1">
-        <DatePicker.RangePicker
-          classNames={{ popup: { root: "mobile-range-picker" } }}
-          value={dateRange ?? undefined}
-          onChange={(values) => setDateRange((values as [Dayjs, Dayjs] | null) ?? null)}
-          allowClear={{
-            clearIcon: (
-              <span className="text-muted-foreground hover:text-foreground" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
-                  <path d="M15 9 9 15" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="m9 9 6 6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-            ),
-          }}
-          format="DD/MM/YYYY"
-          separator=" - "
-          inputReadOnly
-          placement="bottomLeft"
-          getPopupContainer={(trigger) => trigger?.parentElement || document.body}
-          className="w-full sm:w-72"
-          size="large"
-          open={pickerOpen}
-          onOpenChange={(nextOpen) => {
-            const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches;
-            if (isMobile) {
-              // Ignore unintended close events on mobile; keep it open until user completes a range or picks a preset
-              if (nextOpen) {
-                setPickerOpen(true);
-              }
-              return;
-            }
-            setPickerOpen(nextOpen);
-          }}
-          disabledDate={(current) => !!current && current.isBefore(dayjs().startOf('day'))}
-          panelRender={(panelNode) => (
-            <div>
-              <div className="flex flex-wrap gap-2 px-3 pt-3 pb-2 border-b border-gray-200">
-                {presets.map((p) => (
-                  <button
-                    key={p.label}
-                    type="button"
-                    onClick={() => applyPreset(p.value)}
-                    className="px-2.5 py-1 text-sm rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-              {panelNode}
-              <div className="px-3 pb-3 pt-2 border-t border-gray-200 sm:hidden flex justify-end">
+    <div className="flex flex-col sm:mt-6">
+      <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3">{t('filters.dateRange')}</span>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex flex-wrap gap-2 items-center order-1">
+          {(() => {
+            let foundActive = false;
+            return presets.map((p) => {
+              const matches = dateRange && dateRange[0] && dateRange[1] &&
+                dateRange[0].isSame(p.value[0], 'day') &&
+                dateRange[1].isSame(p.value[1], 'day');
+              
+              const isActive = matches && !foundActive;
+              if (isActive) foundActive = true;
+
+              return (
                 <button
+                  key={p.label}
                   type="button"
-                  onClick={() => setPickerOpen(false)}
-                  className="px-3 py-1.5 text-sm rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  aria-label={p.label}
+                  onClick={() => { applyPreset(p.value); setPickerOpen(false); }}
+                  className={`px-3 py-1 sm:py-1 text-sm rounded-full border transition-colors ${
+                    isActive
+                      ? 'bg-[#ddd6fe] text-[#111827] border-[#8b5cf6]'
+                      : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
+                  }`}
                 >
-                  {t('filters.done', 'Done')}
+                  {p.label}
                 </button>
+              );
+            });
+          })()}
+        </div>
+        <div className="flex items-center order-2 relative sm:ml-6">
+          <DatePicker.RangePicker
+            classNames={{ popup: { root: "mobile-range-picker" } }}
+            value={internalDateRange}
+            onChange={(values) => {
+              const range = values as [Dayjs, Dayjs] | null;
+              setInternalDateRange(range);
+            }}
+            onCalendarChange={(values) => {
+              const range = values as [Dayjs, Dayjs] | null;
+              setInternalDateRange(range);
+            }}
+            allowClear={true}
+            format="DD/MM/YY"
+            separator="-"
+            placement="bottomLeft"
+            getPopupContainer={(trigger) => trigger?.parentElement || document.body}
+            open={pickerOpen}
+            onOpenChange={(nextOpen) => {
+              const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches;
+              if (isMobile) {
+                if (nextOpen) setPickerOpen(true);
+                return;
+              }
+              setPickerOpen(nextOpen);
+            }}
+            disabledDate={(current) => !!current && current.isBefore(dayjs().startOf('day'))}
+            className="w-[250px] sm:w-auto"
+            panelRender={(panelNode) => (
+              <div>
+                {panelNode}
+                <div className="px-3 pb-3 pt-2 border-t border-gray-200 flex flex-row-reverse justify-start items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (internalDateRange && internalDateRange[0]) {
+                        const range: [Dayjs, Dayjs] = [
+                          internalDateRange[0],
+                          internalDateRange[1] || internalDateRange[0]
+                        ];
+                        setDateRange(range);
+                      } else {
+                        setDateRange(null);
+                      }
+                      setPickerOpen(false);
+                    }}
+                    className="sheet-apply !flex-none !py-2 !px-4 !text-sm !rounded-lg"
+                  >
+                    {t('filters.done')}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        />
-        <div className="hidden sm:block ml-10">
-          <Checkbox className="only-free-checkbox" checked={onlyFree} onChange={(e) => setOnlyFree(e.target.checked)}>
-            {t('filters.onlyFree')}
-          </Checkbox>
+            )}
+          />
         </div>
       </div>
     </div>

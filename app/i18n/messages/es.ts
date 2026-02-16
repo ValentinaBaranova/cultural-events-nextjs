@@ -26,6 +26,9 @@ const es = {
   "filters.barrios": "Zonas",
   "filters.barriosPrompt": "",
   "filters.tags": "Etiquetas",
+  "filters.types": "Tipos",
+  "filters.price": "Precio",
+  "filters.clear": "Limpiar",
   "filters.clearAll": "Limpiar todo",
   "filters.moreFilters": "Más filtros",
   "filters.fewerFilters": "Menos filtros",
@@ -41,6 +44,7 @@ const es = {
   "filters.date.thisWeekend": "Este finde",
   "filters.date.next7Days": "Próximos 7 días",
   "filters.date.next30Days": "Próximos 30 días",
+  "filters.date.custom": "Personalizar...",
 
   "events.error": "Error al cargar eventos",
   "events.backendDown.title": "El servicio no está disponible temporalmente",
