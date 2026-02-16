@@ -576,7 +576,7 @@ function EventsListPageInner() {
 
     // Price filter: only free
     const renderPriceFilter = () => (
-        <div className="mt-6 sm:mt-6">
+        <div className="mt-2 sm:mt-6">
             <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3 block">
                 {t('filters.price')}
             </span>
@@ -667,11 +667,11 @@ function EventsListPageInner() {
 
 
     // Helpers to render filters content (shared by mobile sheet)
-    // Mobile order must be: Date range → Types (chips) → Only free → Lugares → Barrios → Etiquetas
+    // Mobile order must be: Types (chips) → Date range → Price filter → Lugares → Barrios → Etiquetas
     const renderFiltersContent = () => (
         <>
-            {renderDateRangeFilter()}
             {renderPrimaryFilters()}
+            {renderDateRangeFilter()}
             {renderPriceFilter()}
             {renderAdvancedFiltersRest()}
         </>
