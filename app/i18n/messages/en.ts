@@ -194,7 +194,8 @@ const en = {
   "admin.venues.save": "Save Changes",
   "admin.venues.success": "Venue updated successfully.",
   "admin.venues.error": "Error updating venue.",
-  "admin.venues.back": "Back to list"
+  "admin.venues.back": "Back to list",
+  "common.backToTop": "Back to top"
 };
 
 export default en;

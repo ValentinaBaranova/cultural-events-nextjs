@@ -195,7 +195,8 @@ const es = {
   "admin.venues.save": "Guardar cambios",
   "admin.venues.success": "Lugar actualizado correctamente.",
   "admin.venues.error": "Error al actualizar el lugar.",
-  "admin.venues.back": "Volver a la lista"
+  "admin.venues.back": "Volver a la lista",
+  "common.backToTop": "Volver arriba"
 };
 
 export default es;

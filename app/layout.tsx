@@ -2,6 +2,7 @@ import 'antd/dist/reset.css';
 import '@/ui/global.css';
 import { SessionProvider } from "next-auth/react";
 import NavBar from '@/ui/navbar';
+import ScrollToTop from '@/ui/ScrollToTop';
 import { I18nProvider } from '@/i18n/I18nProvider';
 import AntdLocaleProvider from '@/antd/AntdLocaleProvider';
 import ConsentBanner from '@/consent/ConsentBanner';
@@ -41,6 +42,7 @@ export default function RootLayout({
                     <Container className="py-6">
                       {children}
                     </Container>
+                    <ScrollToTop />
                   </main>
                   <Container className="py-6">
                     <ConsentBanner />
