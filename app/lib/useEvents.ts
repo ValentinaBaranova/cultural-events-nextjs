@@ -47,6 +47,7 @@ export function useEvents(
     venues?: string[],
     barrios?: string[],
     tags?: string[],
+    isForChildren?: boolean | null,
 ) {
     // Build key per page
     const getKey = (pageIndex: number, previousPageData: EventsResponseDto | null) => {
@@ -60,12 +61,13 @@ export function useEvents(
         const queryParam = searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : '';
         const typesParam = types && types.length ? `&type=${encodeURIComponent(types.join(','))}` : '';
         const freeParam = onlyFree ? `&isFree=true` : '';
+        const childrenParam = isForChildren !== undefined && isForChildren !== null ? `&isForChildren=${isForChildren}` : '';
         const startDateParam = startDate ? `&startDate=${encodeURIComponent(startDate)}` : '';
         const endDateParam = endDate ? `&endDate=${encodeURIComponent(endDate)}` : '';
         const venuesParam = venues && venues.length ? `&venues=${encodeURIComponent(venues.join(','))}` : '';
         const barriosParam = barrios && barrios.length ? `&barrio=${encodeURIComponent(barrios.join(','))}` : '';
         const tagsParam = tags && tags.length ? `&tags=${encodeURIComponent(tags.join(','))}` : '';
-        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${startDateParam}${endDateParam}${venuesParam}${barriosParam}${tagsParam}`;
+        return `${API_URL}/events?page=${pageIndex + 1}&limit=${PAGE_SIZE}${queryParam}${typesParam}${freeParam}${childrenParam}${startDateParam}${endDateParam}${venuesParam}${barriosParam}${tagsParam}`;
     };
 
     const { data, error, size, setSize, isValidating, mutate } = useSWRInfinite<EventsResponseDto>(getKey, fetcher, {
@@ -90,7 +92,7 @@ export function useEvents(
     // Reset pagination when filters change
     useEffect(() => {
         setSize(1);
-    }, [searchQuery, typesKey, onlyFree, startDate, endDate, venuesKey, barriosKey, tagsKey, setSize]);
+    }, [searchQuery, typesKey, onlyFree, isForChildren, startDate, endDate, venuesKey, barriosKey, tagsKey, setSize]);
 
     // Flatten items across pages regardless of response shape
     const allEvents: CulturalEvent[] = data

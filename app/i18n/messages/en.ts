@@ -20,6 +20,10 @@ const en = {
   "hero.title": "Discover Events in Baires",
   "hero.subtitle": "The best concerts, exhibitions, and cultural experiences in the city",
   
+  "filters.audience": "Audience",
+  "filters.audience.all": "All",
+  "filters.audience.children": "With kids",
+  "filters.audience.adults": "Without kids",
   "filters.allTypes": "All types",
   "filters.onlyFree": "Only free",
   "filters.places": "Venues",

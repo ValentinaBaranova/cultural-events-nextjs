@@ -40,4 +40,5 @@ export type CulturalEvent = {
     instagramPostId?: string | null; // Optional internal Instagram post UUID (for admin actions)
     paymentChannels?: PaymentChannel[]; // Optional ticket purchase links
     tags?: string[]; // Optional list of tag slugs
+    isForChildren?: boolean; // Whether the event is for children
 };

@@ -193,14 +193,19 @@ export default function EventCard(props: EventCardProps) {
         />
         {/* Bottom gradient overlay with badges */}
         <div className="event-image-bottom" aria-hidden="false">
-          <span className="badge-type" title={props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}>
-            {props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}
-          </span>
           {event.isFree && (
             <span className="badge-free-inline" aria-label={t('events.free')}>
               {t('events.free')}
             </span>
           )}
+          {event.isForChildren && (
+            <span className="badge-type" aria-label={t('filters.audience.children')}>
+              {t('filters.audience.children')}
+            </span>
+          )}
+          <span className="badge-type" title={props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}>
+            {props.dictionaries?.eventTypeMap?.[event.type] ?? event.type}
+          </span>
         </div>
       </div>
       <div className="event-details">

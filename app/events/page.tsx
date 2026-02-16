@@ -51,6 +51,7 @@ function EventsListPageInner() {
     const [types, setTypes] = useState<EventTypeOption[]>([]);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
+    const [audience, setAudience] = useState<'all' | 'children' | 'adults'>('all');
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [internalDateRange, setInternalDateRange] = useState<[Dayjs, Dayjs] | null>(null);
 
@@ -139,6 +140,7 @@ function EventsListPageInner() {
         const barriosFromUrl = getArrayParam('barrios', 'barrio');
         const tagsFromUrl = getArrayParam('tags');
         const freeFromUrl = searchParams.get('free');
+        const childrenFromUrl = searchParams.get('isForChildren');
         const startFromUrl = searchParams.get('startDate');
         const endFromUrl = searchParams.get('endDate');
 
@@ -155,6 +157,14 @@ function EventsListPageInner() {
         if (freeFromUrl) {
             const normalized = freeFromUrl.toLowerCase();
             setOnlyFree(normalized === '1' || normalized === 'true' || normalized === 'yes');
+        }
+        if (childrenFromUrl) {
+            const normalized = childrenFromUrl.toLowerCase();
+            if (normalized === 'true' || normalized === '1') {
+                setAudience('children');
+            } else if (normalized === 'false' || normalized === '0') {
+                setAudience('adults');
+            }
         }
         if (startFromUrl || endFromUrl) {
             const start = startFromUrl ? dayjs(startFromUrl) : null;
@@ -184,8 +194,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedTypes(nextTypes);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams]);
+    }, [searchParams, selectedTypes]);
 
     // Keep selectedVenues in sync if URL changes externally (e.g., via Search suggestions)
     // Depend ONLY on searchParams to avoid re-applying stale URL values during local updates
@@ -197,8 +206,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedVenues(nextVenues);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams]);
+    }, [searchParams, selectedVenues]);
 
     // Keep selectedBarrios in sync if URL changes externally (e.g., via Search suggestions)
     // Depend ONLY on searchParams to avoid re-applying stale URL values during local updates
@@ -210,8 +218,29 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedBarrios(nextBarrios);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams]);
+    }, [searchParams, selectedBarrios]);
+
+    useEffect(() => {
+        const raw = searchParams.get('free');
+        const nextFree = raw === '1' || raw === 'true' || raw === 'yes';
+        if (nextFree !== onlyFree) {
+            setOnlyFree(nextFree);
+        }
+    }, [searchParams, onlyFree]);
+
+    // Keep audience in sync if URL changes externally
+    useEffect(() => {
+        const raw = searchParams.get('isForChildren');
+        let nextAudience: 'all' | 'children' | 'adults' = 'all';
+        if (raw === 'true' || raw === '1') {
+            nextAudience = 'children';
+        } else if (raw === 'false' || raw === '0') {
+            nextAudience = 'adults';
+        }
+        if (nextAudience !== audience) {
+            setAudience(nextAudience);
+        }
+    }, [searchParams, audience]);
 
     // Labels for venues are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
@@ -234,8 +263,7 @@ function EventsListPageInner() {
         if (nextKey !== currKey) {
             setSelectedTags(nextTags);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams]);
+    }, [searchParams, selectedTags]);
 
     // Tag labels are preloaded via dictionaries; no async hydration needed.
     useEffect(() => {
@@ -262,6 +290,7 @@ function EventsListPageInner() {
         setOrDelete('barrios', selectedBarrios.join(','));
         setOrDelete('tags', selectedTags.join(','));
         setOrDelete('free', onlyFree ? '1' : null);
+        setOrDelete('isForChildren', audience === 'children' ? 'true' : audience === 'adults' ? 'false' : null);
 
         const start = dateRange?.[0]?.format('YYYY-MM-DD');
         const end = dateRange?.[1]?.format('YYYY-MM-DD');
@@ -276,7 +305,7 @@ function EventsListPageInner() {
             router.replace(next, { scroll: false });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedTypes.join(','), selectedVenues.join(','), selectedBarrios.join(','), selectedTags.join(','), onlyFree, dateRange?.[0]?.valueOf(), dateRange?.[1]?.valueOf(), pathname]);
+    }, [selectedTypes.join(','), selectedVenues.join(','), selectedBarrios.join(','), selectedTags.join(','), onlyFree, audience, dateRange?.[0]?.valueOf(), dateRange?.[1]?.valueOf(), pathname]);
 
     // Desktop filters expand/collapse
     const [desktopExpanded, setDesktopExpanded] = useState(false);
@@ -331,6 +360,7 @@ function EventsListPageInner() {
         selectedVenues,
         selectedBarrios,
         selectedTags,
+        audience === 'children' ? true : audience === 'adults' ? false : null,
     );
 
     // Derive displayed tag options from facets (only tags present in results), while preserving selected tags
@@ -590,6 +620,41 @@ function EventsListPageInner() {
         </div>
     );
 
+    // Audience filter: Chips
+    const renderAudienceFilter = () => {
+        const options: { value: 'all' | 'children' | 'adults'; label: string }[] = [
+            { value: 'all', label: t('filters.audience.all') },
+            { value: 'children', label: t('filters.audience.children') },
+            { value: 'adults', label: t('filters.audience.adults') },
+        ];
+
+        return (
+            <div className="mt-2 sm:mt-0">
+                <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3 block">
+                    {t('filters.audience')}
+                </span>
+                <div className="flex flex-wrap gap-2">
+                    {options.map((opt) => {
+                        const active = audience === opt.value;
+                        return (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => setAudience(opt.value)}
+                                className={`px-3 py-1 text-sm rounded-full border transition-colors ${active
+                                        ? 'bg-gray-200 text-[#111827] border-[#8b5cf6]'
+                                        : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
+                                    }`}
+                            >
+                                {opt.label}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
     // Advanced filters: date range, venues, barrios, tags
     // Split into helpers so we can order differently on mobile
     const renderDateRangeFilter = () => (
@@ -673,6 +738,7 @@ function EventsListPageInner() {
             {renderPrimaryFilters()}
             {renderDateRangeFilter()}
             {renderPriceFilter()}
+            {renderAudienceFilter()}
             {renderAdvancedFiltersRest()}
         </>
     );
@@ -688,6 +754,7 @@ function EventsListPageInner() {
         setSelectedVenues([]);
         setSelectedBarrios([]);
         setSelectedTags([]);
+        setAudience('all');
         // If a mobile picker is open with temporary selections, reset it to avoid re-applying cleared values
         setMobilePicker({ kind: null, temp: [], query: '' });
 
@@ -698,7 +765,7 @@ function EventsListPageInner() {
             const keys = [
                 'query', 'highlight',
                 // filters
-                'tags', 'venues', 'venue', 'barrios', 'barrio', 'types', 'type', 'free', 'startDate', 'endDate',
+                'tags', 'venues', 'venue', 'barrios', 'barrio', 'types', 'type', 'free', 'startDate', 'endDate', 'isForChildren',
             ];
             for (const k of keys) {
                 if (params.has(k)) { params.delete(k); changed = true; }
@@ -739,6 +806,10 @@ function EventsListPageInner() {
     const chipCandidates: { key: string; label: string; onClear: () => void }[] = [];
     if (dateRange && dateRange[0] && dateRange[1]) chipCandidates.push({ key: 'date', label: formatDateChip(), onClear: () => setDateRange(null) });
     if (onlyFree) chipCandidates.push({ key: 'free', label: t('events.free'), onClear: () => setOnlyFree(false) });
+    if (audience !== 'all') {
+        const label = audience === 'children' ? t('filters.audience.children') : t('filters.audience.adults');
+        chipCandidates.push({ key: 'audience', label, onClear: () => setAudience('all') });
+    }
     // One chip per selected type (no grouping)
     if (selectedTypes.length) {
         selectedTypes.forEach((slug) => {
@@ -774,6 +845,7 @@ function EventsListPageInner() {
     const badgeCount = (
         (dateRange && dateRange[0] && dateRange[1] ? 1 : 0) +
         (onlyFree ? 1 : 0) +
+        (audience !== 'all' ? 1 : 0) +
         (selectedTypes.length ? 1 : 0) +
         (selectedVenues.length ? 1 : 0) +
         (selectedBarrios.length ? 1 : 0) +
@@ -805,6 +877,7 @@ function EventsListPageInner() {
                             const totalActive =
                                 (dateRange && dateRange[0] && dateRange[1] ? 1 : 0) +
                                 (onlyFree ? 1 : 0) +
+                                (audience !== 'all' ? 1 : 0) +
                                 selectedTypes.length +
                                 selectedBarrios.length +
                                 selectedVenues.length +
@@ -871,6 +944,7 @@ function EventsListPageInner() {
                 </div>
                 {desktopExpanded && (
                     <div className="mt-2 pt-2 pb-4 grid gap-4">
+                        {renderAudienceFilter()}
                         {renderAdvancedFiltersRest()}
                     </div>
                 )}

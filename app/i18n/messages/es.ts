@@ -19,6 +19,10 @@ const es = {
   "search.suggestions.noResults": "Sin coincidencias",
   "hero.title": "Descubrí Eventos en Baires",
   
+  "filters.audience": "Público",
+  "filters.audience.all": "Todos",
+  "filters.audience.children": "Con niños",
+  "filters.audience.adults": "Sin niños",
   "filters.allTypes": "Todos los tipos",
   "filters.onlyFree": "Solo gratuitos",
   "filters.places": "Lugares",
