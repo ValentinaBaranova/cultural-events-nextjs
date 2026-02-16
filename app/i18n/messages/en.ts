@@ -47,6 +47,7 @@ const en = {
   "filters.date.next30Days": "Next 30 Days",
   "filters.date.custom": "Customize...",
   
+  "common.edit": "Edit",
   "events.error": "Error loading events",
   "events.backendDown.title": "The service is temporarily unavailable",
   "events.backendDown.message": "Please try again in a minute or",
@@ -175,7 +176,20 @@ const en = {
   "admin.instagramUsers.add.button": "Add user",
   "admin.instagramUsers.add.success": "User added. Parsing will run soon.",
   "admin.instagramUsers.add.alreadyExists": "This Instagram user already exists. Updated settings if needed.",
-  "admin.instagramUsers.add.error": "Could not add user."
+  "admin.instagramUsers.add.error": "Could not add user.",
+  
+  "menu.venues": "Venues",
+  "admin.venues.title": "Venues",
+  "admin.venues.edit": "Edit venue",
+  "admin.venues.name": "Name",
+  "admin.venues.barrio": "Neighborhood",
+  "admin.venues.latitude": "Latitude",
+  "admin.venues.longitude": "Longitude",
+  "admin.venues.googlePlaceId": "Google Place ID",
+  "admin.venues.save": "Save Changes",
+  "admin.venues.success": "Venue updated successfully.",
+  "admin.venues.error": "Error updating venue.",
+  "admin.venues.back": "Back to list"
 };
 
 export default en;

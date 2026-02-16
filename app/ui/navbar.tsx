@@ -44,9 +44,14 @@ const NavBar = () => {
                             {t('menu.privacy')}
                         </Link>
                         {session?.user && (
-                          <Link href="/admin/instagram/users" className={linkClass('/admin/instagram/users')}>
-                            {t('menu.instagramUsers')}
-                          </Link>
+                          <>
+                            <Link href="/admin/venues" className={linkClass('/admin/venues')}>
+                                {t('menu.venues')}
+                            </Link>
+                            <Link href="/admin/instagram/users" className={linkClass('/admin/instagram/users')}>
+                                {t('menu.instagramUsers')}
+                            </Link>
+                          </>
                         )}
                     </nav>
 
@@ -103,9 +108,14 @@ const NavBar = () => {
                             {t('menu.privacy')}
                         </Link>
                         {session?.user && (
-                            <Link href="/admin/instagram/users" className={linkClass('/admin/instagram/users')} onClick={() => setIsOpen(false)}>
-                                {t('menu.instagramUsers')}
-                            </Link>
+                            <>
+                                <Link href="/admin/venues" className={linkClass('/admin/venues')} onClick={() => setIsOpen(false)}>
+                                    {t('menu.venues')}
+                                </Link>
+                                <Link href="/admin/instagram/users" className={linkClass('/admin/instagram/users')} onClick={() => setIsOpen(false)}>
+                                    {t('menu.instagramUsers')}
+                                </Link>
+                            </>
                         )}
 
                         {SHOW_AUTH_BUTTONS && (

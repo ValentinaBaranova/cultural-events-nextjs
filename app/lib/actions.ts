@@ -81,6 +81,45 @@ export async function updateEvent(id: string, formData: FormData) {
     redirect('/events');
 }
 
+export async function updateVenue(id: string, formData: FormData) {
+    if (!id) throw new Error('Venue ID is missing');
+
+    const data = {
+        name: formData.get('name'),
+        barrioId: formData.get('barrioId') || null,
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/admin/venues/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            let detail = '';
+            try {
+                const contentType = response.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    detail = errorData.message || errorData.error || '';
+                } else {
+                    detail = await response.text();
+                }
+            } catch {
+                // ignore
+            }
+            throw new Error(`Failed to update venue (${response.status}) ${detail}`);
+        }
+    } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        throw new Error(msg);
+    }
+
+    revalidatePath('/admin/venues');
+    redirect('/admin/venues');
+}
+
 export async function getEvent(id: string) {
     const res = await fetch(`${API_URL}/events/${id}`, {
         cache: 'no-store', // ✅ Avoid caching if you need fresh data
@@ -88,6 +127,18 @@ export async function getEvent(id: string) {
 
     if (!res.ok) {
         throw new Error(`Failed to fetch event with id ${id}`);
+    }
+
+    return res.json();
+}
+
+export async function getVenue(id: string) {
+    const res = await fetch(`${API_URL}/admin/venues/${id}`, {
+        cache: 'no-store',
+    });
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch venue with id ${id}`);
     }
 
     return res.json();
