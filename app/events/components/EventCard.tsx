@@ -167,6 +167,10 @@ export default function EventCard(props: EventCardProps) {
         prompt(t('events.copyLink', 'Copy this link'), url);
       }
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log('Share cancelled by user');
+        return;
+      }
       console.error('Share failed', err);
       alert(t('events.shareFailed', 'Could not share the link'));
     }
