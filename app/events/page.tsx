@@ -144,7 +144,9 @@ function EventsListPageInner() {
         const startFromUrl = searchParams.get('startDate');
         const endFromUrl = searchParams.get('endDate');
 
-        if (typesFromUrl.length) setSelectedTypes(typesFromUrl);
+        if (typesFromUrl.length) {
+            setSelectedTypes(typesFromUrl);
+        }
         if (venuesFromUrl.length) {
             setSelectedVenues(venuesFromUrl);
         }
@@ -156,28 +158,41 @@ function EventsListPageInner() {
         }
         if (freeFromUrl) {
             const normalized = freeFromUrl.toLowerCase();
-            setOnlyFree(normalized === '1' || normalized === 'true' || normalized === 'yes');
+            const val = normalized === '1' || normalized === 'true' || normalized === 'yes';
+            setOnlyFree(val);
         }
         if (childrenFromUrl) {
             const normalized = childrenFromUrl.toLowerCase();
+            let aud: 'all' | 'children' | 'adults' = 'all';
             if (normalized === 'true' || normalized === '1') {
-                setAudience('children');
+                aud = 'children';
             } else if (normalized === 'false' || normalized === '0') {
-                setAudience('adults');
+                aud = 'adults';
             }
+            setAudience(aud);
         }
         if (startFromUrl || endFromUrl) {
             const start = startFromUrl ? dayjs(startFromUrl) : null;
             const end = endFromUrl ? dayjs(endFromUrl) : null;
+            let range: [Dayjs, Dayjs] | null = null;
             if (start && start.isValid() && end && end.isValid()) {
-                setDateRange([start, end]);
+                range = [start, end];
             } else if (start && start.isValid()) {
-                setDateRange([start, start]);
+                range = [start, start];
             } else if (end && end.isValid()) {
-                setDateRange([end, end]);
+                range = [end, end];
+            }
+            if (range) {
+                setDateRange(range);
             }
         }
-        initializedFromUrlRef.current = true;
+        
+        // We set initializedFromUrlRef.current = true after the states are updated.
+        // To ensure this happens after the state updates are processed (and thus the sync effect sees them),
+        // we use a small timeout.
+        setTimeout(() => {
+            initializedFromUrlRef.current = true;
+        }, 0);
     }, [searchParams, locale]);
 
     // Keep selectedTypes in sync if URL changes externally (e.g., via Search suggestions)
@@ -186,6 +201,7 @@ function EventsListPageInner() {
     // If this effect also depended on selectedTypes, it could run before the URL updates and
     // wrongly re-apply the stale types from the old URL, making removals "not stick".
     useEffect(() => {
+        if (!initializedFromUrlRef.current) return;
         // Read array from URL (support legacy singular name)
         const raw = searchParams.get('types') ?? searchParams.get('type');
         const nextTypes = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -199,6 +215,7 @@ function EventsListPageInner() {
     // Keep selectedVenues in sync if URL changes externally (e.g., via Search suggestions)
     // Depend ONLY on searchParams to avoid re-applying stale URL values during local updates
     useEffect(() => {
+        if (!initializedFromUrlRef.current) return;
         const raw = searchParams.get('venues') ?? searchParams.get('venue');
         const nextVenues = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
         const nextKey = nextVenues.join(',');
@@ -211,6 +228,7 @@ function EventsListPageInner() {
     // Keep selectedBarrios in sync if URL changes externally (e.g., via Search suggestions)
     // Depend ONLY on searchParams to avoid re-applying stale URL values during local updates
     useEffect(() => {
+        if (!initializedFromUrlRef.current) return;
         const raw = searchParams.get('barrios') ?? searchParams.get('barrio');
         const nextBarrios = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
         const nextKey = nextBarrios.join(',');
@@ -221,6 +239,7 @@ function EventsListPageInner() {
     }, [searchParams, selectedBarrios]);
 
     useEffect(() => {
+        if (!initializedFromUrlRef.current) return;
         const raw = searchParams.get('free');
         const nextFree = raw === '1' || raw === 'true' || raw === 'yes';
         if (nextFree !== onlyFree) {
@@ -230,6 +249,7 @@ function EventsListPageInner() {
 
     // Keep audience in sync if URL changes externally
     useEffect(() => {
+        if (!initializedFromUrlRef.current) return;
         const raw = searchParams.get('isForChildren');
         let nextAudience: 'all' | 'children' | 'adults' = 'all';
         if (raw === 'true' || raw === '1') {
@@ -256,6 +276,7 @@ function EventsListPageInner() {
     // Keep selectedTags in sync if URL changes externally (e.g., via Search suggestions)
     // Depend ONLY on searchParams to avoid re-applying stale URL values during local updates
     useEffect(() => {
+        if (!initializedFromUrlRef.current) return;
         const raw = searchParams.get('tags');
         const nextTags = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
         const nextKey = nextTags.join(',');
@@ -299,10 +320,26 @@ function EventsListPageInner() {
 
         const qs = params.toString();
         const currentQs = searchParams.toString();
-        const next = qs ? `${pathname}?${qs}` : pathname;
         const current = currentQs ? `${pathname}?${currentQs}` : pathname;
-        if (next !== current) {
-            router.replace(next, { scroll: false });
+
+        // Prevent overwriting query params that are NOT managed by this effect (like 'query' or 'highlight')
+        // if they are already in the URL but not in our calculated next URL.
+        const finalParams = new URLSearchParams(qs);
+        const originalParams = new URLSearchParams(searchParams.toString());
+        
+        // Preserve unmanaged keys
+        const managedKeys = ['types', 'type', 'venues', 'venue', 'barrios', 'barrio', 'tags', 'free', 'startDate', 'endDate', 'isForChildren'];
+        originalParams.forEach((value, key) => {
+            if (!managedKeys.includes(key) && !finalParams.has(key)) {
+                finalParams.set(key, value);
+            }
+        });
+
+        const finalQs = finalParams.toString();
+        const finalNext = finalQs ? `${pathname}?${finalQs}` : pathname;
+
+        if (finalNext !== current) {
+            router.replace(finalNext, { scroll: false });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTypes.join(','), selectedVenues.join(','), selectedBarrios.join(','), selectedTags.join(','), onlyFree, audience, dateRange?.[0]?.valueOf(), dateRange?.[1]?.valueOf(), pathname]);
@@ -334,13 +371,14 @@ function EventsListPageInner() {
 
     // Default: next 7 days interval on initial load (but don't override if URL has dates)
     useEffect(() => {
+        if (!initializedFromUrlRef.current) return;
         const hasDateInUrl = typeof window !== 'undefined' && (searchParams.get('startDate') || searchParams.get('endDate'));
         if (!hasDateInUrl) {
             setDateRange([today, next7End]);
         }
-        // We intentionally run this only once on mount to avoid overwriting user input
+        // We intentionally run this only once after initialization to avoid overwriting user input
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [initializedFromUrlRef.current]);
 
     const applyPreset = (range: [Dayjs, Dayjs]) => {
         setDateRange(range);
