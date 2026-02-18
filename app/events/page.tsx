@@ -6,7 +6,6 @@ import EventCard from './components/EventCard';
 import { loadDictionaries } from '@/lib/dictionaries';
 import React, {useEffect, useRef, useState, Suspense, useMemo} from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import { CulturalEvent } from '@/lib/definitions';
 import HeroSearch from "@/ui/HeroSearch";
 import Skeleton from "@/ui/skeleton";
 import { useI18n } from '@/i18n/I18nProvider';
@@ -100,8 +99,7 @@ function EventsListPageInner() {
 
     // When a date range is applied, we compute which types have zero events for those dates
     const [disabledTypeSlugs, setDisabledTypeSlugs] = useState<Set<string>>(new Set());
-    
-    
+
     // URL sync helpers
     const initializedFromUrlRef = useRef(false);
     // Guard to prevent race conditions during a Clear All cycle.
@@ -1117,27 +1115,29 @@ function EventsListPageInner() {
                     </div>
                 )}
 
-                {events?.map((event: CulturalEvent) => (
-                    <EventCard
-                        key={event.id}
-                        event={event}
-                        dictionaries={{ eventTypeMap: eventTypeMap, tagMap: tagNameBySlug }}
-                        onRequestExpandAll={() => {
-                            if (isDesktop) {
-                                setExpandAllActive(true);
-                                setExpandAllSignal((v) => v + 1);
-                            }
-                        }}
-                        onRequestCollapseAll={() => {
-                            if (isDesktop) {
-                                setExpandAllActive(false);
-                                setExpandAllSignal((v) => v + 1);
-                            }
-                        }}
-                        expandAllActive={isDesktop ? expandAllActive : false}
-                        expandAllSignal={expandAllSignal}
-                    />
-                ))}
+                {events.map((event) => {
+                    return (
+                        <EventCard
+                            key={event.id}
+                            event={event}
+                            dictionaries={{ eventTypeMap: eventTypeMap, tagMap: tagNameBySlug }}
+                            onRequestExpandAll={() => {
+                                if (isDesktop) {
+                                    setExpandAllActive(true);
+                                    setExpandAllSignal((v) => v + 1);
+                                }
+                            }}
+                            onRequestCollapseAll={() => {
+                                if (isDesktop) {
+                                    setExpandAllActive(false);
+                                    setExpandAllSignal((v) => v + 1);
+                                }
+                            }}
+                            expandAllActive={isDesktop ? expandAllActive : false}
+                            expandAllSignal={expandAllSignal}
+                        />
+                    );
+                })}
                 <div ref={lastEventRef} />
 
                 {/* ✅ Show Skeleton Loader while fetching more events */}

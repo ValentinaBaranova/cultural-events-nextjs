@@ -69,6 +69,7 @@ const es = {
   "events.tickets": "Entradas:",
   "events.since": "Desde",
   "events.durationNotProvided": "Duración no informada",
+  "events.moreOccurrences": "Ver {n} funciones",
   "events.mainAction.tickets": "Entradas",
   "events.mainAction.howToAttend": "Cómo asistir",
   "events.mainAction.moreInfo": "Más info",

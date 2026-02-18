@@ -91,6 +91,16 @@ export default function EventCard(props: EventCardProps) {
     prevExpandedRef.current = isExpanded;
   }, [isExpanded, onRequestExpandAll, onRequestCollapseAll]);
 
+  // Filter out past dates for the date display on the card
+  const futureOccurrences = React.useMemo(() => {
+    if (!event.otherDates) return [];
+    const today = dayjs().startOf('day');
+    return event.otherDates.filter(d => {
+      const date = dayjs(d.date);
+      return date.isSame(today) || date.isAfter(today);
+    });
+  }, [event.otherDates]);
+
   // Compute highlight locally from URL
   const isHighlighted = searchParams.get('highlight') === event.id;
 
@@ -234,11 +244,43 @@ export default function EventCard(props: EventCardProps) {
               <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
             <span className="event-meta-text">
-              {formatEventCardDate(event, t('events.since'))}
-              {!event.endDate && (
+              {futureOccurrences.length > 1 ? (
+                <div className="flex flex-col gap-1">
+                  {futureOccurrences.length <= 4 ? (
+                    futureOccurrences.map((dateObj) => (
+                      <div key={dateObj.id} className="flex items-center gap-1">
+                        <span>{formatEventCardDate(dateObj, t('events.since'))}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <>
+                      {futureOccurrences.slice(0, 3).map((dateObj) => (
+                        <div key={dateObj.id} className="flex items-center gap-1">
+                          <span>{formatEventCardDate(dateObj, t('events.since'))}</span>
+                        </div>
+                      ))}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsExpanded(true);
+                        }}
+                        className="event-link"
+                      >
+                        {t('events.moreOccurrences').replace('{n}', String(futureOccurrences.length - 3))}
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : (
                 <>
-                  <br />
-                  <span className="event-meta-note">{t('events.durationNotProvided')}</span>
+                  {formatEventCardDate(event, t('events.since'))}
+                  {!event.endDate && (
+                    <>
+                      <br />
+                      <span className="event-meta-note">{t('events.durationNotProvided')}</span>
+                    </>
+                  )}
                 </>
               )}
             </span>

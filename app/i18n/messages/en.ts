@@ -70,6 +70,7 @@ const en = {
   "events.tickets": "Tickets:",
   "events.since": "Since",
   "events.durationNotProvided": "Duration not provided",
+  "events.moreOccurrences": "See {n} dates",
   "events.mainAction.tickets": "Tickets",
   "events.mainAction.howToAttend": "How to attend",
   "events.mainAction.moreInfo": "More info",

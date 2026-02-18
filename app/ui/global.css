@@ -666,6 +666,7 @@ body {
 p.event-description {
     margin: 12px 0 14px;
     color: var(--muted-foreground);
+    font-size: 0.95rem;
 }
 
 .event-tags {
@@ -842,6 +843,7 @@ p.event-description {
 .event-main-action-btn:hover,
 .btn-entradas-theme:hover {
   background: #ede9fe; /* indigo-100 */
+  color: #111827; /* explicitly keep same color as non-hover to avoid color changes from global link styles */
 }
 .event-main-action-btn:focus-visible,
 .btn-entradas-theme:focus-visible {

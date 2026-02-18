@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import { CulturalEvent } from '@/lib/definitions';
+import { CulturalEvent, EventDate } from '@/lib/definitions';
 
 // Helper: format date for event cards per product rules.
 // - Single-day event: "Jueves 15/01 · 17:30" (weekday localized and capitalized, DD/MM, optional time HH:mm)
 // - Multi-day or missing endDate: "Desde jueves 15/01" (weekday localized and lowercased)
-export function formatEventCardDate(event: CulturalEvent, sinceWord: string): string {
+export function formatEventCardDate(event: CulturalEvent | EventDate, sinceWord: string): string {
   const d = dayjs(event.date);
   if (!d.isValid()) return String(event.date ?? '');
 

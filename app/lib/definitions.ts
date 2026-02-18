@@ -33,6 +33,7 @@ export type CulturalEvent = {
     endDate?: string; // (Optional) End date of the event, in ISO format
     type: string; // Slug of event type
     imageExists: boolean;
+    seriesKey?: string | null;
     isFree?: boolean | null; // (Optional) Whether the event is free
     priceText?: string | null; // (Optional) Price text, e.g., "$5.000"
     venue?: Venue | null; // Optional venue info
@@ -41,4 +42,12 @@ export type CulturalEvent = {
     paymentChannels?: PaymentChannel[]; // Optional ticket purchase links
     tags?: string[]; // Optional list of tag slugs
     isForChildren?: boolean; // Whether the event is for children
+    otherDates?: EventDate[];
+};
+
+export type EventDate = {
+    id: string;
+    date: string;
+    startTime?: string | null;
+    endDate?: string | null;
 };
