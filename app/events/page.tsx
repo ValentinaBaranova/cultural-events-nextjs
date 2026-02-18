@@ -21,6 +21,7 @@ import FilterRow from './components/FilterRow';
 import PrimaryFilters from './components/PrimaryFilters';
 import DateRangeFilter from './components/DateRangeFilter';
 import StickySearchBar from './components/StickySearchBar';
+import { useFavorites } from '@/lib/useFavorites';
 
 function EventsListPageInner() {
     // Set CSS --vh variable to handle 100vh issues on iOS Safari when the URL bar collapses/expands
@@ -50,6 +51,8 @@ function EventsListPageInner() {
     const [types, setTypes] = useState<EventTypeOption[]>([]);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [onlyFree, setOnlyFree] = useState<boolean>(false);
+    const [onlyFavorites, setOnlyFavorites] = useState<boolean>(false);
+    const { favorites } = useFavorites();
     const [audience, setAudience] = useState<'all' | 'children' | 'adults'>('all');
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [internalDateRange, setInternalDateRange] = useState<[Dayjs, Dayjs] | null>(null);
@@ -399,6 +402,23 @@ function EventsListPageInner() {
         audience === 'children' ? true : audience === 'adults' ? false : null,
     );
 
+    const filteredEvents = useMemo(() => {
+        if (!onlyFavorites) return events;
+        return events.filter(ev => favorites.includes(ev.id));
+    }, [events, onlyFavorites, favorites]);
+
+    const displayedEventsCount = filteredEvents.length;
+
+    const hasFutureFavorites = useMemo(() => {
+        if (favorites.length === 0) return false;
+        const today = dayjs().startOf('day');
+        return events.some(ev => {
+            if (!favorites.includes(ev.id)) return false;
+            const evDate = dayjs(ev.date);
+            return evDate.isSame(today) || evDate.isAfter(today);
+        });
+    }, [events, favorites]);
+
     // Derive displayed tag options from facets (only tags present in results), while preserving selected tags
     const selectedTagsKey = useMemo(() => (selectedTags && selectedTags.length ? selectedTags.join(',') : ''), [selectedTags]);
     useEffect(() => {
@@ -646,13 +666,24 @@ function EventsListPageInner() {
             <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3 block">
                 {t('filters.price')}
             </span>
-            <Checkbox
-                className="only-free-checkbox"
-                checked={onlyFree}
-                onChange={(e) => setOnlyFree(e.target.checked)}
-            >
-                {t('filters.onlyFree')}
-            </Checkbox>
+            <div className="flex flex-col gap-2">
+                <Checkbox
+                    className="only-free-checkbox"
+                    checked={onlyFree}
+                    onChange={(e) => setOnlyFree(e.target.checked)}
+                >
+                    {t('filters.onlyFree')}
+                </Checkbox>
+                {hasFutureFavorites && (
+                    <Checkbox
+                        className="only-favorites-checkbox"
+                        checked={onlyFavorites}
+                        onChange={(e) => setOnlyFavorites(e.target.checked)}
+                    >
+                        {t('filters.onlyFavorites', 'Solo guardados')}
+                    </Checkbox>
+                )}
+            </div>
         </div>
     );
 
@@ -1091,7 +1122,10 @@ function EventsListPageInner() {
 
                 {typeof total === 'number' && (
                     <div className="mb-4 text-sm text-gray-700" role="status" aria-live="polite">
-                        {total === 1 ? t('events.count.singular') : t('events.count.plural').replace('{n}', String(total))}
+                        {onlyFavorites 
+                            ? (displayedEventsCount === 1 ? t('events.count.singular') : t('events.count.plural').replace('{n}', String(displayedEventsCount)))
+                            : (total === 1 ? t('events.count.singular') : t('events.count.plural').replace('{n}', String(total)))
+                        }
                     </div>
                 )}
 
@@ -1105,7 +1139,7 @@ function EventsListPageInner() {
                 )}
 
                 {/* ✅ Empty state: show polite message when no events match filters */}
-                {!isLoading && !isFetchingMore && (!events || events.length === 0) && (
+                {!isLoading && !isFetchingMore && (!filteredEvents || filteredEvents.length === 0) && (
                     <div className="empty-state-card">
                         <h3 className="text-lg font-semibold text-gray-800 mb-1">{t('events.empty.title')}</h3>
                         <p className="text-gray-600 mb-4">{t('events.empty.subtitle')}</p>
@@ -1115,7 +1149,7 @@ function EventsListPageInner() {
                     </div>
                 )}
 
-                {events.map((event) => {
+                {filteredEvents.map((event) => {
                     return (
                         <EventCard
                             key={event.id}

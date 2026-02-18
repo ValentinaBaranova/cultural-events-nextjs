@@ -13,6 +13,7 @@ import { useSession } from 'next-auth/react';
 import { message } from 'antd';
 import { ReportProblemModal, type ReportModalHandle } from './ReportProblemModal';
 import { ConfirmHideModal, type HideModalHandle } from './ConfirmHideModal';
+import { useFavorites } from '@/lib/useFavorites';
 
 export type EventCardProps = {
   event: CulturalEvent;
@@ -55,6 +56,7 @@ export default function EventCard(props: EventCardProps) {
   const [messageApi, messageContextHolder] = message.useMessage();
   const reportRef = React.useRef<ReportModalHandle>(null);
   const hideModalRef = React.useRef<HideModalHandle>(null);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   // Local UI state
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -286,8 +288,33 @@ export default function EventCard(props: EventCardProps) {
             </span>
           </div>
 
-          {/* Right-side controls: Share (left) + Kebab (right) */}
-          <div className="flex gap-1 sm:gap-2 -mt-1">
+          {/* Right-side controls: Bookmark (left) + Share (middle) + Kebab (right) */}
+          <div className="flex gap-1 lg:gap-0 -mt-1">
+            <button
+              type="button"
+              className="event-kebab-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite(event.id);
+              }}
+              title={isFavorite(event.id) ? t('events.removeFromFavorites', 'Remove from favorites') : t('events.addToFavorites', 'Add to favorites')}
+              aria-label={isFavorite(event.id) ? t('events.removeFromFavorites', 'Remove from favorites') : t('events.addToFavorites', 'Add to favorites')}
+            >
+              <svg
+                className={`w-4 h-4 ${isFavorite(event.id) ? 'text-[#8b5cf6] fill-current' : 'text-gray-700'}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span className="sr-only">{isFavorite(event.id) ? t('events.removeFromFavorites', 'Remove from favorites') : t('events.addToFavorites', 'Add to favorites')}</span>
+            </button>
+
             <button
               type="button"
               className="event-kebab-btn"

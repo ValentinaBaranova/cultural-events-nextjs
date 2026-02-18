@@ -18,6 +18,8 @@ const montserrat = Montserrat({
   weight: ["400", "500", "600", "700"],
 });
 
+import { FavoritesProvider } from '@/lib/useFavorites';
+
 export default function RootLayout({
    children,
 }: {
@@ -37,16 +39,18 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <I18nProvider>
               <AntdLocaleProvider>
-                  <NavBar />
-                  <main>
-                    <Container className="py-6">
-                      {children}
-                    </Container>
-                    <ScrollToTop />
-                  </main>
-                  <Container className="py-6">
-                    <ConsentBanner />
-                  </Container>
+                  <FavoritesProvider>
+                      <NavBar />
+                      <main>
+                        <Container className="py-6">
+                          {children}
+                        </Container>
+                        <ScrollToTop />
+                      </main>
+                      <Container className="py-6">
+                        <ConsentBanner />
+                      </Container>
+                  </FavoritesProvider>
               </AntdLocaleProvider>
           </I18nProvider>
         </Suspense>
