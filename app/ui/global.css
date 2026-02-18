@@ -552,7 +552,8 @@ body {
 }
 /* Date row variant: center items vertically so right controls (share/kebab) align with the date */
 .event-meta.event-meta-date {
-    align-items: center;
+    /* Align date row content to the top so action icons sit at the first line */
+    align-items: flex-start;
 }
 
 /* Ensure multi-line text aligns nicely with the icon */
