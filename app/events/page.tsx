@@ -409,15 +409,6 @@ function EventsListPageInner() {
 
     const displayedEventsCount = filteredEvents.length;
 
-    const hasFutureFavorites = useMemo(() => {
-        if (favorites.length === 0) return false;
-        const today = dayjs().startOf('day');
-        return events.some(ev => {
-            if (!favorites.includes(ev.id)) return false;
-            const evDate = dayjs(ev.date);
-            return evDate.isSame(today) || evDate.isAfter(today);
-        });
-    }, [events, favorites]);
 
     // Derive displayed tag options from facets (only tags present in results), while preserving selected tags
     const selectedTagsKey = useMemo(() => (selectedTags && selectedTags.length ? selectedTags.join(',') : ''), [selectedTags]);
@@ -674,15 +665,13 @@ function EventsListPageInner() {
                 >
                     {t('filters.onlyFree')}
                 </Checkbox>
-                {hasFutureFavorites && (
-                    <Checkbox
-                        className="only-favorites-checkbox"
-                        checked={onlyFavorites}
-                        onChange={(e) => setOnlyFavorites(e.target.checked)}
-                    >
-                        {t('filters.onlyFavorites', 'Solo guardados')}
-                    </Checkbox>
-                )}
+                <Checkbox
+                    className="only-favorites-checkbox"
+                    checked={onlyFavorites}
+                    onChange={(e) => setOnlyFavorites(e.target.checked)}
+                >
+                    {t('filters.onlyFavorites', 'Solo guardados')}
+                </Checkbox>
             </div>
         </div>
     );

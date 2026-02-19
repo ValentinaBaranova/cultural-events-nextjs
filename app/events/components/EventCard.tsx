@@ -289,7 +289,7 @@ export default function EventCard(props: EventCardProps) {
           </div>
 
           {/* Right-side controls: Bookmark (left) + Share (middle) + Kebab (right) */}
-          <div className="flex gap-1 lg:gap-0 -mt-1">
+          <div className="flex gap-1 lg:gap-0 -mt-1.5">
             <button
               type="button"
               className="event-kebab-btn"
