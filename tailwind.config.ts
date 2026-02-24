@@ -25,7 +25,28 @@ export default {
         foreground: "var(--foreground)",
         card: "var(--card)",
         muted: "var(--muted)",
+        "muted-foreground": "var(--muted-foreground)",
         border: "var(--border)",
+        primary: {
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
+          hover: "var(--primary-hover)",
+        },
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
+          hover: "var(--accent-hover)",
+          active: "var(--accent-active)",
+        },
+        success: {
+          DEFAULT: "var(--success)",
+          foreground: "var(--success-foreground)",
+        },
+        destructive: {
+          DEFAULT: "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
+          hover: "var(--destructive-hover)",
+        },
       },
       borderRadius: {
         none: "0px",

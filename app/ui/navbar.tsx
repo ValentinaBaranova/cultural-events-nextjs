@@ -21,7 +21,7 @@ const NavBar = () => {
       `${isActive(href) ? 'text-foreground font-semibold' : 'text-muted-foreground'} hover:text-foreground`;
 
     return (
-        <header className="border-b border-border bg-white">
+        <header className="border-b border-border bg-card">
             <Container className="h-16 flex items-center justify-between">
                 {/* Left: Logo/Title */}
                 <Link href="/events" className={`text-lg font-semibold transition-colors ${linkClass('/events')}`}>
@@ -58,11 +58,11 @@ const NavBar = () => {
                     <LanguageSwitcher />
                     {SHOW_AUTH_BUTTONS && (
                         session?.user ? (
-                            <Link href="#" onClick={(e) => { e.preventDefault(); signOut(); }} className="px-3 py-1.5 rounded-md bg-red-500 text-white hover:bg-red-600 transition">
+                            <Link href="#" onClick={(e) => { e.preventDefault(); signOut(); }} className="px-3 py-1.5 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive-hover transition">
                                 {t('auth.logout')}
                             </Link>
                         ) : (
-                            <Link href="#" onClick={(e) => { e.preventDefault(); signIn(); }} className="px-3 py-1.5 rounded-md bg-violet-500 text-white hover:bg-violet-600 transition">
+                            <Link href="#" onClick={(e) => { e.preventDefault(); signIn(); }} className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary-hover transition">
                                 {t('auth.login')}
                             </Link>
                         )
@@ -121,11 +121,11 @@ const NavBar = () => {
                         {SHOW_AUTH_BUTTONS && (
                             <div className="pt-2 flex items-center gap-3">
                                 {session?.user ? (
-                                    <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signOut(); }} className="px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 transition text-sm">
+                                    <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signOut(); }} className="px-3 py-1.5 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive-hover transition text-sm">
                                         {t('auth.logout')}
                                     </Link>
                                 ) : (
-                                    <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signIn(); }} className="px-3 py-1.5 bg-violet-500 text-white rounded-md hover:bg-violet-600 transition text-sm">
+                                    <Link href="#" onClick={(e) => { e.preventDefault(); setIsOpen(false); signIn(); }} className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover transition text-sm">
                                         {t('auth.login')}
                                     </Link>
                                 )}

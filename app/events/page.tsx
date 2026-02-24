@@ -654,7 +654,7 @@ function EventsListPageInner() {
     // Price filter: only free
     const renderPriceFilter = () => (
         <div className="mt-2 sm:mt-6">
-            <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3 block">
+            <span className="text-sm font-semibold text-muted-foreground mb-2 sm:mb-3 block">
                 {t('filters.price')}
             </span>
             <div className="flex flex-col gap-2">
@@ -686,7 +686,7 @@ function EventsListPageInner() {
 
         return (
             <div className="mt-2 sm:mt-0">
-                <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3 block">
+                <span className="text-sm font-semibold text-muted-foreground mb-2 sm:mb-3 block">
                     {t('filters.audience')}
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -698,8 +698,8 @@ function EventsListPageInner() {
                                 type="button"
                                 onClick={() => setAudience(opt.value)}
                                 className={`px-3 py-1 text-sm rounded-full border transition-colors ${active
-                                        ? 'bg-[#ddd6fe] text-[#111827] border-[#8b5cf6]'
-                                        : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
+                                        ? 'bg-accent-active text-accent-foreground border-primary'
+                                        : 'bg-muted text-accent-foreground border-border hover:bg-accent-hover'
                                     }`}
                             >
                                 {opt.label}
@@ -955,7 +955,7 @@ function EventsListPageInner() {
                             const extra = totalActive - prioritizedChips.length;
                             return totalActive > 2 ? (
                                 <span
-                                    className="text-sm text-gray-600 cursor-pointer"
+                                    className="text-sm text-muted-foreground cursor-pointer"
                                     onClick={() => setSheetOpen(true)}
                                 >
                                     +{extra} {t('filters.moreCountSuffix')}
@@ -1110,7 +1110,7 @@ function EventsListPageInner() {
 
 
                 {typeof total === 'number' && (
-                    <div className="mb-4 text-sm text-gray-700" role="status" aria-live="polite">
+                    <div className="mb-4 text-sm text-muted-foreground" role="status" aria-live="polite">
                         {onlyFavorites 
                             ? (displayedEventsCount === 1 ? t('events.count.singular') : t('events.count.plural').replace('{n}', String(displayedEventsCount)))
                             : (total === 1 ? t('events.count.singular') : t('events.count.plural').replace('{n}', String(total)))
@@ -1130,9 +1130,9 @@ function EventsListPageInner() {
                 {/* ✅ Empty state: show polite message when no events match filters */}
                 {!isLoading && !isFetchingMore && (!filteredEvents || filteredEvents.length === 0) && (
                     <div className="empty-state-card">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-1">{t('events.empty.title')}</h3>
-                        <p className="text-gray-600 mb-4">{t('events.empty.subtitle')}</p>
-                        <button type="button" className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300" onClick={clearAll}>
+                        <h3 className="text-lg font-semibold text-foreground mb-1">{t('events.empty.title')}</h3>
+                        <p className="text-muted-foreground mb-4">{t('events.empty.subtitle')}</p>
+                        <button type="button" className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground border border-border" onClick={clearAll}>
                             {t('events.empty.clearFilters')}
                         </button>
                     </div>

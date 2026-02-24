@@ -34,7 +34,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
 }) => {
   return (
     <div className="flex flex-col sm:mt-6">
-      <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3">{t('filters.dateRange')}</span>
+      <span className="text-sm font-semibold text-muted-foreground mb-2 sm:mb-3">{t('filters.dateRange')}</span>
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex flex-wrap gap-2 items-center order-1">
           {(() => {
@@ -55,8 +55,8 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                   onClick={() => { applyPreset(p.value); setPickerOpen(false); }}
                   className={`px-3 py-1 sm:py-1 text-sm rounded-full border transition-colors ${
                     isActive
-                      ? 'bg-[#ddd6fe] text-[#111827] border-[#8b5cf6]'
-                      : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
+                      ? 'bg-accent-active text-accent-foreground border-primary'
+                      : 'bg-muted text-accent-foreground border-border hover:bg-accent-hover'
                   }`}
                 >
                   {p.label}

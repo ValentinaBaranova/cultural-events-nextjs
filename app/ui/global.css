@@ -8,8 +8,22 @@
     --foreground: #171717;
     --card: #ffffff;
     --muted: #f3f4f6; /* gray-100 */
-    --border: #e5e7eb; /* gray-200 */
     --muted-foreground: #6b7280; /* gray-500 */
+    --border: #e5e7eb; /* gray-200 */
+
+    /* Primary/Accent Colors */
+    --primary: #8b5cf6; /* violet-500 */
+    --primary-foreground: #ffffff;
+    --primary-hover: #7c3aed; /* violet-600 */
+    --accent: #f5f3ff; /* violet-50/indigo-50 */
+    --accent-foreground: #111827; /* gray-900 */
+    --accent-hover: #ede9fe; /* violet-100/indigo-100 */
+    --accent-active: #ddd6fe; /* violet-200 */
+    --success: #10b981; /* emerald-500 */
+    --success-foreground: #ffffff;
+    --destructive: #ef4444; /* red-500 */
+    --destructive-foreground: #ffffff;
+    --destructive-hover: #dc2626; /* red-600 */
 
     /* Layout */
     --container-max: 1000px;
@@ -52,8 +66,19 @@
         --foreground: #ededed;
         --card: #0f0f10;
         --muted: #111827; /* gray-900 */
-        --border: #1f2937; /* gray-800 */
         --muted-foreground: #9ca3af; /* gray-400 */
+        --border: #1f2937; /* gray-800 */
+
+        /* Primary/Accent Colors - Dark Mode */
+        --primary: #a78bfa; /* violet-400 */
+        --primary-hover: #c4b5fd; /* violet-300 */
+        --accent: rgba(167, 139, 250, 0.08);
+        --accent-foreground: #f9fafb;
+        --accent-hover: rgba(167, 139, 250, 0.12);
+        --accent-active: rgba(167, 139, 250, 0.20);
+        --destructive: #f87171; /* red-400 */
+        --destructive-foreground: #111827;
+        --destructive-hover: #ef4444; /* red-500 */
         --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
         --shadow: 0 2px 8px 0 rgb(0 0 0 / 0.5);
         --shadow-lg: 0 8px 24px -6px rgb(0 0 0 / 0.55);
@@ -70,7 +95,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #e5e7eb; /* gray-200 */
+  background: var(--border); /* gray-200 */
   border: none;
   color: var(--foreground);
   border-radius: 9999px;
@@ -162,13 +187,13 @@
 
 .chip-clear-all {
   font-size: 12px;
-  color: #111827; /* gray-900 */
+  color: var(--accent-foreground); /* gray-900 */
   text-decoration: underline;
   text-underline-offset: 2px;
   margin-left: auto;
   white-space: nowrap;
 }
-.chip-clear-all:hover { color: #000000; }
+.chip-clear-all:hover { color: var(--foreground); }
 
 /* Unified filters/chips block */
 .filters-block {
@@ -202,13 +227,13 @@
   padding: 0;
   margin: 0;
   font: inherit;
-  color: #6b7280; /* gray-500 */
+  color: var(--muted-foreground); /* gray-500 */
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
 }
 .filters-summary-clear:hover {
-  color: #111827; /* gray-900 */
+  color: var(--accent-foreground); /* gray-900 */
 }
 
 /* Filters button (mobile primary) */
@@ -218,7 +243,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  background: #f5f3ff; /* indigo-50 */
+  background: var(--accent); /* indigo-50 */
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px 14px;
@@ -237,24 +262,24 @@
   cursor: pointer;
 }
 .filters-toggle:hover {
-  background-color: rgba(99, 102, 241, 0.06); /* subtle indigo tint */
+  background-color: var(--accent); /* subtle indigo tint */
 }
 @media (prefers-color-scheme: dark) {
   .filters-toggle:hover {
-    background-color: rgba(167, 139, 250, 0.08);
+    background-color: var(--accent-hover);
   }
 }
 .filters-icon {
   width: 18px;
   height: 18px;
-  stroke: #6366f1; /* indigo-500 */
+  stroke: var(--primary); /* indigo-500 */
 }
 .filters-badge {
   margin-left: 8px;
   font-size: 12px;
   line-height: 1;
-  background: #8b5cf6; /* violet-500 */
-  color: #ffffff;
+  background: var(--primary); /* violet-500 */
+  color: var(--primary-foreground);
   border-radius: 9999px;
   padding: 3px 7px;
 }
@@ -341,8 +366,8 @@
 }
 .sheet-apply {
   flex: 1;
-  background: #f5f3ff; /* match filters-btn background (indigo-50) */
-  color: #111827; /* dark text to match filters button */
+  background: var(--accent); /* match filters-btn background (indigo-50) */
+  color: var(--accent-foreground); /* dark text to match filters button */
   border: none;
   border-radius: 12px; /* match filters-btn radius */
   padding: 12px 14px; /* match filters-btn padding */
@@ -351,7 +376,7 @@
   flex: 1;
   background: transparent; /* weaker style: no background */
   border: 1px solid var(--border); /* subtle border only */
-  color: #111827; /* dark text */
+  color: var(--accent-foreground); /* dark text */
   border-radius: 12px;
   padding: 12px 14px;
 }
@@ -390,12 +415,12 @@ body {
 
 /* Highlighted card when sharing a link with ?highlight=evt_xxx */
 @keyframes highlightPulse {
-  0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.6); }
-  70% { box-shadow: 0 0 0 8px rgba(99,102,241,0.0); }
-  100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.0); }
+  0% { box-shadow: 0 0 0 0 var(--primary); }
+  70% { box-shadow: 0 0 0 8px rgba(139, 92, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
 }
 .event-card-highlight {
-  outline: 3px solid rgba(99,102,241,0.6); /* indigo-500 */
+  outline: 3px solid var(--primary); /* indigo-500 */
   outline-offset: -3px;
   animation: highlightPulse 2s ease-out 0s 2;
 }
@@ -449,7 +474,7 @@ body {
 /* Long type names should not overlap the free badge; truncate with ellipsis */
 .badge-type {
     background: rgba(17,24,39,0.8); /* gray-900 80% */
-    color: #fff;
+    color: var(--primary-foreground);
     border: 1px solid rgba(255,255,255,0.25);
     max-width: 72%;
     white-space: nowrap;
@@ -457,8 +482,8 @@ body {
     text-overflow: ellipsis;
 }
 .badge-free-inline {
-    background-color: #10b981; /* emerald-500 */
-    color: #fff;
+    background-color: var(--success); /* emerald-500 */
+    color: var(--success-foreground);
     flex: 0 0 auto; /* keep natural size, don't shrink */
 }
 
@@ -467,8 +492,8 @@ body {
     position: absolute;
     top: 12px;
     right: 12px;
-    background-color: #10b981; /* emerald-500 */
-    color: white;
+    background-color: var(--success); /* emerald-500 */
+    color: var(--success-foreground);
     font-weight: 700;
     font-size: 0.75rem;
     letter-spacing: 0.02em;
@@ -490,7 +515,7 @@ body {
     width: 36px;
     height: 36px;
     background: rgba(255, 255, 255, 0.9);
-    color: #111827;
+    color: var(--accent-foreground);
     border: 1px solid var(--border);
     border-radius: 9999px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -498,10 +523,10 @@ body {
     box-sizing: border-box; /* keep the visual alignment with badge */
 }
 .event-share-btn:hover {
-    background: #ffffff;
+    background: var(--card);
 }
 .event-share-btn:focus-visible {
-    outline: 2px solid #6366f1; /* indigo-500 */
+    outline: 2px solid var(--primary); /* indigo-500 */
     outline-offset: 2px;
 }
 .event-share-icon {
@@ -572,7 +597,7 @@ body {
     line-height: 1; /* keep intrinsic size unaffected by line height */
     align-self: flex-start; /* align with top when the text spans 2 lines */
     margin-top: 1px; /* tiny visual nudge to align with first text line */
-    color: #8b5cf6; /* violet-500 for icons */
+    color: var(--primary); /* violet-500 for icons */
 }
 
 .event-meta-text a {
@@ -612,7 +637,7 @@ body {
 }
 /* Divider line remains static on hover (no color change) */
 .event-collapse:focus-visible {
-    outline: 2px solid #6366f1; /* indigo-500 */
+    outline: 2px solid var(--primary); /* indigo-500 */
     outline-offset: 2px;
     border-radius: 8px; /* subtle focus ring rounding */
 }
@@ -632,11 +657,11 @@ body {
 }
 /* Row hover effect without changing chevron color */
 .event-collapse:hover {
-    background-color: rgba(99, 102, 241, 0.06); /* subtle indigo tint */
+    background-color: var(--accent); /* subtle indigo tint */
 }
 @media (prefers-color-scheme: dark) {
     .event-collapse:hover {
-        background-color: rgba(167, 139, 250, 0.08); /* slightly stronger in dark */
+        background-color: var(--accent-hover); /* slightly stronger in dark */
     }
 }
 
@@ -682,13 +707,13 @@ p.event-description {
     padding: 6px 10px;
     font-size: 12px;
     border-radius: 9999px;
-    background: #f5f3ff; /* violet-50 */
+    background: var(--accent); /* violet-50 */
     color: #5b21b6; /* violet-800 */
     border: 1px solid #e9d5ff; /* violet-200 */
 }
 
 .event-tag:hover {
-    background: #ede9fe; /* violet-100 */
+    background: var(--accent-hover); /* violet-100 */
 }
 
 .event-detail-container {
@@ -707,33 +732,6 @@ p.event-description {
     margin: 10px 0;
 }
 
-.navbar {
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border); /* bottom border */
-}
-
-.navbar a {
-    margin: 0 10px;
-    font-size: 3rem; /* Увеличиваем размер шрифта */
-    text-decoration: none;
-    color: var(--foreground); /* Цвет текста */
-    font-weight: bold;
-}
-
-.navbar a.active {
-    cursor: pointer; /* Снова делаем ссылку кликабельной */
-}
-
-.navbar a:hover {
-    text-decoration: underline; /* Подчёркивание при наведении */
-}
-
-.navbar a.active:hover {
-    text-decoration: none; /* Подчёркивание при наведении */
-    cursor: default;
-}
 
 .skeleton {
     background: var(--muted);
@@ -804,28 +802,28 @@ p.event-description {
   font-family: inherit !important;
 }
 .only-free-checkbox .ant-checkbox-checked .ant-checkbox-inner {
-  background-color: #8b5cf6; /* violet-500 */
-  border-color: #8b5cf6;
+  background-color: var(--primary); /* violet-500 */
+  border-color: var(--primary);
 }
 .only-free-checkbox .ant-checkbox:hover .ant-checkbox-inner,
 .only-free-checkbox:hover .ant-checkbox-inner {
-  border-color: #8b5cf6;
+  border-color: var(--primary);
 }
 .only-free-checkbox .ant-checkbox-input:focus + .ant-checkbox-inner,
 .only-free-checkbox .ant-checkbox-input:focus-visible + .ant-checkbox-inner {
-  border-color: #8b5cf6;
+  border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
 }
 .only-free-checkbox .ant-checkbox-checked:hover .ant-checkbox-inner {
-  background-color: #7c3aed; /* violet-600 on hover */
-  border-color: #7c3aed;
+  background-color: var(--primary-hover); /* violet-600 on hover */
+  border-color: var(--primary-hover);
 }
 
 
 /* Purple/violet icons for event meta (dark-mode aware) */
 @media (prefers-color-scheme: dark) {
   .event-meta-icon {
-    color: #a78bfa; /* violet-400/500 in dark mode */
+    color: var(--primary); /* violet-400/500 in dark mode */
   }
 }
 
@@ -837,19 +835,19 @@ p.event-description {
 /* Shared visual theme for Entradas-style buttons */
 .event-main-action-btn,
 .btn-entradas-theme {
-  background: #f5f3ff; /* indigo-50 to match style */
-  color: #111827;
+  background: var(--accent); /* indigo-50 to match style */
+  color: var(--accent-foreground);
   border: 1px solid var(--border);
   font-weight: 400; /* normal (not bold) */
 }
 .event-main-action-btn:hover,
 .btn-entradas-theme:hover {
-  background: #ede9fe; /* indigo-100 */
-  color: #111827; /* explicitly keep same color as non-hover to avoid color changes from global link styles */
+  background: var(--accent-hover); /* indigo-100 */
+  color: var(--accent-foreground); /* explicitly keep same color as non-hover to avoid color changes from global link styles */
 }
 .event-main-action-btn:focus-visible,
 .btn-entradas-theme:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -922,12 +920,12 @@ p.event-description {
 .mobile-picker-btn {
   background: transparent;
   border: none;
-  color: #111827;
+  color: var(--accent-foreground);
   padding: 8px 10px;
   border-radius: 10px;
 }
 .mobile-picker-btn.primary {
-  background: #f5f3ff;
+  background: var(--accent);
 }
 .mobile-picker-search {
   width: 100%;
@@ -972,12 +970,12 @@ p.event-description {
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: #f9fafb;
+  background: var(--background);
 }
 .filter-trigger .count {
   display: none; /* Hide purple counter on mobile triggers (Lugares, Barrios, Etiquetas) */
-  background: #8b5cf6;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-foreground);
   border-radius: 9999px;
   padding: 2px 8px;
   font-size: 12px;
@@ -1033,7 +1031,7 @@ p.event-description {
     background: rgba(17, 24, 39, 0.06); /* subtle gray hover */
 }
 .event-kebab-btn:focus-visible {
-    outline: 2px solid #6366f1; /* indigo-500 */
+    outline: 2px solid var(--primary); /* indigo-500 */
     outline-offset: 2px;
 }
 .event-kebab-btn span[aria-hidden="true"] {

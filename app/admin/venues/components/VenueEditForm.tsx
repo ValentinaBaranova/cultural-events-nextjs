@@ -46,7 +46,7 @@ export default function VenueEditForm({ venue, barrios }: VenueEditFormProps) {
     }
 
     return (
-        <div className="max-w-2xl bg-white p-6 rounded-lg border border-border">
+        <div className="max-w-2xl bg-card p-6 rounded-lg border border-border">
             <h1 className="text-2xl font-bold text-foreground mb-6">
                 {t('admin.venues.edit')}: {venue.name}
             </h1>
@@ -99,7 +99,7 @@ export default function VenueEditForm({ venue, barrios }: VenueEditFormProps) {
                         type="primary"
                         htmlType="submit"
                         loading={isSubmitting}
-                        className="bg-violet-600 hover:bg-violet-700"
+                        className="bg-primary hover:bg-primary-hover border-none"
                     >
                         {t('admin.venues.save')}
                     </Button>

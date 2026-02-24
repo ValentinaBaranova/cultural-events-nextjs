@@ -87,9 +87,9 @@ export default function InstagramUsersAdminPage() {
   return (
     <>
       {messageContextHolder}
-      <Card>
-        <Title level={3}>{t("admin.instagramUsers.title", "Instagram Users")}</Title>
-        <Paragraph>{t("admin.instagramUsers.subtitle", "Add a new Instagram user and optionally link a venue.")}</Paragraph>
+      <Card className="bg-card border-border">
+        <Title level={3} className="text-foreground">{t("admin.instagramUsers.title", "Instagram Users")}</Title>
+        <Paragraph className="text-muted-foreground">{t("admin.instagramUsers.subtitle", "Add a new Instagram user and optionally link a venue.")}</Paragraph>
 
         <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item

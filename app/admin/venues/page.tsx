@@ -42,10 +42,10 @@ export default function VenuesPage() {
             <Container className="py-8">
                 <div className="animate-pulse flex space-x-4">
                     <div className="flex-1 space-y-4 py-1">
-                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-muted rounded w-3/4"></div>
                         <div className="space-y-2">
-                            <div className="h-4 bg-gray-200 rounded"></div>
-                            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                            <div className="h-4 bg-muted rounded"></div>
+                            <div className="h-4 bg-muted rounded w-5/6"></div>
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@ export default function VenuesPage() {
                 <h1 className="text-2xl font-bold text-foreground">{t('admin.venues.title')}</h1>
             </div>
 
-            <div className="bg-white shadow-sm border border-border rounded-lg overflow-hidden">
+            <div className="bg-card shadow-sm border border-border rounded-lg overflow-hidden">
                 <table className="min-w-full divide-y divide-border">
                     <thead className="bg-muted/50">
                         <tr>
@@ -74,7 +74,7 @@ export default function VenuesPage() {
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-border">
+                    <tbody className="bg-card divide-y divide-border">
                         {venues.map((venue) => (
                             <tr key={venue.id} className="hover:bg-muted/30 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
@@ -86,7 +86,7 @@ export default function VenuesPage() {
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <Link
                                         href={`/admin/venues/${venue.id}/edit`}
-                                        className="text-violet-600 hover:text-violet-900"
+                                        className="text-primary hover:text-primary-hover"
                                     >
                                         {t('common.edit')}
                                     </Link>

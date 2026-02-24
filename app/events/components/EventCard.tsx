@@ -332,7 +332,7 @@ export default function EventCard(props: EventCardProps) {
               aria-label={isFavorite(event.id) ? t('events.removeFromFavorites', 'Remove from favorites') : t('events.addToFavorites', 'Add to favorites')}
             >
               <svg
-                className={`w-4 h-4 ${isFavorite(event.id) ? 'text-[#8b5cf6] fill-current' : 'text-gray-700'}`}
+                className={`w-4 h-4 ${isFavorite(event.id) ? 'text-primary fill-current' : 'text-muted-foreground'}`}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -354,7 +354,7 @@ export default function EventCard(props: EventCardProps) {
               aria-label={t ? t('events.share', 'Share') : 'Share'}
             >
               <svg
-                className="w-4 h-4 text-gray-700"
+                className="w-4 h-4 text-muted-foreground"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -387,11 +387,11 @@ export default function EventCard(props: EventCardProps) {
                 id={`actions-menu-${event.id}`}
                 role="menu"
                 tabIndex={-1}
-                className="absolute right-0 mt-2 w-64 origin-top-right bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
+                className="absolute right-0 mt-2 w-64 origin-top-right bg-card shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
               >
                 <a
                   role="menuitem"
-                  className="block w-full px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                  className="block w-full px-4 py-2 text-sm hover:bg-muted flex items-center gap-2"
                   href={(function() {
                     const title = event.name || '';
                     const venueName = event.venue?.name || '';
@@ -437,7 +437,7 @@ export default function EventCard(props: EventCardProps) {
                   title={t('events.addToGoogleCalendar')}
                 >
                   <svg
-                    className="w-4 h-4 text-gray-700"
+                    className="w-4 h-4 text-muted-foreground"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -457,11 +457,11 @@ export default function EventCard(props: EventCardProps) {
                 <button
                   type="button"
                   role="menuitem"
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center gap-2"
                   onClick={() => { setMenuOpen(false); reportRef.current?.open(event.id); }}
                 >
                   <svg
-                    className="w-4 h-4 text-gray-700"
+                    className="w-4 h-4 text-muted-foreground"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -479,15 +479,15 @@ export default function EventCard(props: EventCardProps) {
 
                 {!!session?.user && (
                   <>
-                    <div className="my-1 border-t border-gray-200" role="separator" aria-hidden="true"></div>
+                    <div className="my-1 border-t border-border" role="separator" aria-hidden="true"></div>
                     <a
                       role="menuitem"
-                      className="block w-full px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                      className="block w-full px-4 py-2 text-sm hover:bg-muted flex items-center gap-2"
                       href={`/events/${event.id}/edit`}
                       onClick={() => setMenuOpen(false)}
                     >
                       <svg
-                        className="w-4 h-4 text-gray-700"
+                        className="w-4 h-4 text-muted-foreground"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -506,7 +506,7 @@ export default function EventCard(props: EventCardProps) {
                       <button
                         type="button"
                         role="menuitem"
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center gap-2"
                         onClick={async () => {
                           setMenuOpen(false);
                           try {
@@ -524,7 +524,7 @@ export default function EventCard(props: EventCardProps) {
                         }}
                       >
                         <svg
-                          className="w-4 h-4 text-gray-700"
+                          className="w-4 h-4 text-muted-foreground"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -545,11 +545,11 @@ export default function EventCard(props: EventCardProps) {
                     <button
                       type="button"
                       role="menuitem"
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center gap-2"
                       onClick={() => { setMenuOpen(false); hideModalRef.current?.open(event.id); }}
                     >
                       <svg
-                        className="w-4 h-4 text-gray-700"
+                        className="w-4 h-4 text-muted-foreground"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"

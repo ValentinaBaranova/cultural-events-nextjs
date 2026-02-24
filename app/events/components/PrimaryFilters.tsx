@@ -22,7 +22,7 @@ const PrimaryFilters: React.FC<PrimaryFiltersProps> = ({
 }) => {
   return (
     <div className="mb-1 mt-2 sm:mt-4">
-      <span className="text-sm font-semibold text-gray-700 mb-2 sm:mb-3 inline-block">{t('filters.types')}</span>
+      <span className="text-sm font-semibold text-muted-foreground mb-2 sm:mb-3 inline-block">{t('filters.types')}</span>
       <div className="flex flex-wrap gap-2">
         {types.map((type) => {
           const active = selectedTypes.includes(type.slug);
@@ -43,10 +43,10 @@ const PrimaryFilters: React.FC<PrimaryFiltersProps> = ({
               aria-disabled={isDisabled}
               className={`px-3 py-1 sm:py-1 text-sm rounded-full border transition-colors ${
                 active
-                  ? 'bg-[#ddd6fe] text-[#111827] border-[#8b5cf6]'
+                  ? 'bg-accent-active text-accent-foreground border-primary'
                   : isDisabled
-                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
-                    : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200'
+                    ? 'bg-muted text-muted-foreground border-border cursor-not-allowed opacity-60'
+                    : 'bg-muted text-accent-foreground border-border hover:bg-accent-hover'
               }`}
               title={isDisabled ? t('filters.noEventsThisRange', 'No events in selected dates') : undefined}
             >

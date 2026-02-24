@@ -75,12 +75,12 @@ export default function EditEventForm({ event }: { event: EventForEdit }) {
     return (
         <div className="max-w-lg mx-auto p-4">
             <div className="mb-4">
-                <Link href="/events" className="text-gray-800 no-underline hover:underline">
+                <Link href="/events" className="text-muted-foreground no-underline hover:underline hover:text-foreground">
                     <span aria-hidden="true" className="mr-1">&lt;</span>
                     {t('event.edit.back')}
                 </Link>
             </div>
-            <form action={updateEventWithId} className="bg-white rounded shadow p-4">
+            <form action={updateEventWithId} className="bg-card rounded shadow-sm p-4 border border-border">
                 {/* Hidden inputs to submit controlled AntD values */}
                 <input type="hidden" name="name" value={name} />
                 <input type="hidden" name="nameEn" value={nameEn} />
