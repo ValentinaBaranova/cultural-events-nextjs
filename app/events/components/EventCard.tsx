@@ -14,6 +14,7 @@ import { message } from 'antd';
 import { ReportProblemModal, type ReportModalHandle } from './ReportProblemModal';
 import { ConfirmHideModal, type HideModalHandle } from './ConfirmHideModal';
 import { useFavorites } from '@/lib/useFavorites';
+import { trackExternalClick, getPlatformFromUrl, trackAddToFavorites, trackShareEvent } from '@/lib/gtag';
 
 export type EventCardProps = {
   event: CulturalEvent;
@@ -171,12 +172,33 @@ export default function EventCard(props: EventCardProps) {
       })();
       if (navigator.share) {
         await navigator.share({ url, title: event.name });
+        trackShareEvent({
+          event_id: event.id,
+          event_type: event.type,
+          share_type: 'native_share',
+          barrio: event.venue?.barrio?.slug || '',
+          is_free: !!event.isFree,
+        });
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(url);
         alert(t('events.linkCopied', 'Link copied to clipboard'));
+        trackShareEvent({
+          event_id: event.id,
+          event_type: event.type,
+          share_type: 'copy_link',
+          barrio: event.venue?.barrio?.slug || '',
+          is_free: !!event.isFree,
+        });
       } else {
         // Fallback: prompt for manual copy
         prompt(t('events.copyLink', 'Copy this link'), url);
+        trackShareEvent({
+          event_id: event.id,
+          event_type: event.type,
+          share_type: 'copy_link',
+          barrio: event.venue?.barrio?.slug || '',
+          is_free: !!event.isFree,
+        });
       }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
@@ -295,7 +317,16 @@ export default function EventCard(props: EventCardProps) {
               className="event-kebab-btn"
               onClick={(e) => {
                 e.stopPropagation();
+                const wasFavorite = isFavorite(event.id);
                 toggleFavorite(event.id);
+                if (!wasFavorite) {
+                  trackAddToFavorites({
+                    event_id: event.id,
+                    event_type: event.type,
+                    barrio: event.venue?.barrio?.slug || 'unknown',
+                    is_free: !!event.isFree,
+                  });
+                }
               }}
               title={isFavorite(event.id) ? t('events.removeFromFavorites', 'Remove from favorites') : t('events.addToFavorites', 'Add to favorites')}
               aria-label={isFavorite(event.id) ? t('events.removeFromFavorites', 'Remove from favorites') : t('events.addToFavorites', 'Add to favorites')}
@@ -591,6 +622,11 @@ export default function EventCard(props: EventCardProps) {
                   href={firstPaymentUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackExternalClick({
+                    event_id: event.id,
+                    click_type: 'ticket',
+                    platform: getPlatformFromUrl(firstPaymentUrl),
+                  })}
                 >
                   {t('events.mainAction.tickets', 'Entradas')}
                 </a>
@@ -608,6 +644,11 @@ export default function EventCard(props: EventCardProps) {
                   href={igUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackExternalClick({
+                    event_id: event.id,
+                    click_type: 'instagram',
+                    platform: 'instagram',
+                  })}
                 >
                   {t('events.mainAction.moreInfo', 'Sitio oficial')}
                 </a>
@@ -687,6 +728,11 @@ export default function EventCard(props: EventCardProps) {
                             rel="noopener noreferrer"
                             className={linkClasses}
                             title={displayName}
+                            onClick={() => trackExternalClick({
+                              event_id: event.id,
+                              click_type: 'ticket',
+                              platform: getPlatformFromUrl(normalizedUrl),
+                            })}
                           >
                             {displayName}
                           </a>
@@ -717,6 +763,11 @@ export default function EventCard(props: EventCardProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="event-link"
+                      onClick={() => trackExternalClick({
+                        event_id: event.id,
+                        click_type: 'instagram',
+                        platform: 'instagram',
+                      })}
                     >
                       {t('event.originalSource')}
                     </a>
@@ -742,6 +793,11 @@ export default function EventCard(props: EventCardProps) {
                       href={firstPaymentUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackExternalClick({
+                        event_id: event.id,
+                        click_type: 'ticket',
+                        platform: getPlatformFromUrl(firstPaymentUrl),
+                      })}
                     >
                       {t('events.mainAction.tickets', 'Entradas')}
                     </a>
@@ -759,6 +815,11 @@ export default function EventCard(props: EventCardProps) {
                       href={igUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackExternalClick({
+                        event_id: event.id,
+                        click_type: 'instagram',
+                        platform: 'instagram',
+                      })}
                     >
                       {t('events.mainAction.moreInfo', 'Sitio oficial')}
                     </a>
