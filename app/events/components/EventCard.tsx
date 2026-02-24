@@ -718,7 +718,7 @@ export default function EventCard(props: EventCardProps) {
                         const normalizedUrl = hasUrl
                           ? (ch!.url!.startsWith('http') ? ch!.url! : `https://${ch!.url!}`)
                           : '';
-                        const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
+                        const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-primary sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
                         const spanClasses = "max-w-full break-words";
                         const content = hasUrl ? (
                           <a

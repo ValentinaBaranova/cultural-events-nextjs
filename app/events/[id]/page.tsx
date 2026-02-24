@@ -60,7 +60,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                                 })()}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
+                                className="inline-link"
                             >
                                 Ver en Google Maps
                             </a>
@@ -81,7 +81,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                                 href={`https://www.instagram.com/p/${event.instagramId}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
+                                className="inline-link"
                             >
                                 <ClientT k="event.originalSource" />
                             </a>

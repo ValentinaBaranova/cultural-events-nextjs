@@ -11,7 +11,7 @@ export default function ContactPage() {
     'https://docs.google.com/forms/d/1FUtgEoBkMFppuvtAxAFiv0JPh6YzDquDbgnKBVKZyCQ/viewform?embedded=true';
 
   return (
-    <main className="max-w-3xl mx-auto p-6 space-y-4 bg-white shadow">
+    <main className="max-w-3xl mx-auto p-6 space-y-4 bg-card shadow-sm border border-border rounded-lg">
       <h1 className="text-2xl font-semibold">{t('contact.title', 'Contacto')}</h1>
       <p>{t('contact.q', '¿Tenés una pregunta, una sugerencia o querés proponer un evento o un espacio cultural?')}</p>
       <p>

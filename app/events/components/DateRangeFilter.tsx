@@ -96,7 +96,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
             panelRender={(panelNode) => (
               <div>
                 {panelNode}
-                <div className="px-3 pb-3 pt-2 border-t border-gray-200 flex flex-row-reverse justify-start items-center gap-2">
+                <div className="px-3 pb-3 pt-2 border-t border-border flex flex-row-reverse justify-start items-center gap-2">
                   <button
                     type="button"
                     onClick={() => {

@@ -11,7 +11,7 @@ export default function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setLocale('es')}
-        className={`px-2 py-1 text-xs rounded-full transition ${locale === 'es' ? 'bg-violet-200 text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+        className={`px-2 py-1 text-xs rounded-full transition ${locale === 'es' ? 'bg-accent text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         aria-pressed={locale === 'es'}
         aria-label={t('lang.spanish')}
         title={t('lang.spanish')}
@@ -21,7 +21,7 @@ export default function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setLocale('en')}
-        className={`px-2 py-1 text-xs rounded-full transition ${locale === 'en' ? 'bg-violet-200 text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+        className={`px-2 py-1 text-xs rounded-full transition ${locale === 'en' ? 'bg-accent text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         aria-pressed={locale === 'en'}
         aria-label={t('lang.english')}
         title={t('lang.english')}

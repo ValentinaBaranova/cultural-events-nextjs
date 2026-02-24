@@ -40,37 +40,18 @@ export default function ConsentBanner() {
       role="dialog"
       aria-live="polite"
       aria-label="Cookie consent"
-      style={{
-        position: "fixed",
-        bottom: 16,
-        left: 16,
-        right: 16,
-        zIndex: 1000,
-        maxWidth: 720,
-        margin: "0 auto",
-        background: "#ffffff",
-        color: "#333",
-        border: "1px solid #ddd",
-        borderRadius: 8,
-        boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-        padding: 16,
-        display: "flex",
-        gap: 12,
-        alignItems: "center",
-        justifyContent: "space-between",
-        fontSize: 14,
-      }}
+      className="fixed bottom-4 left-4 right-4 z-[1000] max-w-[720px] mx-auto bg-card text-foreground border border-border rounded-[8px] shadow-lg p-4 flex gap-3 items-center justify-between text-sm"
     >
-      <p style={{ margin: 0, lineHeight: 1.4 }}>
+      <p className="m-0 leading-[1.4]">
         Usamos cookies analíticas (Google Analytics) para entender el uso del sitio. Puedes aceptar o rechazar estas cookies.
       </p>
-      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+      <div className="flex gap-2 flex-shrink-0">
         <button
           onClick={() => {
             setStoredConsent("denied");
             setDecision("denied");
           }}
-          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors border border-border bg-card text-foreground hover:bg-accent"
         >
           Rechazar
         </button>

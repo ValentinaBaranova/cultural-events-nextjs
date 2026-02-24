@@ -8,7 +8,7 @@ export default function AboutPage() {
   const { t } = useI18n();
 
   return (
-    <main className="max-w-3xl mx-auto p-6 space-y-4 bg-white shadow">
+    <main className="max-w-3xl mx-auto p-6 space-y-4 bg-card shadow-sm border border-border rounded-lg">
       <h1 className="text-2xl font-semibold">{t('about.title', 'Qué es')}</h1>
       <p>{t('about.p1')}</p>
       <p>{t('about.p2')}</p>

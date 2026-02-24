@@ -40,7 +40,7 @@ export default function FilterRow({
 }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
-      <span className="hidden sm:inline text-sm font-medium text-gray-700 mb-1 sm:mb-0 sm:w-32">{label}</span>
+      <span className="hidden sm:inline text-sm font-medium text-foreground/80 mb-1 sm:mb-0 sm:w-32">{label}</span>
       <div className="hidden sm:block">
         <Select
           aria-label={ariaLabel}
@@ -92,7 +92,7 @@ export default function FilterRow({
             ))}
             {values.length > 2 && (
               <span
-                className="text-sm text-gray-600 cursor-pointer"
+                className="text-sm text-muted-foreground cursor-pointer"
                 onClick={() => open(kind)}
               >
                 +{values.length - 2} {t('filters.moreCountSuffix')}

@@ -15,6 +15,7 @@
     --primary: #8b5cf6; /* violet-500 */
     --primary-foreground: #ffffff;
     --primary-hover: #7c3aed; /* violet-600 */
+    --primary-active: #6d28d9; /* violet-700 */
     --accent: #f5f3ff; /* violet-50/indigo-50 */
     --accent-foreground: #111827; /* gray-900 */
     --accent-hover: #ede9fe; /* violet-100/indigo-100 */
@@ -72,6 +73,7 @@
         /* Primary/Accent Colors - Dark Mode */
         --primary: #a78bfa; /* violet-400 */
         --primary-hover: #c4b5fd; /* violet-300 */
+        --primary-active: #ddd6fe; /* violet-200 */
         --accent: rgba(167, 139, 250, 0.08);
         --accent-foreground: #f9fafb;
         --accent-hover: rgba(167, 139, 250, 0.12);

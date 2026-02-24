@@ -43,9 +43,9 @@ export default function ScrollToTop() {
                         fixed z-50
                         flex items-center justify-center
                         w-12 h-12 rounded-full shadow-lg
-                        bg-violet-100 hover:bg-violet-200
-                        text-violet-600 transition-all duration-300
-                        focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2
+                        bg-accent hover:bg-accent-hover
+                        text-primary transition-all duration-300
+                        focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
                         bottom-4 right-4 md:bottom-8 md:right-8
                     `}
                     aria-label={t('common.backToTop')}

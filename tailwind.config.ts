@@ -31,6 +31,7 @@ export default {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
           hover: "var(--primary-hover)",
+          active: "var(--primary-active)",
         },
         accent: {
           DEFAULT: "var(--accent)",

@@ -30,10 +30,10 @@ export default function LoginForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6 bg-white shadow-md rounded">
+        <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6 bg-card shadow-md border border-border rounded-lg">
             <h2 className="text-2xl font-bold mb-4">Login</h2>
 
-            {error && <p className="text-red-500 mb-2">{error}</p>}
+            {error && <p className="text-destructive mb-2">{error}</p>}
 
             <label htmlFor="email" className="block mb-2">Email</label>
             <input
@@ -43,7 +43,7 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full p-2 border rounded mb-4"
+                className="w-full p-2 border border-border bg-background rounded mb-4 focus:outline-none focus:ring-2 focus:ring-primary"
             />
 
             <label htmlFor="password" className="block mb-2">Password</label>
@@ -54,12 +54,12 @@ export default function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full p-2 border rounded mb-4"
+                className="w-full p-2 border border-border bg-background rounded mb-4 focus:outline-none focus:ring-2 focus:ring-primary"
             />
 
             <button
                 type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-700"
+                className="w-full bg-primary text-primary-foreground py-2 rounded hover:bg-primary-hover transition-colors"
             >
                 Login
             </button>
