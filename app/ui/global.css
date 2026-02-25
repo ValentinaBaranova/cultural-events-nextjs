@@ -7,24 +7,24 @@
     --background: #f9fafb; /* light page background to match screenshot */
     --foreground: #171717;
     --card: #ffffff;
-    --muted: #f3f4f6; /* gray-100 */
-    --muted-foreground: #6b7280; /* gray-500 */
-    --border: #e5e7eb; /* gray-200 */
+    --muted: #f3f4f6;
+    --muted-foreground: #6b7280;
+    --border: #e5e7eb;
 
     /* Primary/Accent Colors */
-    --primary: #8b5cf6; /* violet-500 */
+    --primary: #8b5cf6;
     --primary-foreground: #ffffff;
-    --primary-hover: #7c3aed; /* violet-600 */
-    --primary-active: #6d28d9; /* violet-700 */
-    --accent: #f5f3ff; /* violet-50/indigo-50 */
-    --accent-foreground: #111827; /* gray-900 */
-    --accent-hover: #ede9fe; /* violet-100/indigo-100 */
-    --accent-active: #ddd6fe; /* violet-200 */
-    --success: #10b981; /* emerald-500 */
+    --primary-hover: #7c3aed;
+    --primary-active: #6d28d9;
+    --accent: #f5f3ff;
+    --accent-foreground: #111827;
+    --accent-hover: #ede9fe;
+    --accent-active: #ddd6fe;
+    --success: #10b981;
     --success-foreground: #ffffff;
-    --destructive: #ef4444; /* red-500 */
+    --destructive: #ef4444;
     --destructive-foreground: #ffffff;
-    --destructive-hover: #dc2626; /* red-600 */
+    --destructive-hover: #dc2626;
 
     /* Layout */
     --container-max: 1000px;
@@ -66,21 +66,21 @@
         --background: #0a0a0a;
         --foreground: #ededed;
         --card: #0f0f10;
-        --muted: #111827; /* gray-900 */
-        --muted-foreground: #9ca3af; /* gray-400 */
-        --border: #1f2937; /* gray-800 */
+        --muted: #111827;
+        --muted-foreground: #9ca3af;
+        --border: #1f2937;
 
         /* Primary/Accent Colors - Dark Mode */
-        --primary: #a78bfa; /* violet-400 */
-        --primary-hover: #c4b5fd; /* violet-300 */
-        --primary-active: #ddd6fe; /* violet-200 */
+        --primary: #a78bfa;
+        --primary-hover: #c4b5fd;
+        --primary-active: #ddd6fe;
         --accent: rgba(167, 139, 250, 0.08);
         --accent-foreground: #f9fafb;
         --accent-hover: rgba(167, 139, 250, 0.12);
         --accent-active: rgba(167, 139, 250, 0.20);
-        --destructive: #f87171; /* red-400 */
+        --destructive: #f87171;
         --destructive-foreground: #111827;
-        --destructive-hover: #ef4444; /* red-500 */
+        --destructive-hover: #ef4444;
         --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
         --shadow: 0 2px 8px 0 rgb(0 0 0 / 0.5);
         --shadow-lg: 0 8px 24px -6px rgb(0 0 0 / 0.55);
@@ -97,7 +97,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--border); /* gray-200 */
+  background: var(--border);
   border: none;
   color: var(--foreground);
   border-radius: 9999px;
@@ -189,7 +189,7 @@
 
 .chip-clear-all {
   font-size: 12px;
-  color: var(--accent-foreground); /* gray-900 */
+  color: var(--accent-foreground);
   text-decoration: underline;
   text-underline-offset: 2px;
   margin-left: auto;
@@ -229,13 +229,13 @@
   padding: 0;
   margin: 0;
   font: inherit;
-  color: var(--muted-foreground); /* gray-500 */
+  color: var(--muted-foreground);
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
 }
 .filters-summary-clear:hover {
-  color: var(--accent-foreground); /* gray-900 */
+  color: var(--accent-foreground);
 }
 
 /* Filters button (mobile primary) */
@@ -245,7 +245,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  background: var(--accent); /* indigo-50 */
+  background: var(--accent);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px 14px;
@@ -274,13 +274,13 @@
 .filters-icon {
   width: 18px;
   height: 18px;
-  stroke: var(--primary); /* indigo-500 */
+  stroke: var(--primary);
 }
 .filters-badge {
   margin-left: 8px;
   font-size: 12px;
   line-height: 1;
-  background: var(--primary); /* violet-500 */
+  background: var(--primary);
   color: var(--primary-foreground);
   border-radius: 9999px;
   padding: 3px 7px;
@@ -422,7 +422,7 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
 }
 .event-card-highlight {
-  outline: 3px solid var(--primary); /* indigo-500 */
+  outline: 3px solid var(--primary);
   outline-offset: -3px;
   animation: highlightPulse 2s ease-out 0s 2;
 }
@@ -475,7 +475,7 @@ body {
 }
 /* Long type names should not overlap the free badge; truncate with ellipsis */
 .badge-type {
-    background: rgba(17,24,39,0.8); /* gray-900 80% */
+    background: rgba(17,24,39,0.8);
     color: var(--primary-foreground);
     border: 1px solid rgba(255,255,255,0.25);
     max-width: 72%;
@@ -484,7 +484,7 @@ body {
     text-overflow: ellipsis;
 }
 .badge-free-inline {
-    background-color: var(--success); /* emerald-500 */
+    background-color: var(--success);
     color: var(--success-foreground);
     flex: 0 0 auto; /* keep natural size, don't shrink */
 }
@@ -494,7 +494,7 @@ body {
     position: absolute;
     top: 12px;
     right: 12px;
-    background-color: var(--success); /* emerald-500 */
+    background-color: var(--success);
     color: var(--success-foreground);
     font-weight: 700;
     font-size: 0.75rem;
@@ -528,7 +528,7 @@ body {
     background: var(--card);
 }
 .event-share-btn:focus-visible {
-    outline: 2px solid var(--primary); /* indigo-500 */
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
 .event-share-icon {
@@ -599,7 +599,7 @@ body {
     line-height: 1; /* keep intrinsic size unaffected by line height */
     align-self: flex-start; /* align with top when the text spans 2 lines */
     margin-top: 1px; /* tiny visual nudge to align with first text line */
-    color: var(--primary); /* violet-500 for icons */
+    color: var(--primary);
 }
 
 .event-meta-text a {
@@ -639,7 +639,7 @@ body {
 }
 /* Divider line remains static on hover (no color change) */
 .event-collapse:focus-visible {
-    outline: 2px solid var(--primary); /* indigo-500 */
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
     border-radius: 8px; /* subtle focus ring rounding */
 }
@@ -709,9 +709,9 @@ p.event-description {
     padding: 6px 10px;
     font-size: 12px;
     border-radius: 9999px;
-    background: var(--accent); /* violet-50 */
-    color: #5b21b6; /* violet-800 */
-    border: 1px solid #e9d5ff; /* violet-200 */
+    background: var(--accent);
+    color: #5b21b6;
+    border: 1px solid #e9d5ff;
 }
 
 .event-tag:hover {
@@ -804,7 +804,7 @@ p.event-description {
   font-family: inherit !important;
 }
 .only-free-checkbox .ant-checkbox-checked .ant-checkbox-inner {
-  background-color: var(--primary); /* violet-500 */
+  background-color: var(--primary);
   border-color: var(--primary);
 }
 .only-free-checkbox .ant-checkbox:hover .ant-checkbox-inner,
@@ -1033,7 +1033,7 @@ p.event-description {
     background: rgba(17, 24, 39, 0.06); /* subtle gray hover */
 }
 .event-kebab-btn:focus-visible {
-    outline: 2px solid var(--primary); /* indigo-500 */
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
 .event-kebab-btn span[aria-hidden="true"] {
