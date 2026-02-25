@@ -43,10 +43,10 @@ const PrimaryFilters: React.FC<PrimaryFiltersProps> = ({
               aria-disabled={isDisabled}
               className={`px-3 py-1 sm:py-1 text-sm rounded-full border transition-colors ${
                 active
-                  ? 'bg-accent-active text-accent-foreground border-primary'
+                  ? 'bg-primary-active text-primary-foreground border-brand'
                   : isDisabled
                     ? 'bg-muted text-muted-foreground border-border cursor-not-allowed opacity-60'
-                    : 'bg-muted text-accent-foreground border-border hover:bg-accent-hover'
+                    : 'bg-muted text-primary-foreground border-border hover:bg-primary-hover'
               }`}
               title={isDisabled ? t('filters.noEventsThisRange', 'No events in selected dates') : undefined}
             >

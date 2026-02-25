@@ -99,7 +99,7 @@ export default function VenueEditForm({ venue, barrios }: VenueEditFormProps) {
                         type="primary"
                         htmlType="submit"
                         loading={isSubmitting}
-                        className="bg-primary hover:bg-primary-hover border-none"
+                        className="bg-brand hover:bg-brand-hover border-none"
                     >
                         {t('admin.venues.save')}
                     </Button>

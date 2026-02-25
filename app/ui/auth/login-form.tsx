@@ -43,7 +43,7 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full p-2 border border-border bg-background rounded mb-4 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full p-2 border border-border bg-background rounded mb-4 focus:outline-none focus:ring-2 focus:ring-brand"
             />
 
             <label htmlFor="password" className="block mb-2">Password</label>
@@ -54,12 +54,12 @@ export default function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full p-2 border border-border bg-background rounded mb-4 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full p-2 border border-border bg-background rounded mb-4 focus:outline-none focus:ring-2 focus:ring-brand"
             />
 
             <button
                 type="submit"
-                className="w-full bg-primary text-primary-foreground py-2 rounded hover:bg-primary-hover transition-colors"
+                className="w-full bg-brand text-brand-foreground py-2 rounded hover:bg-brand-hover transition-colors"
             >
                 Login
             </button>

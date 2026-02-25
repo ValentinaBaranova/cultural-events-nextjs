@@ -27,17 +27,17 @@ export default {
         muted: "var(--muted)",
         "muted-foreground": "var(--muted-foreground)",
         border: "var(--border)",
+        brand: {
+          DEFAULT: "var(--brand)",
+          foreground: "var(--brand-foreground)",
+          hover: "var(--brand-hover)",
+          active: "var(--brand-active)",
+        },
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
           hover: "var(--primary-hover)",
           active: "var(--primary-active)",
-        },
-        accent: {
-          DEFAULT: "var(--accent)",
-          foreground: "var(--accent-foreground)",
-          hover: "var(--accent-hover)",
-          active: "var(--accent-active)",
         },
         success: {
           DEFAULT: "var(--success)",

@@ -51,7 +51,7 @@ export default function ConsentBanner() {
             setStoredConsent("denied");
             setDecision("denied");
           }}
-          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors border border-border bg-card text-foreground hover:bg-accent"
+          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none transition-colors border border-border bg-card text-foreground hover:bg-primary"
         >
           Rechazar
         </button>

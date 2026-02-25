@@ -14,9 +14,9 @@ export default function AntdLocaleProvider({ children }: { children: React.React
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: 'var(--primary)',
-          colorPrimaryHover: 'var(--primary-hover)',
-          colorPrimaryActive: 'var(--primary-active)'
+          colorPrimary: 'var(--brand)',
+          colorPrimaryHover: 'var(--brand-hover)',
+          colorPrimaryActive: 'var(--brand-active)'
         }
       }}
     >

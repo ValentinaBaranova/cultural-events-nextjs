@@ -14,9 +14,9 @@ export function UpdateEvent({ id }: { id: string }) {
             {/* Edit Button */}
             <Link
                 href={`/events/${id}/edit`}
-                className="rounded-md border border-border p-2 hover:bg-accent transition"
+                className="rounded-md border border-border p-2 hover:bg-primary transition"
             >
-                <PencilIcon className="w-5 h-5 text-primary" />
+                <PencilIcon className="w-5 h-5 text-brand" />
             </Link>
         </div>
     );

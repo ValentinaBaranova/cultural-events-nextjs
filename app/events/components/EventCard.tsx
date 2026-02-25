@@ -332,7 +332,7 @@ export default function EventCard(props: EventCardProps) {
               aria-label={isFavorite(event.id) ? t('events.removeFromFavorites', 'Remove from favorites') : t('events.addToFavorites', 'Add to favorites')}
             >
               <svg
-                className={`w-4 h-4 ${isFavorite(event.id) ? 'text-primary fill-current' : 'text-muted-foreground'}`}
+                className={`w-4 h-4 ${isFavorite(event.id) ? 'text-brand fill-current' : 'text-muted-foreground'}`}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -718,7 +718,7 @@ export default function EventCard(props: EventCardProps) {
                         const normalizedUrl = hasUrl
                           ? (ch!.url!.startsWith('http') ? ch!.url! : `https://${ch!.url!}`)
                           : '';
-                        const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-primary sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
+                        const linkClasses = "event-link inline-flex items-center max-w-full break-words px-2 py-1 rounded-full bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-brand sm:px-0 sm:py-0 sm:bg-transparent sm:rounded-none";
                         const spanClasses = "max-w-full break-words";
                         const content = hasUrl ? (
                           <a

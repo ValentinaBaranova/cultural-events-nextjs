@@ -55,8 +55,8 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                   onClick={() => { applyPreset(p.value); setPickerOpen(false); }}
                   className={`px-3 py-1 sm:py-1 text-sm rounded-full border transition-colors ${
                     isActive
-                      ? 'bg-accent-active text-accent-foreground border-primary'
-                      : 'bg-muted text-accent-foreground border-border hover:bg-accent-hover'
+                      ? 'bg-primary-active text-primary-foreground border-brand'
+                      : 'bg-muted text-primary-foreground border-border hover:bg-primary-hover'
                   }`}
                 >
                   {p.label}

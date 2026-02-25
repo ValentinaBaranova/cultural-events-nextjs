@@ -86,7 +86,7 @@ export default function VenuesPage() {
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <Link
                                         href={`/admin/venues/${venue.id}/edit`}
-                                        className="text-primary hover:text-primary-hover"
+                                        className="text-brand hover:text-brand-hover"
                                     >
                                         {t('common.edit')}
                                     </Link>

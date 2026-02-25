@@ -698,8 +698,8 @@ function EventsListPageInner() {
                                 type="button"
                                 onClick={() => setAudience(opt.value)}
                                 className={`px-3 py-1 text-sm rounded-full border transition-colors ${active
-                                        ? 'bg-accent-active text-accent-foreground border-primary'
-                                        : 'bg-muted text-accent-foreground border-border hover:bg-accent-hover'
+                                        ? 'bg-primary-active text-primary-foreground border-brand'
+                                        : 'bg-muted text-primary-foreground border-border hover:bg-primary-hover'
                                     }`}
                             >
                                 {opt.label}
