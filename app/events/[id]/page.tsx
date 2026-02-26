@@ -2,6 +2,56 @@ import React from 'react';
 import Image from "next/image";
 import {getEvent} from "@/lib/actions";
 import ClientT from '@/ui/ClientT';
+import { Metadata } from 'next';
+import { SITE_URL } from '@/lib/config';
+import { CulturalEvent } from '@/lib/definitions';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { id } = await params;
+    let event: CulturalEvent | null = null;
+    try {
+        event = await getEvent(id);
+    } catch {
+        // ignore
+    }
+
+    if (!event) {
+        return {
+            title: 'Event Not Found',
+        };
+    }
+
+    const title = event.name;
+    const description = event.description.substring(0, 160);
+    const imageUrl = event.imageExists
+        ? `${SITE_URL}/events/${event.id}/image`
+        : `${SITE_URL}/events_images/placeholder.png`;
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            url: `${SITE_URL}/events/${id}`,
+            images: [
+                {
+                    url: imageUrl,
+                    width: 400,
+                    height: 400,
+                    alt: event.name,
+                },
+            ],
+            type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: [imageUrl],
+        },
+    };
+}
 
 function formatDateDDMMYY(input?: string | Date | null): string {
     if (!input) return '';

@@ -36,3 +36,7 @@ export const SHOW_EVENT_DETAILS_LINK: boolean = parseBool(rawShowEventDetails) ?
 export const CONTACT_EMAIL: string = (isBrowser
   ? (process.env.NEXT_PUBLIC_CONTACT_EMAIL as string | undefined)
   : (process.env.CONTACT_EMAIL as string | undefined)) || 'vbaranova87@gmail.com';
+
+export const SITE_URL: string = (isBrowser
+  ? (process.env.NEXT_PUBLIC_SITE_URL as string | undefined)
+  : (process.env.SITE_URL as string | undefined)) || 'https://cultural-events.ba';
