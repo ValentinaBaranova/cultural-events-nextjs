@@ -270,7 +270,7 @@ export default function EventCard(props: EventCardProps) {
             <span className="event-meta-text">
               {futureOccurrences.length > 1 ? (
                 <div className="flex flex-col gap-1">
-                  {futureOccurrences.length <= 4 ? (
+                  {isExpanded || futureOccurrences.length <= 4 ? (
                     futureOccurrences.map((dateObj) => (
                       <div key={dateObj.id} className="flex items-center gap-1">
                         <span>{formatEventCardDate(dateObj, t('events.since'))}</span>
@@ -289,7 +289,7 @@ export default function EventCard(props: EventCardProps) {
                           e.stopPropagation();
                           setIsExpanded(true);
                         }}
-                        className="event-link"
+                        className="event-link text-left"
                       >
                         {t('events.moreOccurrences').replace('{n}', String(futureOccurrences.length - 3))}
                       </button>

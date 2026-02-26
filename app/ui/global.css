@@ -677,9 +677,6 @@ p.event-description {
     border: 1px solid #e9d5ff;
 }
 
-.event-tag:hover {
-    background: var(--primary-hover); /* violet-100 */
-}
 
 .event-detail-container {
     padding: 20px;
