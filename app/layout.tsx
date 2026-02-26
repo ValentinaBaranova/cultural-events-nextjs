@@ -15,7 +15,9 @@ import Script from 'next/script';
 const montserrat = Montserrat({
   subsets: ["latin"],
   display: "swap",
+  variable: "--font-montserrat",
   weight: ["400", "500", "600", "700"],
+  preload: true,
 });
 
 import { FavoritesProvider } from '@/lib/useFavorites';
@@ -27,13 +29,13 @@ export default function RootLayout({
 }) {
     return (
     <SessionProvider>
-        <html lang="es">
+        <html lang="es" className={montserrat.variable}>
         <head>
           {/* Ensure proper mobile scaling and disable user scaling to reduce accidental zoom */}
           <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
           <Script src="https://t.contentsquare.net/uxa/cebced7ebacd2.js" strategy="afterInteractive" />
         </head>
-        <body className={`${montserrat.className} bg-background text-foreground min-h-screen`}>
+        <body className="font-sans bg-background text-foreground min-h-screen">
         {/* Cookie/Consent banner and conditional GA loading */}
         <GATracker />
         <Suspense fallback={null}>

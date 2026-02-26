@@ -64,6 +64,10 @@ export default {
         DEFAULT: "var(--shadow)",
         lg: "var(--shadow-lg)",
       },
+      fontFamily: {
+        montserrat: ["var(--font-montserrat)", "sans-serif"],
+        sans: ["var(--font-montserrat)", "sans-serif"],
+      },
       fontSize: {
         hero: ["clamp(2rem, 4vw + 1rem, 3.5rem)", { lineHeight: "1.1" }],
       },

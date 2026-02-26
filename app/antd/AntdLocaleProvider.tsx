@@ -16,7 +16,8 @@ export default function AntdLocaleProvider({ children }: { children: React.React
         token: {
           colorPrimary: 'var(--brand)',
           colorPrimaryHover: 'var(--brand-hover)',
-          colorPrimaryActive: 'var(--brand-active)'
+          colorPrimaryActive: 'var(--brand-active)',
+          fontFamily: 'var(--font-montserrat), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
         }
       }}
     >
